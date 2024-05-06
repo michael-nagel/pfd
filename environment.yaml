@@ -1,0 +1,17 @@
+name: pfd_env
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - python>3.10,<3.12
+  - mamba
+  - conda-lock
+  - pip
+  - poetry>=1.7
+  - selenium=4.16.0
+  - ipykernel
+
+platforms:
+  - linux-64

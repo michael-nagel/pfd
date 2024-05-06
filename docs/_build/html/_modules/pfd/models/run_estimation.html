@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pfd.models.run_estimation &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Nagel 2024 Replication Package
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Nagel 2024 Replication Package</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pfd.models.run_estimation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pfd.models.run_estimation</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file runs the estimation procedure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Imports</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">DefaultDict</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">hydra</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">pylab</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="k">as</span> <span class="nn">smf</span>
+<span class="kn">from</span> <span class="nn">hydra</span> <span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">initialize</span>
+<span class="kn">from</span> <span class="nn">hydra.core.config_store</span> <span class="kn">import</span> <span class="n">ConfigStore</span>
+
+<span class="kn">from</span> <span class="nn">pfd.helpers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_pm_mod</span><span class="p">,</span>
+    <span class="n">fit_gmm_mod</span><span class="p">,</span>
+    <span class="n">fit_rfa_mod</span><span class="p">,</span>
+    <span class="n">impute_missings</span><span class="p">,</span>
+    <span class="n">save_tex_vals</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Logger</span><span class="p">,</span>
+    <span class="n">NumFormat</span><span class="p">,</span>
+    <span class="n">PFDConfig</span><span class="p">,</span>
+    <span class="n">PlotParams</span><span class="p">,</span>
+    <span class="n">calc_win_props</span><span class="p">,</span>
+    <span class="n">create_func_dict</span><span class="p">,</span>
+    <span class="n">encode_categ_var</span><span class="p">,</span>
+    <span class="n">estimate_pm_mod</span><span class="p">,</span>
+    <span class="n">finalize_plot</span><span class="p">,</span>
+    <span class="n">fit_mixed_lm</span><span class="p">,</span>
+    <span class="n">pivot_df</span><span class="p">,</span>
+    <span class="n">resample</span><span class="p">,</span>
+    <span class="n">scale_vars</span><span class="p">,</span>
+    <span class="n">write_text_file</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pfd.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_facetgrid</span><span class="p">,</span>
+    <span class="n">plot_gmm_res</span><span class="p">,</span>
+    <span class="n">plot_posteriors</span><span class="p">,</span>
+    <span class="n">plot_traces</span><span class="p">,</span>
+    <span class="n">plot_unbiased_reg_res</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Hydra Setup</span>
+
+<span class="n">cs</span> <span class="o">=</span> <span class="n">ConfigStore</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;pfd_config&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">PFDConfig</span><span class="p">)</span>
+
+<span class="c1"># Function</span>
+
+<span class="k">with</span> <span class="n">initialize</span><span class="p">(</span>
+    <span class="n">version_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../conf&quot;</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="s2">&quot;run_estimation&quot;</span>
+<span class="p">):</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="run_estimation">
+<a class="viewcode-back" href="../../../pfd.models.html#pfd.models.run_estimation.run_estimation">[docs]</a>
+<span class="nd">@hydra</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../conf&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">version_base</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">run_estimation</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">PFDConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Logging</span>
+
+    <span class="n">log</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">init_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">t_start</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">get_time</span><span class="p">()</span>
+
+    <span class="c1"># External Files</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">acc</span><span class="si">}{</span><span class="n">cfg</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">clr_plt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">stata_colors</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Cockpit</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">palette</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">)</span>
+
+    <span class="n">plot_params</span> <span class="o">=</span> <span class="n">PlotParams</span><span class="p">(</span><span class="n">cfg</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="c1"># 50%, single plots</span>
+    <span class="n">rcp_s</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">set_rc_params</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig_small&quot;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+    <span class="c1"># 75%, 2x1 and 2x2 plots</span>
+    <span class="n">rcp_m</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">set_rc_params</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig_medium&quot;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+    <span class="c1"># 100%, 1x2 plots</span>
+    <span class="n">rcp_l</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">set_rc_params</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig_big&quot;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">))</span>
+
+    <span class="c1"># Data</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span>
+        <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">shaped_data.h5&quot;</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">n_obs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Shaping</span>
+
+    <span class="c1"># df.Bookies.value_counts()</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">compets</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Competition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">compets</span><span class="p">)]</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;Matchup&quot;</span><span class="p">,</span> <span class="s2">&quot;Bookies&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Bookies&quot;</span><span class="p">)[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">)</span>
+        <span class="o">&gt;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">bm_quantile</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;BmHome&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;Update&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
+        <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;Update&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">ts_dur</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">ts_dur</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">]</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">OpnOdds</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">),</span>
+        <span class="n">ClsOdds</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">df_desc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;Matchup&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GroupId&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Competition&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TsDur&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Match&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Update&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OddsMvt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;OpnOdds&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ClsOdds&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="n">bookies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;IsPro&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Competition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;ATP&quot;</span><span class="p">,</span> <span class="s2">&quot;WTA&quot;</span><span class="p">]),</span> <span class="s2">&quot;IsPro&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">is_amateur</span><span class="p">,</span> <span class="n">is_pro</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;IsPro&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">encode_categ_var</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="s2">&quot;Competition&quot;</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;Compet&quot;</span><span class="p">,</span>
+        <span class="n">rm_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">rm_categ_var</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_vars</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Relative Forecast Accuracy of Opening and Closing Lines</span>
+
+    <span class="n">df_oc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;DltOpnCls&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">]</span>
+    <span class="n">df_oc</span> <span class="o">=</span> <span class="n">df_oc</span><span class="p">[</span><span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;DltOpnCls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;FEOpn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;FECls&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_s</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_oc</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;DltOpnCls&quot;</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Delta&quot;</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">delta_opn_cls.pdf&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span>
+    <span class="p">)</span>
+
+    <span class="n">exog_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_oc</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Compet&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="s2">&quot;TsDur&quot;</span>
+    <span class="p">]</span>
+
+    <span class="n">part_fit_rfa_mod</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">fit_rfa_mod</span><span class="p">,</span> <span class="n">df_oc</span><span class="p">,</span> <span class="n">exog_cols</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">res_rfa</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">part_fit_rfa_mod</span><span class="p">,</span> <span class="n">bookies</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">])</span>
+
+    <span class="n">res_rfa_re</span> <span class="o">=</span> <span class="n">res_rfa</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;fitted_model&quot;</span><span class="p">]</span>
+
+    <span class="n">group_var</span> <span class="o">=</span> <span class="n">res_rfa_re</span><span class="o">.</span><span class="n">cov_re</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">resid_var</span> <span class="o">=</span> <span class="n">res_rfa_re</span><span class="o">.</span><span class="n">scale</span>
+    <span class="n">icc</span> <span class="o">=</span> <span class="n">group_var</span> <span class="o">/</span> <span class="p">(</span><span class="n">group_var</span> <span class="o">+</span> <span class="n">resid_var</span><span class="p">)</span>  <span class="c1"># Calculate ICC</span>
+
+    <span class="n">tex_res_rfa</span> <span class="o">=</span> <span class="n">res_rfa_re</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">as_latex</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tex_res_rfa_p1</span> <span class="o">=</span> <span class="n">tex_res_rfa</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span>  <span class="c1"># export part 1 to latex</span>
+    <span class="n">tex_res_rfa_p2</span> <span class="o">=</span> <span class="n">tex_res_rfa</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># export part 2 to latex</span>
+
+    <span class="n">df_res_rfa</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">res_rfa</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">bookies</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">])</span>
+    <span class="n">df_res_rfa</span> <span class="o">=</span> <span class="n">df_res_rfa</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">df_res_rfa</span><span class="o">.</span><span class="n">columns</span> <span class="o">!=</span> <span class="s2">&quot;fitted_model&quot;</span><span class="p">]</span>
+
+    <span class="n">df_res_rfa</span> <span class="o">=</span> <span class="n">df_res_rfa</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">df_res_rfa</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;$N$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$rmse(e_1)$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$rmse(e_2)$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$\beta_0$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$\beta_1$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$p_{\beta_0}$&quot;</span><span class="p">,</span>
+                    <span class="sa">r</span><span class="s2">&quot;$p_{\beta_1}$&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Magnitude and Direction of Odds Movements</span>
+    <span class="n">res_win_props</span><span class="p">:</span> <span class="n">DefaultDict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">ivals</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.15</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.15</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.12</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.12</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.09</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.09</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.06</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="n">bookies</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">bookie</span> <span class="o">==</span> <span class="s2">&quot;All&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ival</span> <span class="ow">in</span> <span class="n">ivals</span><span class="p">:</span>
+                <span class="n">res_win_props</span><span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">calc_win_props</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_oc</span><span class="p">,</span> <span class="n">ival</span><span class="o">=</span><span class="n">ival</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ival</span> <span class="ow">in</span> <span class="n">ivals</span><span class="p">:</span>
+                <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">calc_win_props</span><span class="p">(</span>
+                        <span class="n">df</span><span class="o">=</span><span class="n">df_oc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_oc</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">bookie</span><span class="p">,</span> <span class="p">:],</span> <span class="n">ival</span><span class="o">=</span><span class="n">ival</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="n">bookies</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]:</span>
+        <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Delta&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;AvgChange&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;AvgNumChanges&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;NumMatches&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Proportions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Z-statistic&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;p-value&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Tests Based on Proportions</span>
+    <span class="c1"># TODO: do also individually using weighted least squares?</span>
+    <span class="c1"># TODO plot random effects using line plot?</span>
+
+    <span class="n">df_res_win_props</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">res_win_props</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">df_res_win_props</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+        <span class="n">a</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">res_win_props</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="n">repeats</span><span class="o">=</span><span class="n">res_win_props</span><span class="p">[</span><span class="n">bookies</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">df_res_win_props</span><span class="p">[[</span><span class="s2">&quot;AvgChange&quot;</span><span class="p">,</span> <span class="s2">&quot;NumMatches&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">scale_vars</span><span class="p">(</span>
+        <span class="n">df_res_win_props</span><span class="p">[[</span><span class="s2">&quot;AvgChange&quot;</span><span class="p">,</span> <span class="s2">&quot;NumMatches&quot;</span><span class="p">]]</span>
+    <span class="p">)</span>
+
+    <span class="n">mod_win_props</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span>
+        <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;Proportions ~ 1 + AvgChange + NumMatches&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">df_res_win_props</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
+        <span class="n">re_formula</span><span class="o">=</span><span class="s2">&quot;1 + AvgChange&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">res_mod_win_props</span> <span class="o">=</span> <span class="n">mod_win_props</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">reml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">)</span>
+    <span class="c1"># [&quot;bfgs&quot;, &quot;lbfgs&quot;, &quot;cg&quot;]</span>
+
+    <span class="n">tex_res_wp</span> <span class="o">=</span> <span class="n">res_mod_win_props</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">as_latex</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">tex_res_wp_p1</span> <span class="o">=</span> <span class="n">tex_res_wp</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span>  <span class="c1"># export part 1 to latex</span>
+    <span class="n">tex_res_wp_p2</span> <span class="o">=</span> <span class="n">tex_res_wp</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># export part 2 to latex</span>
+
+    <span class="k">for</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="n">bookies</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]:</span>
+        <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">,</span>
+                        <span class="sa">r</span><span class="s2">&quot;$\overline{\Delta}(Q_T, Q_1)$&quot;</span><span class="p">,</span>
+                        <span class="sa">r</span><span class="s2">&quot;$\overline</span><span class="si">{C}</span><span class="s2">$&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;$N$&quot;</span><span class="p">,</span>
+                        <span class="sa">r</span><span class="s2">&quot;$\pi$&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;$Z$&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;$p$&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">][</span><span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">][</span>
+            <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;$&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;$&quot;</span><span class="p">)</span>
+        <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$[&quot;</span><span class="p">,</span> <span class="s2">&quot;$]&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">5</span><span class="p">::,</span> <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">res_win_props</span><span class="p">[</span><span class="n">bookie</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">5</span><span class="p">::,</span> <span class="sa">r</span><span class="s2">&quot;$\Delta(Q_T, Q_1)$&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]$&quot;</span><span class="p">,</span> <span class="s2">&quot;[$&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># for bookies in PfdConf.BOOKIES:</span>
+    <span class="c1"># endog = res_win_props[bookies][&quot;Proportions&quot;].copy()</span>
+    <span class="c1"># exog = res_win_props[bookies][&quot;AvgChange&quot;].copy()</span>
+    <span class="c1"># exog = sm.add_constant(exog)</span>
+    <span class="c1">#</span>
+    <span class="c1"># # Fit and summarize OLS model</span>
+    <span class="c1"># mod = sm.OLS(endog=endog, exog=exog)</span>
+    <span class="c1"># res = mod.fit(cov_type=&quot;HC1&quot;)</span>
+    <span class="c1"># print(res.summary())</span>
+    <span class="c1"># # res.resid.var()</span>
+    <span class="c1">#</span>
+    <span class="c1"># mod_wls = sm.WLS(endog, exog, weights=endog.var() /</span>
+    <span class="c1"># res_win_props[bookies][&quot;NumOddsMvt&quot;])</span>
+    <span class="c1"># res_wls = mod_wls.fit(cov_type=&quot;HC1&quot;)</span>
+    <span class="c1"># print(res_wls.summary())</span>
+    <span class="c1"># print(res_wls.summary().as_latex())</span>
+
+    <span class="c1"># Unbiasedness Regressions</span>
+
+    <span class="c1"># df = df.drop_duplicates(subset=[&quot;GroupId&quot;, &quot;Update&quot;])</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsStart&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Matchup&quot;</span><span class="p">)[</span><span class="s2">&quot;Update&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsEnd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Matchup&quot;</span><span class="p">)[</span><span class="s2">&quot;Update&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Update&quot;</span><span class="p">)</span>
+
+    <span class="c1"># df_x = df[df[&quot;NumOddsMvt&quot;] &gt; 4]</span>
+    <span class="c1"># df_sub_1 = df_x.groupby(&quot;GroupId&quot;).last()</span>
+    <span class="c1"># df_sub_2 = df_x.loc[</span>
+    <span class="c1">#     df_x[&quot;TsEnd&quot;] - pd.Timedelta(hours=2) &lt; df_x.index</span>
+    <span class="c1"># ].copy()</span>
+    <span class="c1"># df_sub_2 = df_sub_2.groupby(&quot;GroupId&quot;).first()</span>
+    <span class="c1"># df_sub = pd.merge(</span>
+    <span class="c1">#     left=df_sub_1, right=df_sub_2, how=&quot;inner&quot;, on=&quot;GroupId&quot;</span>
+    <span class="c1">#     )</span>
+    <span class="c1"># print((df_sub.OddsMvt_x == df_sub.OddsMvt_y).sum() / len(df_sub))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">resample</span><span class="p">,</span>
+        <span class="n">period</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">period</span><span class="p">,</span>
+        <span class="n">freq</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">resample_freq</span><span class="p">,</span>
+        <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="n">n_missings</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="c1"># def calc_elap_time(group):</span>
+    <span class="c1">#     group[&quot;ElapTime&quot;] = group[&quot;Update&quot;].diff().fillna(</span>
+    <span class="c1">#         pd.Timedelta(seconds=0)</span>
+    <span class="c1">#     ).cumsum() / pd.Timedelta(hours=1)</span>
+    <span class="c1">#     return group</span>
+
+    <span class="c1"># # Apply the function to each group</span>
+    <span class="c1"># df = df.groupby(&quot;GroupId&quot;).apply(calc_elap_time)</span>
+
+    <span class="c1"># df[&quot;ElapTime&quot;] = df.groupby(&quot;GroupId&quot;)[&quot;Update&quot;].diff().fillna(</span>
+    <span class="c1">#     pd.Timedelta(seconds=0)</span>
+    <span class="c1"># ).cumsum() / pd.Timedelta(hours=1)</span>
+
+    <span class="c1"># Keep every 5% percentile of variable &quot;PctElapTime&quot;</span>
+    <span class="c1"># df = df.groupby(&quot;GroupId&quot;, group_keys=False).apply(</span>
+    <span class="c1"># keep_pctls, np.arange(0, 1.05, 0.05)</span>
+    <span class="c1"># )</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
+        <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_intrm</span><span class="si">}</span><span class="s2">data_resampled.h5&quot;</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;data_resampled&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># df = pd.read_hdf(</span>
+    <span class="c1">#     path_or_buf=f&quot;{cfg.paths.data_intrm}data_resampled.h5&quot;,</span>
+    <span class="c1">#     key=&quot;data_resampled&quot;,</span>
+    <span class="c1"># )</span>
+    <span class="c1"># bookies = sorted(list(df[&quot;Bookies&quot;].unique()))</span>
+    <span class="c1"># exog_cols = [col for col in df.columns if col.startswith(&quot;Compet&quot;)] + [</span>
+    <span class="c1">#     &quot;TsDur&quot;</span>
+    <span class="c1"># ]</span>
+
+    <span class="n">group_std</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">group_std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># remove groups with zero odds variance</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;CumCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span>
+
+    <span class="n">n_per</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ngroups</span><span class="p">)</span>
+    <span class="n">len_per</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">resample_freq</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mi">60</span>
+    <span class="n">odds_mvt_cols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;OddsMvt</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_per</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pivot_df</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">exog_cols</span><span class="o">=</span><span class="n">exog_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">,</span> <span class="s2">&quot;IsPro&quot;</span><span class="p">],</span> <span class="n">n_per</span><span class="o">=</span><span class="n">n_per</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">impute_missings</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="n">df_ur</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df_ur</span><span class="p">[</span><span class="n">odds_mvt_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ur</span><span class="p">[</span><span class="n">odds_mvt_cols</span><span class="p">]</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span>
+        <span class="n">df_ur</span><span class="p">[</span><span class="s2">&quot;OddsMvt0&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">df_ur</span><span class="p">[</span><span class="s2">&quot;Endog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ur</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;OddsMvt</span><span class="si">{</span><span class="n">n_per</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df_ur</span><span class="p">[</span><span class="s2">&quot;OddsMvt0&quot;</span><span class="p">]</span>
+
+    <span class="n">res_ur</span><span class="p">:</span> <span class="n">DefaultDict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">part_fit_mixed_lm</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">fit_mixed_lm</span><span class="p">,</span> <span class="n">df_ur</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">res_pool_ur</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">part_fit_mixed_lm</span><span class="p">,</span> <span class="n">odds_mvt_cols</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">res_pool_ur</span><span class="p">:</span>
+        <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])</span>
+        <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">[</span><span class="s2">&quot;std_beta_1&quot;</span><span class="p">])</span>
+        <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])</span>
+        <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">[</span><span class="s2">&quot;std_beta_0&quot;</span><span class="p">])</span>
+        <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_m</span><span class="p">)</span>
+
+    <span class="n">plot_unbiased_reg_res</span><span class="p">(</span>
+        <span class="n">res_ur</span><span class="o">=</span><span class="n">res_ur</span><span class="p">,</span>
+        <span class="n">len_per</span><span class="o">=</span><span class="n">len_per</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">unbiased_reg.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Speed of Learning</span>
+
+    <span class="n">start_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="p">)</span>
+    <span class="n">start_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">])</span>
+
+    <span class="n">part_fit_gmm_mod</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+        <span class="n">fit_gmm_mod</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">n_per</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">incr</span><span class="p">,</span>
+        <span class="n">start_params</span><span class="p">,</span>
+        <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">res_gmm</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">part_fit_gmm_mod</span><span class="p">,</span> <span class="n">bookies</span><span class="p">)</span>
+
+    <span class="n">df_res_gmm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">ele</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">res_gmm</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">bookies</span><span class="p">)</span>
+
+    <span class="n">avg_gamma_gmm</span> <span class="o">=</span> <span class="n">df_res_gmm</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">avg_phi_gmm</span> <span class="o">=</span> <span class="n">df_res_gmm</span><span class="p">[</span><span class="s2">&quot;Phi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1"># df_res_gmm = df_res_gmm.rename(</span>
+    <span class="c1">#     columns=dict(</span>
+    <span class="c1">#         zip(</span>
+    <span class="c1">#             df_res_gmm.columns,</span>
+    <span class="c1">#             [</span>
+    <span class="c1">#                 &quot;$\hat{\gamma}$&quot;,</span>
+    <span class="c1">#                 &quot;$s.e.(\hat{\gamma})$&quot;,</span>
+    <span class="c1">#                 &quot;$\hat{\Phi}$&quot;,</span>
+    <span class="c1">#                 &quot;$s.e.(\hat{\Phi})$&quot;,</span>
+    <span class="c1">#                 &quot;$\J$&quot;,</span>
+    <span class="c1">#                 &quot;$p$&quot;,</span>
+    <span class="c1">#             ],</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#     )</span>
+    <span class="c1"># )</span>
+
+    <span class="c1"># print(gmm_mod.momcond(start_params).shape)</span>
+    <span class="c1"># optim_method=&quot;nm&quot;, inv_weights=np.eye(N=14))</span>
+    <span class="c1"># gmm_res.model.exog_names[:] = &quot;Gamma K&quot;.split()</span>
+    <span class="c1"># print(gmm_res_cue.summary(xname=[r&quot;$\hat{\gamma}$&quot;, r&quot;$\hat{K}$&quot;]))</span>
+    <span class="c1"># print(gmm_mod.momcond_mean(gmm_res_cue.params))</span>
+    <span class="c1"># print(df_res_gmm[&quot;gamma&quot;].mean())</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_m</span><span class="p">)</span>
+
+    <span class="n">plot_gmm_res</span><span class="p">(</span>
+        <span class="n">res_gmm</span><span class="o">=</span><span class="n">res_gmm</span><span class="p">,</span>
+        <span class="n">bookies</span><span class="o">=</span><span class="n">bookies</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">paths</span><span class="o">=</span><span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">gmm_params.pdf&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">gmm_jstat.pdf&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">gmm_params_start_vals.pdf&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># PyMC probabilistic modeling</span>
+    <span class="c1"># TODO helper fct?</span>
+    <span class="k">def</span> <span class="nf">gen_res_obj</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">est_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">az</span><span class="o">.</span><span class="n">InferenceData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the result objects for ADVI and NUTS.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df: pd.DataFrame</span>
+<span class="sd">            Input DataFrame.</span>
+<span class="sd">        est_method : str</span>
+<span class="sd">            Estimation method (&quot;advi&quot; or &quot;nuts&quot;).</span>
+<span class="sd">        subset: str</span>
+<span class="sd">            Which subset of the data should be used for estimation.</span>
+<span class="sd">            Possible arguments are [tot, pro, amat].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[Any, Any, Any] | az.InferenceData</span>
+<span class="sd">            Results for either ADVI or NUTS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">subset</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tot&quot;</span><span class="p">,</span> <span class="s2">&quot;pro&quot;</span><span class="p">,</span> <span class="s2">&quot;amat&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;subset must be &#39;tot&#39;, &#39;pro&#39; or &#39;amat&#39;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">subset</span> <span class="o">==</span> <span class="s2">&quot;pro&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;IsPro&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">subset</span> <span class="o">==</span> <span class="s2">&quot;amat&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;IsPro&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">create_pm_mod</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">n_per</span><span class="o">=</span><span class="n">n_per</span><span class="p">,</span> <span class="n">incr</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">incr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">est_method</span> <span class="o">==</span> <span class="s2">&quot;advi&quot;</span><span class="p">:</span>
+            <span class="n">trace</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">advi</span> <span class="o">=</span> <span class="n">estimate_pm_mod</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">vi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">vi_n_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">vi_n_draws</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">advi</span>
+
+        <span class="k">elif</span> <span class="n">est_method</span> <span class="o">==</span> <span class="s2">&quot;nuts&quot;</span><span class="p">:</span>
+            <span class="n">trace</span> <span class="o">=</span> <span class="n">estimate_pm_mod</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">n_draws</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">n_tune</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">n_chains</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">n_chains</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">n_cores</span><span class="p">,</span>
+                <span class="n">targ_acpt</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">targ_acpt</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;est_method must be either &#39;advi&#39; or &#39;nuts&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">trace</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">models</span><span class="si">}</span><span class="s2">trace_</span><span class="si">{</span><span class="n">est_method</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">subset</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">trace</span>
+
+    <span class="c1"># trace = az.from_netcdf(</span>
+    <span class="c1">#     filename=f&quot;{cfg.paths.models}trace_{est_method}.nc&quot;</span>
+    <span class="c1"># )</span>
+
+    <span class="n">res_pm</span><span class="p">:</span> <span class="n">DefaultDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">())</span>
+
+    <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;tracker&quot;</span><span class="p">],</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;advi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gen_res_obj</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">est_method</span><span class="o">=</span><span class="s2">&quot;advi&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;tot&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_tot&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gen_res_obj</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">est_method</span><span class="o">=</span><span class="s2">&quot;nuts&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;tot&quot;</span>
+    <span class="p">)</span>
+    <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_pro&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gen_res_obj</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">est_method</span><span class="o">=</span><span class="s2">&quot;nuts&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;pro&quot;</span>
+    <span class="p">)</span>
+    <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_amat&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gen_res_obj</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">est_method</span><span class="o">=</span><span class="s2">&quot;nuts&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;amat&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">summary_advi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">hdi_prob</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">hdi</span><span class="p">,</span>
+        <span class="n">stat_funcs</span><span class="o">=</span><span class="n">create_func_dict</span><span class="p">(),</span>
+        <span class="n">round_to</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">summary_nuts_tot</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_tot&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">hdi_prob</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">hdi</span><span class="p">,</span>
+        <span class="n">stat_funcs</span><span class="o">=</span><span class="n">create_func_dict</span><span class="p">(),</span>
+        <span class="n">round_to</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_m</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">mu_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+    <span class="n">std_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+    <span class="n">hist_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+    <span class="n">mu_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;tracker&quot;</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">])</span>
+    <span class="n">mu_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Mean Track&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Iterations&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">std_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;tracker&quot;</span><span class="p">][</span><span class="s2">&quot;std&quot;</span><span class="p">])</span>
+    <span class="n">std_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Std.Track&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Iterations&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">hist_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;advi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">)</span>
+    <span class="n">hist_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Neg. ELBO Track&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Iterations&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">tracker_advi.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_l</span><span class="p">)</span>
+
+    <span class="n">plot_posteriors</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">ref_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">post_means_advi.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">plot_posteriors</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_tot&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">ref_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">post_means_nuts_tot.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">plot_posteriors</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Professionals&quot;</span><span class="p">:</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_pro&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Amateurs&quot;</span><span class="p">:</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_amat&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="n">ref_vals</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">summary_advi</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="s2">&quot;mean_gamma&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">post_means_nuts_pro_amat.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_m</span><span class="p">)</span>
+
+    <span class="n">plot_traces</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_tot&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">param</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">traces_gamma_nuts_tot.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_s</span><span class="p">)</span>
+
+    <span class="n">plot_facetgrid</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;vi&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">param</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+        <span class="n">color_palette</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">facetgrid_gamma_advi_tot.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">plot_facetgrid</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_tot&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="n">param</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+        <span class="n">color_palette</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">facetgrid_gamma_nuts_tot.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">plot_facetgrid</span><span class="p">(</span>
+        <span class="n">mod_trace</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Professionals&quot;</span><span class="p">:</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_pro&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Amateurs&quot;</span><span class="p">:</span> <span class="n">res_pm</span><span class="p">[</span><span class="s2">&quot;nuts_pro&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="n">param</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+        <span class="n">color_palette</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">facetgrid_gamma_nuts_pro_amat.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">hdi_lwr</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">hdi</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">hdi_upr</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cfg</span><span class="o">.</span><span class="n">sampling</span><span class="o">.</span><span class="n">hdi</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">cols_nuts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;std_median&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;hdi_</span><span class="si">{</span><span class="n">hdi_lwr</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;hdi_</span><span class="si">{</span><span class="n">hdi_upr</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;r_hat&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">format_sum_nuts</span><span class="p">(</span><span class="n">sum_nuts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Format sum_nuts DataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sum_nuts : pd.DataFrame</span>
+<span class="sd">            Summary DataFrame obtained from NUTS sampling.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Formatted DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">sum_nuts</span><span class="p">[</span><span class="n">cols_nuts</span><span class="p">]</span>
+        <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="s2">&quot;std_mean&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;hdi_</span><span class="si">{</span><span class="n">hdi_lwr</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;$hdi^</span><span class="se">{{</span><span class="si">{</span><span class="n">hdi_lwr</span><span class="si">}</span><span class="se">}}\\</span><span class="s2">%$&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;hdi_</span><span class="si">{</span><span class="n">hdi_upr</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;$hdi^</span><span class="se">{{</span><span class="si">{</span><span class="n">hdi_upr</span><span class="si">}</span><span class="se">}}\\</span><span class="s2">%$&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;r_hat&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat</span><span class="si">{R}</span><span class="s2">$&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">rows_nuts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;mean_gamma&quot;</span><span class="p">,</span> <span class="s2">&quot;sd_gamma&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gamma[&quot;</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;mean_Phi&quot;</span><span class="p">,</span> <span class="s2">&quot;sd_Phi&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Phi[&quot;</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;sd_eps&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows_nuts</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;mean_gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">mu}_{</span><span class="se">\\</span><span class="s2">gamma}$&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mean_Phi&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">mu}_{</span><span class="se">\\</span><span class="s2">Phi}$&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sd_gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">sigma}_{</span><span class="se">\\</span><span class="s2">gamma}$&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sd_Phi&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">sigma}_{</span><span class="se">\\</span><span class="s2">Phi}$&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;sd_eps&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">sigma}$&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">new_index</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">idx</span><span class="p">:</span> <span class="n">idx</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;gamma[&quot;</span><span class="p">,</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">gamma}_{&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Phi[&quot;</span><span class="p">,</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">hat{</span><span class="se">\\</span><span class="s2">Phi}_{&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;}$&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">index</span>
+        <span class="p">}</span>
+        <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">sum_nuts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">new_index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sum_nuts</span>
+
+    <span class="n">sum_nuts</span> <span class="o">=</span> <span class="n">format_sum_nuts</span><span class="p">(</span><span class="n">sum_nuts</span><span class="o">=</span><span class="n">sum_nuts</span><span class="p">)</span>
+    <span class="n">sum_nuts_pro</span> <span class="o">=</span> <span class="n">format_sum_nuts</span><span class="p">(</span><span class="n">sum_nuts</span><span class="o">=</span><span class="n">sum_nuts_pro</span><span class="p">)</span>
+    <span class="n">sum_nuts_amat</span> <span class="o">=</span> <span class="n">format_sum_nuts</span><span class="p">(</span><span class="n">sum_nuts</span><span class="o">=</span><span class="n">sum_nuts_amat</span><span class="p">)</span>
+
+    <span class="c1"># test = pd.merge(</span>
+    <span class="c1">#     left=sum_nuts_pro[&quot;mean&quot;],</span>
+    <span class="c1">#     right=sum_nuts_ama[&quot;mean&quot;],</span>
+    <span class="c1">#     how=&quot;left&quot;,</span>
+    <span class="c1">#     on=sum_nuts_pro.index)</span>
+
+    <span class="c1"># sns.violinplot(</span>
+    <span class="c1">#     data=gamma_samples,</span>
+    <span class="c1">#     x=&quot;Bookies&quot;,</span>
+    <span class="c1">#     y=&quot;Samples&quot;,</span>
+    <span class="c1">#     split=True,</span>
+    <span class="c1">#     inner=&quot;quart&quot;</span>
+    <span class="c1"># )</span>
+    <span class="c1"># plt.show()</span>
+
+    <span class="c1"># fig, ax = plt.subplots()</span>
+    <span class="c1"># az.plot_forest(</span>
+    <span class="c1">#     trace_nuts,</span>
+    <span class="c1">#     var_names=[&quot;gamma&quot;],</span>
+    <span class="c1">#     kind=&quot;forestplot&quot;,</span>
+    <span class="c1">#     combined=True,</span>
+    <span class="c1">#     ax=ax,</span>
+    <span class="c1">#     # hdi_prob=hdi,</span>
+    <span class="c1">#     # ridgeplot_overlap=10,</span>
+    <span class="c1">#     # ridgeplot_alpha=0.5,</span>
+    <span class="c1"># )</span>
+    <span class="c1"># ax.set(xlabel=r&quot;$\hat{\nu}_1$&quot;)</span>
+    <span class="c1"># [tick.set_visible(False) for tick in ax.yaxis.get_ticklabels()]</span>
+    <span class="c1"># for spine in ax.spines.values():</span>
+    <span class="c1">#     spine.set_visible(True)</span>
+    <span class="c1">#     spine.set_edgecolor(&quot;black&quot;)</span>
+    <span class="c1"># plt.show()</span>
+
+    <span class="c1"># sns.violinplot(data=df, x=&quot;class&quot;, y=&quot;age&quot;, split=True, inner=&quot;quart&quot;)</span>
+
+    <span class="c1"># az.plot_trace(</span>
+    <span class="c1">#     data=trace_advi,</span>
+    <span class="c1">#     var_names=[&quot;sig_eps&quot;],</span>
+    <span class="c1">#     divergences=False,</span>
+    <span class="c1">#     combined=False,</span>
+    <span class="c1">#     compact=True,</span>
+    <span class="c1"># )</span>
+    <span class="c1"># plt.show(block=False)</span>
+
+    <span class="c1"># Saving</span>
+
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">:</span>
+        <span class="n">df_desc</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
+            <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">data_desc.h5&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;data_desc&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">values_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">values</span><span class="si">}{</span><span class="n">cfg</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">vals</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_obs&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;is_amateur&quot;</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">is_amateur</span><span class="p">,</span>
+            <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">,</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2%&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;is_pro&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">is_pro</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2%&quot;</span>
+        <span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;icc&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">icc</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_missings&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_missings</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span>
+        <span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_per&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_per</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;len_per&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">len_per</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;avg_gamma_gmm&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">avg_gamma_gmm</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span>
+        <span class="p">)</span>
+        <span class="n">save_tex_vals</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;avg_phi_gmm&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">avg_phi_gmm</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_rfa_p1.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_res_rfa_p1</span><span class="p">),</span>
+            <span class="n">first_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">last_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_rfa_p2.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_res_rfa_p2</span><span class="p">),</span>
+            <span class="n">first_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">last_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_rfa_tot.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">df_res_rfa</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_col</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_latex</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_wp_p1.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_res_wp_p1</span><span class="p">),</span>
+            <span class="n">first_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">last_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_wp_p2.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tex_res_wp_p2</span><span class="p">),</span>
+            <span class="n">first_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">last_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_wp_re.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">res_win_props</span><span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_col</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_latex</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">write_text_file</span><span class="p">(</span>
+            <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">res_pm_mod.tex&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">sum_nuts</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_col</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">formatter</span><span class="o">=</span><span class="p">{</span>
+                    <span class="sa">r</span><span class="s2">&quot;$\hat</span><span class="si">{R}</span><span class="s2">$&quot;</span><span class="p">:</span> <span class="n">NumFormat</span><span class="p">(</span><span class="n">my_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format_post</span>
+                <span class="p">},</span>
+                <span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">to_latex</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Execution Time and Log File Finish</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execution time: </span><span class="si">{</span><span class="n">Logger</span><span class="o">.</span><span class="n">get_exec_time</span><span class="p">(</span><span class="n">start_time</span><span class="o">=</span><span class="n">t_start</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">run_estimation</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Nagel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

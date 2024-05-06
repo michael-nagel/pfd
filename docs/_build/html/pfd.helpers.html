@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pfd.helpers package &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Nagel 2024 Replication Package
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pfd.helpers package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pfd.helpers.create_pm_mod">pfd.helpers.create_pm_mod module</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.create_pm_mod.create_pm_mod"><code class="docutils literal notranslate"><span class="pre">create_pm_mod()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pfd.helpers.fit_gmm_mod">pfd.helpers.fit_gmm_mod module</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.fit_gmm_mod.fit_gmm_mod"><code class="docutils literal notranslate"><span class="pre">fit_gmm_mod()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pfd.helpers.fit_rfa_mod">pfd.helpers.fit_rfa_mod module</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.fit_rfa_mod.fit_rfa_mod"><code class="docutils literal notranslate"><span class="pre">fit_rfa_mod()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pfd.helpers.impute_missings">pfd.helpers.impute_missings module</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.impute_missings.impute_missings"><code class="docutils literal notranslate"><span class="pre">impute_missings()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pfd.helpers.save_tex_vals">pfd.helpers.save_tex_vals module</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.save_tex_vals.save_tex_vals"><code class="docutils literal notranslate"><span class="pre">save_tex_vals()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pfd.helpers">Module contents</a><ul>
+<li><a class="reference internal" href="#pfd.helpers.create_pm_mod"><code class="docutils literal notranslate"><span class="pre">create_pm_mod()</span></code></a></li>
+<li><a class="reference internal" href="#pfd.helpers.fit_gmm_mod"><code class="docutils literal notranslate"><span class="pre">fit_gmm_mod()</span></code></a></li>
+<li><a class="reference internal" href="#pfd.helpers.fit_rfa_mod"><code class="docutils literal notranslate"><span class="pre">fit_rfa_mod()</span></code></a></li>
+<li><a class="reference internal" href="#pfd.helpers.impute_missings"><code class="docutils literal notranslate"><span class="pre">impute_missings()</span></code></a></li>
+<li><a class="reference internal" href="#pfd.helpers.save_tex_vals"><code class="docutils literal notranslate"><span class="pre">save_tex_vals()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Nagel 2024 Replication Package</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pfd.helpers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pfd.helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pfd-helpers-package">
+<h1>pfd.helpers package<a class="headerlink" href="#pfd-helpers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pfd.helpers.create_pm_mod">
+<span id="pfd-helpers-create-pm-mod-module"></span><h2>pfd.helpers.create_pm_mod module<a class="headerlink" href="#module-pfd.helpers.create_pm_mod" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.create_pm_mod.create_pm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.create_pm_mod.</span></span><span class="sig-name descname"><span class="pre">create_pm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Model</span></span></span><a class="reference internal" href="_modules/pfd/helpers/create_pm_mod.html#create_pm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.create_pm_mod.create_pm_mod" title="Link to this definition"></a></dt>
+<dd><p>Create PyMC model.</p>
+<p>This function creates the PyMC model for estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>nper</strong> (<em>int</em>) – Number of periods.</p></li>
+<li><p><strong>incr</strong> (<em>int</em>) – Incremental step for periods</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyMC model to be numerically estimated.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pm.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers.fit_gmm_mod">
+<span id="pfd-helpers-fit-gmm-mod-module"></span><h2>pfd.helpers.fit_gmm_mod module<a class="headerlink" href="#module-pfd.helpers.fit_gmm_mod" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.fit_gmm_mod.fit_gmm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.fit_gmm_mod.</span></span><span class="sig-name descname"><span class="pre">fit_gmm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/helpers/fit_gmm_mod.html#fit_gmm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.fit_gmm_mod.fit_gmm_mod" title="Link to this definition"></a></dt>
+<dd><p>Fit GMM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods.</p></li>
+<li><p><strong>incr</strong> (<em>int</em>) – Incremental step for periods.</p></li>
+<li><p><strong>start_params</strong> (<em>np.ndarray</em>) – Starting values for the parameters to be estimated.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em> | </em><em>str</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>bookie</strong> (<em>str</em>) – Bookmaker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of Dictionaries containing various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers.fit_rfa_mod">
+<span id="pfd-helpers-fit-rfa-mod-module"></span><h2>pfd.helpers.fit_rfa_mod module<a class="headerlink" href="#module-pfd.helpers.fit_rfa_mod" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.fit_rfa_mod.fit_rfa_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.fit_rfa_mod.</span></span><span class="sig-name descname"><span class="pre">fit_rfa_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/helpers/fit_rfa_mod.html#fit_rfa_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.fit_rfa_mod.fit_rfa_mod" title="Link to this definition"></a></dt>
+<dd><p>Fit relative forecast accuracy model.</p>
+<p>This function fits the model to assess the relative forecast
+accuracy of different bookmakers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em>) – Exogenous variables.</p></li>
+<li><p><strong>bookie</strong> (<em>str</em>) – Bookmaker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers.impute_missings">
+<span id="pfd-helpers-impute-missings-module"></span><h2>pfd.helpers.impute_missings module<a class="headerlink" href="#module-pfd.helpers.impute_missings" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.impute_missings.impute_missings">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.impute_missings.</span></span><span class="sig-name descname"><span class="pre">impute_missings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/helpers/impute_missings.html#impute_missings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.impute_missings.impute_missings" title="Link to this definition"></a></dt>
+<dd><p>Impute missing values.</p>
+<p>This function imputes missings values using sklearn’s iterative
+imputer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Imputed DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers.save_tex_vals">
+<span id="pfd-helpers-save-tex-vals-module"></span><h2>pfd.helpers.save_tex_vals module<a class="headerlink" href="#module-pfd.helpers.save_tex_vals" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.save_tex_vals.save_tex_vals">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.save_tex_vals.</span></span><span class="sig-name descname"><span class="pre">save_tex_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/helpers/save_tex_vals.html#save_tex_vals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.save_tex_vals.save_tex_vals" title="Link to this definition"></a></dt>
+<dd><p>Save tex values</p>
+<p>This function saves values in a .dat file for automatic use in tex
+files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of the value that is supposed to be saved.</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – Value that is supposed to be saved.</p></li>
+<li><p><strong>file_name</strong> (<em>str</em>) – File name.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Format of the value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pfd.helpers" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.create_pm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.</span></span><span class="sig-name descname"><span class="pre">create_pm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Model</span></span></span><a class="reference internal" href="_modules/pfd/helpers/create_pm_mod.html#create_pm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.create_pm_mod" title="Link to this definition"></a></dt>
+<dd><p>Create PyMC model.</p>
+<p>This function creates the PyMC model for estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>nper</strong> (<em>int</em>) – Number of periods.</p></li>
+<li><p><strong>incr</strong> (<em>int</em>) – Incremental step for periods</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyMC model to be numerically estimated.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pm.Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.fit_gmm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.</span></span><span class="sig-name descname"><span class="pre">fit_gmm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/helpers/fit_gmm_mod.html#fit_gmm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.fit_gmm_mod" title="Link to this definition"></a></dt>
+<dd><p>Fit GMM model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods.</p></li>
+<li><p><strong>incr</strong> (<em>int</em>) – Incremental step for periods.</p></li>
+<li><p><strong>start_params</strong> (<em>np.ndarray</em>) – Starting values for the parameters to be estimated.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em> | </em><em>str</em>) – Maximum number of iterations.</p></li>
+<li><p><strong>bookie</strong> (<em>str</em>) – Bookmaker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of Dictionaries containing various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.fit_rfa_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.</span></span><span class="sig-name descname"><span class="pre">fit_rfa_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/helpers/fit_rfa_mod.html#fit_rfa_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.fit_rfa_mod" title="Link to this definition"></a></dt>
+<dd><p>Fit relative forecast accuracy model.</p>
+<p>This function fits the model to assess the relative forecast
+accuracy of different bookmakers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em>) – Exogenous variables.</p></li>
+<li><p><strong>bookie</strong> (<em>str</em>) – Bookmaker.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.impute_missings">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.</span></span><span class="sig-name descname"><span class="pre">impute_missings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/helpers/impute_missings.html#impute_missings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.impute_missings" title="Link to this definition"></a></dt>
+<dd><p>Impute missing values.</p>
+<p>This function imputes missings values using sklearn’s iterative
+imputer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Imputed DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.save_tex_vals">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.</span></span><span class="sig-name descname"><span class="pre">save_tex_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/helpers/save_tex_vals.html#save_tex_vals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.save_tex_vals" title="Link to this definition"></a></dt>
+<dd><p>Save tex values</p>
+<p>This function saves values in a .dat file for automatic use in tex
+files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of the value that is supposed to be saved.</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – Value that is supposed to be saved.</p></li>
+<li><p><strong>file_name</strong> (<em>str</em>) – File name.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Format of the value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Nagel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
