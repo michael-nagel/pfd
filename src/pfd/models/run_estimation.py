@@ -836,7 +836,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
-        values_path = f"{cfg.paths.values}{cfg.files.vals}"
+        values_path = f"{cfg.paths.vals}{cfg.files.vals}"
         save_tex_vals(key="n_obs", value=n_obs, file_name=values_path)
         save_tex_vals(
             key="is_amateur",

@@ -294,7 +294,7 @@ def shape_data(cfg: PFDConfig) -> None:
     # Saving
 
     if cfg.general.save:
-        values_path = f"{cfg.paths.values}{cfg.files.vals}"
+        values_path = f"{cfg.paths.vals}{cfg.files.vals}"
         save_tex_vals(
             key="n_matches_tot", value=n_matches_tot, file_name=values_path
         )
