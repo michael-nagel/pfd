@@ -138,7 +138,7 @@ class Sampling:
     n_chains: int
     n_draws: int
     n_tune: int
-    n_cores: int
+    n_cores: int | None
     targ_acpt: float
     vi_n_iter: int
     vi_n_draws: int
@@ -152,8 +152,8 @@ class Sampling:
             raise TypeError("n_draws must be an integer")
         if not isinstance(self.n_tune, int):
             raise TypeError("n_tune must be an integer")
-        if not isinstance(self.n_cores, int):
-            raise TypeError("n_cores must be an integer")
+        if not isinstance(self.n_cores, (int, None)):
+            raise TypeError("n_cores must be an integer or None")
         if not isinstance(self.targ_acpt, float):
             raise TypeError("targ_acpt must be a float")
         if not isinstance(self.vi_n_iter, int):

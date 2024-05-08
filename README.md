@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code files in this replication package construct the output in Nagel et al. (2024) using Python. The `__main__.py` file runs all the code to generate the 5 figures and 4 tables. A replicator should expect the code to run for approximately 5 days. See the [documentation](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/docs/_build/html/index.html) for detailed information on the underlying code.
+The code files in this replication package construct the output in Nagel (2024) using Python. The `__main__.py` file runs all the code to generate the 5 figures and 4 tables. A replicator should expect the code to run for approximately 5 days. See the [documentation](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/docs/_build/html/index.html) for detailed information on the underlying code.
 
 ## Data Availability and Provenance Statements
 
@@ -24,13 +24,13 @@ The code files in this replication package construct the output in Nagel et al. 
   | -------------- | ------------ | -------- | -------- | -------- |
   | "Alcohol Data" | alc_data.pkl | Data/    | TRUE     |          |
 
-### Alcohol Data
+### Oddsportal Data
 
-The data used in this manuscript originates from Fischer et al. (2023, available at [SSRN](http://dx.doi.org/10.2139/ssrn.4569227)), which is the first paper stemming from our joint project funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy - EXC number 2064/1 - Project number 390727645
 
 Datafiles:
 
-- `Data/alc_data.pkl`
+- `data/raw/crawled_odds.json`
+- `data/raw/crawled_urls.json`
 
 ## Dataset List
 
@@ -38,7 +38,7 @@ A detailed description of the data files' variables (long-form names, data type 
 
 ## Computational Requirements
 
-Please strictly follow the steps outlined below to properly set up the project and environment required for replication. A Linux distribution (e.g., Ubuntu) or WSL is required to run the code.
+Please strictly follow the steps outlined below to properly set up the project and environment required for replication. A Linux distribution (e.g., Ubuntu) or WSL(2) is required to run the code.
 
 Clone the replication package that is available on GitHub using
 
@@ -77,7 +77,7 @@ Approximate time needed to reproduce the analyses on a standard (2023) desktop m
 
 - [ ] 10-60 minutes
 
-- [ ] 1-2 hours
+- [x] 1-2 hours
 
 - [ ] 2-8 hours
 
@@ -85,7 +85,7 @@ Approximate time needed to reproduce the analyses on a standard (2023) desktop m
 
 - [ ] 1-3 days
 
-- [x] 3-14 days
+- [] 3-14 days
 
 - [ ] \> 14 days
 

@@ -9,8 +9,8 @@ import arviz as az
 import numpy as np
 import pandas as pd
 
-from pfd.utils import estimate_pm_mod
 from pfd.helpers import create_pm_mod
+from pfd.utils import est_pm_mod
 
 # %% Class
 
@@ -30,22 +30,18 @@ class IntegrationTest(unittest.TestCase):
         df["Bookies"] = np.repeat(["Pinnacle", "Marathonbet"], 50)
 
         # Instatiate model
-        model = create_pm_mod(
-            df=df,
-            n_per=21,
-            incr=4
-        )
+        model = create_pm_mod(df=df, n_per=21, incr=4)
 
         # Estimate model
-        trace = estimate_pm_mod(
-                model=model,
-                seed=42,
-                n_draws=200,
-                n_tune=200,
-                n_chains=2,
-                n_cores=2,
-                targ_acpt=0.8
-            )
+        trace = est_pm_mod(
+            model=model,
+            seed=42,
+            n_draws=200,
+            n_tune=200,
+            n_chains=2,
+            n_cores=2,
+            targ_acpt=0.8,
+        )
 
         self.assertIsInstance(trace, az.InferenceData)
 

@@ -8,7 +8,7 @@ import pandas as pd
 # Function
 
 
-def encode_categ_var(
+def enc_categ_var(
     df: pd.DataFrame, col: str, prefix: str, rm_first: bool, rm_categ_var: bool
 ) -> pd.DataFrame:
     """
@@ -39,7 +39,7 @@ def encode_categ_var(
     Examples
     --------
     for ele in df.select_dtypes(include=["category"]).columns:
-        df = encode_categ_var(df, ele, "_", True, True)
+        df = enc_categ_var(df, ele, "_", True, True)
     """
     df = pd.concat(
         [

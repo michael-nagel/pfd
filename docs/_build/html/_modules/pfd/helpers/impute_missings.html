@@ -77,7 +77,7 @@
 <span class="kn">from</span> <span class="nn">sklearn.experimental</span> <span class="kn">import</span> <span class="n">enable_iterative_imputer</span>  <span class="c1"># noqa: F401</span>
 <span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">IterativeImputer</span>
 
-<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">encode_categ_var</span>
+<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">enc_categ_var</span>
 
 <span class="c1"># Function</span>
 
@@ -108,7 +108,7 @@
         <span class="n">initial_strategy</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span>
     <span class="p">)</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">encode_categ_var</span><span class="p">(</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">enc_categ_var</span><span class="p">(</span>
         <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">col</span><span class="o">=</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
         <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;Bookie&quot;</span><span class="p">,</span>

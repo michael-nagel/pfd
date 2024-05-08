@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pfd.utils.encode_categ_var &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+  <title>pfd.utils.enc_categ_var &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -58,7 +58,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">pfd.utils.encode_categ_var</li>
+      <li class="breadcrumb-item active">pfd.utils.enc_categ_var</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -67,7 +67,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for pfd.utils.encode_categ_var</h1><div class="highlight"><pre>
+  <h1>Source code for pfd.utils.enc_categ_var</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
@@ -78,9 +78,9 @@
 <span class="c1"># Function</span>
 
 
-<div class="viewcode-block" id="encode_categ_var">
-<a class="viewcode-back" href="../../../pfd.utils.html#pfd.utils.encode_categ_var.encode_categ_var">[docs]</a>
-<span class="k">def</span> <span class="nf">encode_categ_var</span><span class="p">(</span>
+<div class="viewcode-block" id="enc_categ_var">
+<a class="viewcode-back" href="../../../pfd.utils.html#pfd.utils.enc_categ_var.enc_categ_var">[docs]</a>
+<span class="k">def</span> <span class="nf">enc_categ_var</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rm_first</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">rm_categ_var</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -111,7 +111,7 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    for ele in df.select_dtypes(include=[&quot;category&quot;]).columns:</span>
-<span class="sd">        df = encode_categ_var(df, ele, &quot;_&quot;, True, True)</span>
+<span class="sd">        df = enc_categ_var(df, ele, &quot;_&quot;, True, True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>

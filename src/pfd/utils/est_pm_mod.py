@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import Any, Dict, Tuple
+
 # Imports
 import arviz as az
 import nutpie
 import pymc as pm
-from typing import Tuple, Any, Dict
 
 # Function
 
 
-def estimate_pm_mod(
+def est_pm_mod(
     model: pm.Model,
     seed: int,
     n_draws: int | None = None,

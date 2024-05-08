@@ -38,8 +38,8 @@ from pfd.utils import (
     PlotParams,
     calc_win_props,
     create_func_dict,
-    encode_categ_var,
-    estimate_pm_mod,
+    enc_categ_var,
+    est_pm_mod,
     finalize_plot,
     fit_mixed_lm,
     pivot_df,
@@ -84,7 +84,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
         key=cfg.estimation.spec,
     )
-    
+
     # Cockpit
 
     np.random.seed(cfg.general.seed)
@@ -165,7 +165,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     is_amateur, is_pro = df["IsPro"].value_counts(True).tolist()
 
-    df = encode_categ_var(
+    df = enc_categ_var(
         df=df,
         col="Competition",
         prefix="Compet",
@@ -571,7 +571,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         model = create_pm_mod(df=df, n_per=n_per, incr=cfg.estimation.incr)
 
         if est_method == "advi":
-            trace, tracker, advi = estimate_pm_mod(
+            trace, tracker, advi = est_pm_mod(
                 model=model,
                 seed=cfg.general.seed,
                 vi=True,
@@ -582,10 +582,10 @@ def run_estimation(cfg: PFDConfig) -> None:
             return trace, tracker, advi
 
         elif est_method == "nuts":
-            trace = estimate_pm_mod(
+            trace = est_pm_mod(
                 model=model,
                 seed=cfg.general.seed,
-                n_draws=100,
+                n_draws=500,
                 n_tune=100,
                 n_chains=cfg.sampling.n_chains,
                 n_cores=cfg.sampling.n_cores,

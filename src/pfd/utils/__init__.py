@@ -6,7 +6,7 @@ __all__ = [
     "PFDConfig",
     "calc_losses",
     "create_func_dict",
-    "encode_categ_var",
+    "enc_categ_var",
     "finalize_plot",
     "fit_mixed_lm",
     "Logger",
@@ -14,7 +14,7 @@ __all__ = [
     "pivot_df",
     "PlotParams",
     "resample",
-    "estimate_pm_mod",
+    "est_pm_mod",
     "scale_vars",
     "shape_odds",
     "write_text_file",
@@ -27,8 +27,8 @@ from .calc_win_props import calc_win_props
 from .config import PFDConfig
 from .crawl_match_urls import crawl_match_urls
 from .create_func_dict import create_func_dict
-from .encode_categ_var import encode_categ_var
-from .estimate_pm_mod import estimate_pm_mod
+from .enc_categ_var import enc_categ_var
+from .est_pm_mod import est_pm_mod
 from .finalize_plot import finalize_plot
 from .fit_mixed_lm import fit_mixed_lm
 from .logger import Logger

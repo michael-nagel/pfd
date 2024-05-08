@@ -44,18 +44,18 @@ pfd.utils.create\_func\_dict module
    :undoc-members:
    :show-inheritance:
 
-pfd.utils.encode\_categ\_var module
------------------------------------
+pfd.utils.enc\_categ\_var module
+--------------------------------
 
-.. automodule:: pfd.utils.encode_categ_var
+.. automodule:: pfd.utils.enc_categ_var
    :members:
    :undoc-members:
    :show-inheritance:
 
-pfd.utils.estimate\_pm\_mod module
-----------------------------------
+pfd.utils.est\_pm\_mod module
+-----------------------------
 
-.. automodule:: pfd.utils.estimate_pm_mod
+.. automodule:: pfd.utils.est_pm_mod
    :members:
    :undoc-members:
    :show-inheritance:

@@ -28,7 +28,7 @@ def plot_posteriors(
         Record of the sampling process.
     ref_vas: float| list | None
         Reference values to be plotted.
-    Path : str
+    path : str
         Path for saving.
     save : bool
         Save figure if True.

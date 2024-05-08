@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.impute import IterativeImputer
 
-from pfd.utils import encode_categ_var
+from pfd.utils import enc_categ_var
 
 # Function
 
@@ -36,7 +36,7 @@ def impute_missings(df: pd.DataFrame, seed: int) -> pd.DataFrame:
         initial_strategy="median", min_value=0, max_value=1, random_state=seed
     )
 
-    df = encode_categ_var(
+    df = enc_categ_var(
         df=df,
         col="Bookies",
         prefix="Bookie",
