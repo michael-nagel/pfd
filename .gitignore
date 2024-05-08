@@ -10,7 +10,6 @@ __pycache__/
 data/external/*
 data/interim/*
 data/processed/*
-data/raw/*
 
 # Output directories
 models/*
