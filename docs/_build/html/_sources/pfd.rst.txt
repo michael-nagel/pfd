@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   pfd.conf
    pfd.data
    pfd.features
    pfd.helpers

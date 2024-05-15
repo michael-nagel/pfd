@@ -16,11 +16,13 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=01f34227"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pfd.visualization package" href="pfd.visualization.html" />
+    <link rel="prev" title="pfd.models package" href="pfd.models.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,234 +44,33 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">pfd.utils package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-pfd.utils.calc_losses">pfd.utils.calc_losses module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.calc_losses.calc_losses"><code class="docutils literal notranslate"><span class="pre">calc_losses()</span></code></a></li>
+              <p class="caption" role="heading"><span class="caption-text">Details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main_modules.html">Main Moduls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="list_objects.html">List of Tables, Figures, and Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logic_subpackages.html">Logic of Subpackages</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pfd</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pfd.html">pfd package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pfd.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pfd.conf.html">pfd.conf package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.data.html">pfd.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.features.html">pfd.features package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.helpers.html">pfd.helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.models.html">pfd.models package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pfd.utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.visualization.html">pfd.visualization package</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-pfd.utils.calc_win_props">pfd.utils.calc_win_props module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.calc_win_props.calc_win_props"><code class="docutils literal notranslate"><span class="pre">calc_win_props()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.config">pfd.utils.config module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation"><code class="docutils literal notranslate"><span class="pre">Estimation</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.bm_quantile"><code class="docutils literal notranslate"><span class="pre">Estimation.bm_quantile</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.compets"><code class="docutils literal notranslate"><span class="pre">Estimation.compets</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.incr"><code class="docutils literal notranslate"><span class="pre">Estimation.incr</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.max_iter"><code class="docutils literal notranslate"><span class="pre">Estimation.max_iter</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.odds_mvmnts"><code class="docutils literal notranslate"><span class="pre">Estimation.odds_mvmnts</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.period"><code class="docutils literal notranslate"><span class="pre">Estimation.period</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.resample_freq"><code class="docutils literal notranslate"><span class="pre">Estimation.resample_freq</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.spec"><code class="docutils literal notranslate"><span class="pre">Estimation.spec</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.start_params"><code class="docutils literal notranslate"><span class="pre">Estimation.start_params</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Estimation.ts_dur"><code class="docutils literal notranslate"><span class="pre">Estimation.ts_dur</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.Files"><code class="docutils literal notranslate"><span class="pre">Files</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Files.acpt_cookies"><code class="docutils literal notranslate"><span class="pre">Files.acpt_cookies</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Files.chrm_driv"><code class="docutils literal notranslate"><span class="pre">Files.chrm_driv</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Files.clr_plt"><code class="docutils literal notranslate"><span class="pre">Files.clr_plt</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Files.cred"><code class="docutils literal notranslate"><span class="pre">Files.cred</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Files.vals"><code class="docutils literal notranslate"><span class="pre">Files.vals</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.General"><code class="docutils literal notranslate"><span class="pre">General</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.General.main_scripts"><code class="docutils literal notranslate"><span class="pre">General.main_scripts</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.General.save"><code class="docutils literal notranslate"><span class="pre">General.save</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.General.seed"><code class="docutils literal notranslate"><span class="pre">General.seed</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig"><code class="docutils literal notranslate"><span class="pre">PFDConfig</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.estimation"><code class="docutils literal notranslate"><span class="pre">PFDConfig.estimation</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.files"><code class="docutils literal notranslate"><span class="pre">PFDConfig.files</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.general"><code class="docutils literal notranslate"><span class="pre">PFDConfig.general</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.paths"><code class="docutils literal notranslate"><span class="pre">PFDConfig.paths</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.plotting"><code class="docutils literal notranslate"><span class="pre">PFDConfig.plotting</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.sampling"><code class="docutils literal notranslate"><span class="pre">PFDConfig.sampling</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.PFDConfig.scraping"><code class="docutils literal notranslate"><span class="pre">PFDConfig.scraping</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths"><code class="docutils literal notranslate"><span class="pre">Paths</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.acc"><code class="docutils literal notranslate"><span class="pre">Paths.acc</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.create_directories"><code class="docutils literal notranslate"><span class="pre">Paths.create_directories()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.data_ext"><code class="docutils literal notranslate"><span class="pre">Paths.data_ext</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.data_intrm"><code class="docutils literal notranslate"><span class="pre">Paths.data_intrm</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.data_proc"><code class="docutils literal notranslate"><span class="pre">Paths.data_proc</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.data_raw"><code class="docutils literal notranslate"><span class="pre">Paths.data_raw</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.figures"><code class="docutils literal notranslate"><span class="pre">Paths.figures</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.models"><code class="docutils literal notranslate"><span class="pre">Paths.models</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.tables"><code class="docutils literal notranslate"><span class="pre">Paths.tables</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Paths.vals"><code class="docutils literal notranslate"><span class="pre">Paths.vals</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.ax_line_width"><code class="docutils literal notranslate"><span class="pre">Plotting.ax_line_width</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.base_siz"><code class="docutils literal notranslate"><span class="pre">Plotting.base_siz</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.font_family"><code class="docutils literal notranslate"><span class="pre">Plotting.font_family</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.leg_mkr_siz"><code class="docutils literal notranslate"><span class="pre">Plotting.leg_mkr_siz</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.line_width"><code class="docutils literal notranslate"><span class="pre">Plotting.line_width</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.mkr_siz"><code class="docutils literal notranslate"><span class="pre">Plotting.mkr_siz</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.xtick_maj_siz"><code class="docutils literal notranslate"><span class="pre">Plotting.xtick_maj_siz</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.xtick_maj_width"><code class="docutils literal notranslate"><span class="pre">Plotting.xtick_maj_width</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.ytick_maj_siz"><code class="docutils literal notranslate"><span class="pre">Plotting.ytick_maj_siz</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Plotting.ytick_maj_width"><code class="docutils literal notranslate"><span class="pre">Plotting.ytick_maj_width</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling"><code class="docutils literal notranslate"><span class="pre">Sampling</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.hdi"><code class="docutils literal notranslate"><span class="pre">Sampling.hdi</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.n_chains"><code class="docutils literal notranslate"><span class="pre">Sampling.n_chains</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.n_cores"><code class="docutils literal notranslate"><span class="pre">Sampling.n_cores</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.n_draws"><code class="docutils literal notranslate"><span class="pre">Sampling.n_draws</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.n_tune"><code class="docutils literal notranslate"><span class="pre">Sampling.n_tune</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.targ_acpt"><code class="docutils literal notranslate"><span class="pre">Sampling.targ_acpt</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.vi_n_draws"><code class="docutils literal notranslate"><span class="pre">Sampling.vi_n_draws</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Sampling.vi_n_iter"><code class="docutils literal notranslate"><span class="pre">Sampling.vi_n_iter</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.config.Scraping"><code class="docutils literal notranslate"><span class="pre">Scraping</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.config.Scraping.crawl_till"><code class="docutils literal notranslate"><span class="pre">Scraping.crawl_till</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Scraping.headless"><code class="docutils literal notranslate"><span class="pre">Scraping.headless</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Scraping.repeat_per"><code class="docutils literal notranslate"><span class="pre">Scraping.repeat_per</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.config.Scraping.sleep"><code class="docutils literal notranslate"><span class="pre">Scraping.sleep</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.crawl_match_urls">pfd.utils.crawl_match_urls module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.crawl_match_urls.crawl_match_urls"><code class="docutils literal notranslate"><span class="pre">crawl_match_urls()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.create_func_dict">pfd.utils.create_func_dict module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.create_func_dict.create_func_dict"><code class="docutils literal notranslate"><span class="pre">create_func_dict()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.enc_categ_var">pfd.utils.enc_categ_var module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.enc_categ_var.enc_categ_var"><code class="docutils literal notranslate"><span class="pre">enc_categ_var()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.est_pm_mod">pfd.utils.est_pm_mod module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.est_pm_mod.est_pm_mod"><code class="docutils literal notranslate"><span class="pre">est_pm_mod()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.finalize_plot">pfd.utils.finalize_plot module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.finalize_plot.finalize_plot"><code class="docutils literal notranslate"><span class="pre">finalize_plot()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.fit_mixed_lm">pfd.utils.fit_mixed_lm module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.fit_mixed_lm.fit_mixed_lm"><code class="docutils literal notranslate"><span class="pre">fit_mixed_lm()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.logger">pfd.utils.logger module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.logger.Logger"><code class="docutils literal notranslate"><span class="pre">Logger</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.logger.Logger.get_exec_time"><code class="docutils literal notranslate"><span class="pre">Logger.get_exec_time()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.logger.Logger.get_time"><code class="docutils literal notranslate"><span class="pre">Logger.get_time()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.logger.Logger.init_logger"><code class="docutils literal notranslate"><span class="pre">Logger.init_logger()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.login">pfd.utils.login module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.login.login"><code class="docutils literal notranslate"><span class="pre">login()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.mod_tex_tab">pfd.utils.mod_tex_tab module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.mod_tex_tab.mod_tex_tab"><code class="docutils literal notranslate"><span class="pre">mod_tex_tab()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.num_format">pfd.utils.num_format module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.num_format.NumFormat"><code class="docutils literal notranslate"><span class="pre">NumFormat</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.num_format.NumFormat.format_col"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_col()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.num_format.NumFormat.format_num"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_num()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.num_format.NumFormat.format_post"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_post()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.pivot_df">pfd.utils.pivot_df module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.pivot_df.pivot_df"><code class="docutils literal notranslate"><span class="pre">pivot_df()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.plot_params">pfd.utils.plot_params module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.plot_params.PlotParams"><code class="docutils literal notranslate"><span class="pre">PlotParams</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.plot_params.PlotParams.font_scalings"><code class="docutils literal notranslate"><span class="pre">PlotParams.font_scalings</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.plot_params.PlotParams.set_rc_params"><code class="docutils literal notranslate"><span class="pre">PlotParams.set_rc_params()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.resample">pfd.utils.resample module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.resample.resample"><code class="docutils literal notranslate"><span class="pre">resample()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.scale_vars">pfd.utils.scale_vars module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.scale_vars.scale_vars"><code class="docutils literal notranslate"><span class="pre">scale_vars()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.set_options">pfd.utils.set_options module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.set_options.set_options"><code class="docutils literal notranslate"><span class="pre">set_options()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.set_user_agent">pfd.utils.set_user_agent module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.set_user_agent.set_user_agent"><code class="docutils literal notranslate"><span class="pre">set_user_agent()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.shape_odds">pfd.utils.shape_odds module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.shape_odds.shape_odds"><code class="docutils literal notranslate"><span class="pre">shape_odds()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils.write_text_file">pfd.utils.write_text_file module</a><ul>
-<li><a class="reference internal" href="#pfd.utils.write_text_file.write_text_file"><code class="docutils literal notranslate"><span class="pre">write_text_file()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pfd.utils">Module contents</a><ul>
-<li><a class="reference internal" href="#pfd.utils.Logger"><code class="docutils literal notranslate"><span class="pre">Logger</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.Logger.get_exec_time"><code class="docutils literal notranslate"><span class="pre">Logger.get_exec_time()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.Logger.get_time"><code class="docutils literal notranslate"><span class="pre">Logger.get_time()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.Logger.init_logger"><code class="docutils literal notranslate"><span class="pre">Logger.init_logger()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.NumFormat"><code class="docutils literal notranslate"><span class="pre">NumFormat</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.NumFormat.format_col"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_col()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.NumFormat.format_num"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_num()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.NumFormat.format_post"><code class="docutils literal notranslate"><span class="pre">NumFormat.format_post()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig"><code class="docutils literal notranslate"><span class="pre">PFDConfig</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.estimation"><code class="docutils literal notranslate"><span class="pre">PFDConfig.estimation</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.files"><code class="docutils literal notranslate"><span class="pre">PFDConfig.files</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.general"><code class="docutils literal notranslate"><span class="pre">PFDConfig.general</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.paths"><code class="docutils literal notranslate"><span class="pre">PFDConfig.paths</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.plotting"><code class="docutils literal notranslate"><span class="pre">PFDConfig.plotting</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.sampling"><code class="docutils literal notranslate"><span class="pre">PFDConfig.sampling</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PFDConfig.scraping"><code class="docutils literal notranslate"><span class="pre">PFDConfig.scraping</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.PlotParams"><code class="docutils literal notranslate"><span class="pre">PlotParams</span></code></a><ul>
-<li><a class="reference internal" href="#pfd.utils.PlotParams.font_scalings"><code class="docutils literal notranslate"><span class="pre">PlotParams.font_scalings</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.PlotParams.set_rc_params"><code class="docutils literal notranslate"><span class="pre">PlotParams.set_rc_params()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pfd.utils.calc_losses"><code class="docutils literal notranslate"><span class="pre">calc_losses()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.calc_win_props"><code class="docutils literal notranslate"><span class="pre">calc_win_props()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.create_func_dict"><code class="docutils literal notranslate"><span class="pre">create_func_dict()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.enc_categ_var"><code class="docutils literal notranslate"><span class="pre">enc_categ_var()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.est_pm_mod"><code class="docutils literal notranslate"><span class="pre">est_pm_mod()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.finalize_plot"><code class="docutils literal notranslate"><span class="pre">finalize_plot()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.fit_mixed_lm"><code class="docutils literal notranslate"><span class="pre">fit_mixed_lm()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.pivot_df"><code class="docutils literal notranslate"><span class="pre">pivot_df()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.resample"><code class="docutils literal notranslate"><span class="pre">resample()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.scale_vars"><code class="docutils literal notranslate"><span class="pre">scale_vars()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.shape_odds"><code class="docutils literal notranslate"><span class="pre">shape_odds()</span></code></a></li>
-<li><a class="reference internal" href="#pfd.utils.write_text_file"><code class="docutils literal notranslate"><span class="pre">write_text_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pfd.html#module-pfd">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -284,6 +85,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pfd</a></li>
+          <li class="breadcrumb-item"><a href="pfd.html">pfd package</a></li>
       <li class="breadcrumb-item active">pfd.utils package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/pfd.utils.rst.txt" rel="nofollow"> View page source</a>
@@ -608,7 +411,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pfd.utils.config.Sampling">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_tune</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targ_acpt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Sampling" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_tune</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targ_acpt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Sampling" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pfd.utils.config.Sampling.hdi">
@@ -622,7 +425,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pfd.utils.config.Sampling.n_cores">
-<span class="sig-name descname"><span class="pre">n_cores</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_cores" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">n_cores</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_cores" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -691,7 +494,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>driver</strong> (<em>from selenium.webdriver.remote.webdriver.WebDriver</em>) – Selenium webdriver instance.</p></li>
 <li><p><strong>match_urls_tot</strong> (<em>list</em>) – List containing the total match urls crawled.</p></li>
-<li><p><strong>Returs</strong> – </p></li>
+<li><p><strong>Returs</strong></p></li>
 </ul>
 </dd>
 </dl>
@@ -1026,7 +829,7 @@ unchanged.</p>
 <span id="pfd-utils-plot-params-module"></span><h2>pfd.utils.plot_params module<a class="headerlink" href="#module-pfd.utils.plot_params" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pfd.utils.plot_params.PlotParams">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.plot_params.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.plot_params.PlotParams" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.plot_params.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.plot_params.PlotParams" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pfd.utils.plot_params.PlotParams.font_scalings">
@@ -1391,7 +1194,7 @@ unchanged.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pfd.utils.PlotParams">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.PlotParams" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.PlotParams" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pfd.utils.PlotParams.font_scalings">
@@ -1715,7 +1518,10 @@ stripped to embed the file within a TeX tabular environment.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pfd.models.html" class="btn btn-neutral float-left" title="pfd.models package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pfd.visualization.html" class="btn btn-neutral float-right" title="pfd.visualization package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

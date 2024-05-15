@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Imports
 
+from omegaconf import DictConfig
+
+
+# Class
 class PlotParams:
     font_scalings = {
         "xx-small": 0.579,
@@ -16,7 +21,7 @@ class PlotParams:
         None: 1.0,
     }
 
-    def __init__(self, cfg: dict) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         self.medium = cfg.plotting.base_size
         self.legend_fontsize, self.legend_title_fontsize = (
             self.medium,

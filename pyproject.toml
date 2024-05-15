@@ -60,15 +60,67 @@ mypy = "^1.8.0"
 pytest-cov = "^4.1.0"
 esbonio = "^0.16.04"
 
+[mypy]
+ignore_missing_imports = false
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+check_untyped_defs = true
+disallow_incomplete_defs = true
+warn_redundant_casts = true
+disallow_any_generics = false
+warn_unused_ignores = true
+
+[tool.mypy]
+disable_error_code = [
+    "assignment", 
+    "call-overload",
+    "operator", 
+    "attr-defined", 
+    "misc", 
+    "index", 
+    "union-attr"
+    ]
+
 [[tool.mypy.overrides]]
-module = [
-  "pandas",
-  "scipy.integrate",
-  "scipy.stats",
-  "pymc",
-  "seaborn",
-]
+module = "pandas"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy.integrate"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy.stats"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pymc"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "seaborn"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "statsmodels"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "sklearn"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fake_useragent"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "nutpie"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "scipy"
+ignore_missing_imports = true
+
 
 [build-system]
 requires = ["poetry-core"]
