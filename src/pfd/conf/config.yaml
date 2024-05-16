@@ -15,15 +15,15 @@ defaults: # Entries below _self_ override the config in this file
 #   tables: ${hydra:runtime.cwd}/../../reports/tables/
 #   values: ${hydra:runtime.cwd}/../../reports/values/
 paths:
-  acc: ../../accessories/
-  data_ext: ../../data/external/
-  data_intrm: ../../data/interim/
-  data_proc: ../../data/processed/
-  data_raw: ../../data/raw/
-  models: ../../models/
-  figures: ../../reports/figures/
-  tables: ../../reports/tables/
-  vals: ../../reports/values/
+  acc: ../../../accessories/
+  data_ext: ../../../data/external/
+  data_intrm: ../../../data/interim/
+  data_proc: ../../../data/processed/
+  data_raw: ../../../data/raw/
+  models: ../../../models/
+  figures: ../../../reports/figures/
+  tables: ../../../reports/tables/
+  vals: ../../../reports/values/
 
 files:
   clr_plt: stata_colors.json # Color palette
