@@ -39,7 +39,7 @@ cs.store(name="pfd_config", node=PFDConfig)
 
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
-def crawl_data(cfg: PFDConfig) -> None:
+def _crawl_data(cfg: PFDConfig) -> None:
     # Logging
 
     log = Logger.init_logger(name=__name__)
@@ -406,5 +406,4 @@ def crawl_data(cfg: PFDConfig) -> None:
 
 
 if __name__ == "__main__":
-    crawl_data()
-    crawl_data()
+    _crawl_data()

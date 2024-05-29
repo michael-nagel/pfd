@@ -19,6 +19,7 @@ from .enc_categ_var import enc_categ_var
 from .est_pm_mod import est_pm_mod
 from .finalize_plot import finalize_plot
 from .fit_mixed_lm import fit_mixed_lm
+from .format_sum import format_sum
 from .logger import Logger
 from .login import login
 from .num_format import NumFormat

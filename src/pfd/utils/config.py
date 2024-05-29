@@ -11,90 +11,6 @@ from pathlib import Path
 
 
 @dataclass
-class Paths:
-    acc: str
-    data_ext: str
-    data_intrm: str
-    data_proc: str
-    data_raw: str
-    models: str
-    figures: str
-    tables: str
-    vals: str
-
-    def __post_init__(self):
-        """
-        Validate input paths.
-
-        Validate the input paths to ensure they are valid file system paths.
-        """
-        for attr in self.__annotations__:
-            path = getattr(self, attr)
-            if not Path(path).is_dir():
-                raise ValueError(f"Invalid path: {path}")
-
-    def create_directories(self) -> None:
-        """
-        Create the directories if they do not exist.
-        """
-        os.makedirs(self.acc, exist_ok=True)
-        os.makedirs(self.data_ext, exist_ok=True)
-        os.makedirs(self.data_intrm, exist_ok=True)
-        os.makedirs(self.data_proc, exist_ok=True)
-        os.makedirs(self.data_raw, exist_ok=True)
-        os.makedirs(self.models, exist_ok=True)
-        os.makedirs(self.figures, exist_ok=True)
-        os.makedirs(self.tables, exist_ok=True)
-        os.makedirs(self.vals, exist_ok=True)
-
-
-@dataclass
-class Files:
-    clr_plt: str
-    chrm_driv: str
-    acpt_cookies: str
-    cred: str
-    vals: str
-
-    def __post_init__(self):
-        if not isinstance(self.clr_plt, str):
-            raise TypeError("clr_plt must be a string")
-
-
-@dataclass
-class General:
-    seed: int
-    save: bool
-    main_scripts: list
-
-    def __post_init__(self):
-        if not isinstance(self.seed, int):
-            raise TypeError("seed must be an integer")
-        if not isinstance(self.save, bool):
-            raise TypeError("save must be a boolean")
-        if not isinstance(self.main_scripts, list):
-            raise TypeError("main_scripts must be a list")
-
-
-@dataclass
-class Scraping:
-    headless: bool
-    crawl_till: str
-    repeat_per: int
-    sleep: int
-
-    def __post_init__(self):
-        if not isinstance(self.headless, int):
-            raise TypeError("headless must be an integer")
-        if not isinstance(self.crawl_till, bool):
-            raise TypeError("crawl_till must be a boolean")
-        if not isinstance(self.repeat_per, int):
-            raise TypeError("repeat_per must be an integer")
-        if not isinstance(self.sleep, int):
-            raise TypeError("sleep must be an integer")
-
-
-@dataclass
 class Estimation:
     spec: str
     compets: None | list
@@ -133,33 +49,82 @@ class Estimation:
 
 
 @dataclass
-class Sampling:
-    hdi: float
-    n_chains: int
-    n_draws: int
-    n_tune: int
-    n_cores: int
-    targ_acpt: float
-    vi_n_iter: int
-    vi_n_draws: int
+class Filenames:
+    clr_plt: str
+    chrm_driv: str
+    acpt_cookies: str
+    cred: str
+    vals: str
 
     def __post_init__(self):
-        if not isinstance(self.hdi, float):
-            raise TypeError("hdi must be a float")
-        if not isinstance(self.n_chains, int):
-            raise TypeError("n_chains must be an integer")
-        if not isinstance(self.n_draws, int):
-            raise TypeError("n_draws must be an integer")
-        if not isinstance(self.n_tune, int):
-            raise TypeError("n_tune must be an integer")
-        if not isinstance(self.n_cores, int):
-            raise TypeError("n_cores must be an integer")
-        if not isinstance(self.targ_acpt, float):
-            raise TypeError("targ_acpt must be a float")
-        if not isinstance(self.vi_n_iter, int):
-            raise TypeError("vi_n_iter must be an integer")
-        if not isinstance(self.vi_n_draws, int):
-            raise TypeError("vi_n_draws must be an integer")
+        if not isinstance(self.clr_plt, str):
+            raise TypeError("clr_plt must be a string")
+
+
+@dataclass
+class Files:
+    clr_plt: str
+    chrm_driv: str
+    acpt_cookies: str
+    cred: str
+    vals: str
+
+    def __post_init__(self):
+        if not isinstance(self.clr_plt, str):
+            raise TypeError("clr_plt must be a string")
+
+
+@dataclass
+class General:
+    seed: int
+    save: bool
+    main_scripts: list
+
+    def __post_init__(self):
+        if not isinstance(self.seed, int):
+            raise TypeError("seed must be an integer")
+        if not isinstance(self.save, bool):
+            raise TypeError("save must be a boolean")
+        if not isinstance(self.main_scripts, list):
+            raise TypeError("main_scripts must be a list")
+
+
+@dataclass
+class Paths:
+    acc: str
+    data_ext: str
+    data_intrm: str
+    data_proc: str
+    data_raw: str
+    models: str
+    figures: str
+    tables: str
+    vals: str
+
+    def __post_init__(self):
+        """
+        Validate input paths.
+
+        Validate the input paths to ensure they are valid file system paths.
+        """
+        for attr in self.__annotations__:
+            path = getattr(self, attr)
+            if not Path(path).is_dir():
+                raise ValueError(f"Invalid path: {path}")
+
+    def create_directories(self) -> None:
+        """
+        Create the directories if they do not exist.
+        """
+        os.makedirs(self.acc, exist_ok=True)
+        os.makedirs(self.data_ext, exist_ok=True)
+        os.makedirs(self.data_intrm, exist_ok=True)
+        os.makedirs(self.data_proc, exist_ok=True)
+        os.makedirs(self.data_raw, exist_ok=True)
+        os.makedirs(self.models, exist_ok=True)
+        os.makedirs(self.figures, exist_ok=True)
+        os.makedirs(self.tables, exist_ok=True)
+        os.makedirs(self.vals, exist_ok=True)
 
 
 @dataclass
@@ -199,11 +164,60 @@ class Plotting:
 
 
 @dataclass
+class Sampling:
+    hdi: float
+    n_chains: int
+    n_draws: int
+    n_tune: int
+    n_cores: int
+    targ_acpt: float
+    vi_n_iter: int
+    vi_n_draws: int
+
+    def __post_init__(self):
+        if not isinstance(self.hdi, float):
+            raise TypeError("hdi must be a float")
+        if not isinstance(self.n_chains, int):
+            raise TypeError("n_chains must be an integer")
+        if not isinstance(self.n_draws, int):
+            raise TypeError("n_draws must be an integer")
+        if not isinstance(self.n_tune, int):
+            raise TypeError("n_tune must be an integer")
+        if not isinstance(self.n_cores, int):
+            raise TypeError("n_cores must be an integer")
+        if not isinstance(self.targ_acpt, float):
+            raise TypeError("targ_acpt must be a float")
+        if not isinstance(self.vi_n_iter, int):
+            raise TypeError("vi_n_iter must be an integer")
+        if not isinstance(self.vi_n_draws, int):
+            raise TypeError("vi_n_draws must be an integer")
+
+
+@dataclass
+class Scraping:
+    headless: bool
+    crawl_till: str
+    repeat_per: int
+    sleep: int
+
+    def __post_init__(self):
+        if not isinstance(self.headless, int):
+            raise TypeError("headless must be an integer")
+        if not isinstance(self.crawl_till, bool):
+            raise TypeError("crawl_till must be a boolean")
+        if not isinstance(self.repeat_per, int):
+            raise TypeError("repeat_per must be an integer")
+        if not isinstance(self.sleep, int):
+            raise TypeError("sleep must be an integer")
+
+
+@dataclass
 class PFDConfig:
-    paths: Paths
+    estimation: Estimation
+    filenames: Filenames
     files: Files
     general: General
-    scraping: Scraping
-    estimation: Estimation
-    sampling: Sampling
+    paths: Paths
     plotting: Plotting
+    sampling: Sampling
+    scraping: Scraping

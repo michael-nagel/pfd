@@ -42,6 +42,7 @@ from pfd.utils import (
     est_pm_mod,
     finalize_plot,
     fit_mixed_lm,
+    format_sum,
     pivot_df,
     resample,
     scale_vars,
@@ -189,7 +190,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     _, ax = plt.subplots()
     sns.histplot(data=df_oc, x="DltOpnCls", stat="density")
-    ax.set(xlabel="Delta")
+    ax.set(xlabel="$Q_T - Q_1$")
     finalize_plot(
         path=f"{cfg.paths.figures}delta_opn_cls.pdf", save=cfg.general.save
     )
@@ -207,7 +208,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     group_var = res_rfa_re.cov_re.iat[0, 0]
     resid_var = res_rfa_re.scale
-    icc = group_var / (group_var + resid_var)  # Calculate ICC
+    icc = group_var / (group_var + resid_var)  # calculate ICC
 
     tex_res_rfa = res_rfa_re.summary().as_latex().splitlines(True)
     tex_res_rfa_p1 = tex_res_rfa[5:13]  # export part 1 to latex
@@ -495,8 +496,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_res_gmm = pd.DataFrame(data=[ele[0] for ele in res_gmm], index=bookies)
 
-    avg_gamma_gmm = df_res_gmm["gamma"].mean()
-    avg_phi_gmm = df_res_gmm["Phi"].mean()
+    avg_gamma_gmm, avg_phi_gmm = df_res_gmm[["gamma", "Phi"]].agg("mean")
 
     # df_res_gmm = df_res_gmm.rename(
     #     columns=dict(
@@ -610,29 +610,35 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
         gen_res_obj(df=df, est_method="advi", subset="tot")
     )
+
     res_pm["nuts_tot"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="tot"
     )
+
     res_pm["nuts_pro"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="pro"
     )
+
     res_pm["nuts_amat"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="amat"
     )
 
-    summary_advi = az.summary(
-        data=res_pm["vi"]["trace"],
-        hdi_prob=cfg.sampling.hdi,
-        stat_funcs=create_func_dict(),
-        round_to=4,
-    )
+    for key in list(res_pm.keys()):
+        res_pm[key]["sum"] = az.summary(
+            data=res_pm[key]["trace"],
+            hdi_prob=cfg.sampling.hdi,
+            stat_funcs=create_func_dict(),
+            round_to=4,
+        )
+        res_pm[key]["sum"] = res_pm[key]["sum"][
+            ~res_pm[key]["sum"].index.str.contains("interval__|log__")
+        ].copy()
+        res_pm[key]["sum"] = format_sum(df=res_pm["nuts_tot"]["sum"], cfg=cfg)
 
-    summary_nuts_tot = az.summary(
-        data=res_pm["nuts_tot"]["trace"],
-        hdi_prob=cfg.sampling.hdi,
-        stat_funcs=create_func_dict(),
-        round_to=4,
-    )
+    # TODO save
+    gamma_mean, gamma_sd = res_pm["nuts_tot"]["sum"].loc[
+        ["mean_gamma", "sd_gamma"], "median"
+    ]
 
     pylab.rcParams.update(rcp_m)
 
@@ -672,7 +678,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             "Professionals": res_pm["nuts_pro"]["trace"],
             "Amateurs": res_pm["nuts_amat"]["trace"],
         },
-        ref_vals=round(summary_advi.at["mean_gamma", "mean"], 2),
+        ref_vals=round(res_pm["vi"]["sum"].at["mean_gamma", "mean"], 2),
         path=f"{cfg.paths.figures}post_means_nuts_pro_amat.pdf",
         save=cfg.general.save,
     )
@@ -714,74 +720,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         path=f"{cfg.paths.figures}facetgrid_gamma_nuts_pro_amat.pdf",
         save=cfg.general.save,
     )
-
-    hdi_lwr = round(((1 - cfg.sampling.hdi) / 2) * 100, 2)
-    hdi_upr = round((1 - (1 - cfg.sampling.hdi) / 2) * 100, 2)
-    cols_nuts = [
-        "mean",
-        "sd",
-        "median",
-        "std_median",
-        f"hdi_{hdi_lwr}%",
-        f"hdi_{hdi_upr}%",
-        "r_hat",
-    ]
-
-    def format_sum_nuts(sum_nuts: pd.DataFrame) -> pd.DataFrame:
-        """
-        Format sum_nuts DataFrame.
-
-        Parameters
-        ----------
-        sum_nuts : pd.DataFrame
-            Summary DataFrame obtained from NUTS sampling.
-
-        Returns
-        -------
-        pd.DataFrame
-            Formatted DataFrame.
-        """
-        sum_nuts = sum_nuts[cols_nuts]
-        sum_nuts = sum_nuts.rename(
-            columns={
-                "sd": "std_mean",
-                f"hdi_{hdi_lwr}%": f"$hdi^{{{hdi_lwr}}}\\%$",
-                f"hdi_{hdi_upr}%": f"$hdi^{{{hdi_upr}}}\\%$",
-                "r_hat": "$\\hat{R}$",
-            }
-        )
-
-        rows_nuts = (
-            ["mean_gamma", "sd_gamma"]
-            + [row for row in sum_nuts.index if row.startswith("gamma[")]
-            + ["mean_Phi", "sd_Phi"]
-            + [row for row in sum_nuts.index if row.startswith("Phi[")]
-            + ["sd_eps"]
-        )
-        sum_nuts = sum_nuts.loc[rows_nuts, :]
-
-        sum_nuts = sum_nuts.rename(
-            index={
-                "mean_gamma": "$\\hat{\\mu}_{\\gamma}$",
-                "mean_Phi": "$\\hat{\\mu}_{\\Phi}$",
-                "sd_gamma": "$\\hat{\\sigma}_{\\gamma}$",
-                "sd_Phi": "$\\hat{\\sigma}_{\\Phi}$",
-                "sd_eps": "$\\hat{\\sigma}$",
-            }
-        )
-
-        new_index = {
-            idx: idx.replace("gamma[", "$\\hat{\\gamma}_{")
-            .replace("Phi[", "$\\hat{\\Phi}_{")
-            .replace("]", "}$")
-            for idx in sum_nuts.index
-        }
-        sum_nuts = sum_nuts.rename(index=new_index)
-        return sum_nuts
-
-    sum_nuts = format_sum_nuts(sum_nuts=sum_nuts)
-    sum_nuts_pro = format_sum_nuts(sum_nuts=sum_nuts_pro)
-    sum_nuts_amat = format_sum_nuts(sum_nuts=sum_nuts_amat)
 
     # test = pd.merge(
     #     left=sum_nuts_pro["mean"],
@@ -836,6 +774,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
+        # TODO see eca -> eval_ffnn.py
         values_path = f"{cfg.paths.vals}{cfg.files.vals}"
         save_tex_vals(key="n_obs", value=n_obs, file_name=values_path)
         save_tex_vals(
@@ -906,7 +845,8 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         write_text_file(
             file=f"{cfg.paths.tables}res_pm_mod.tex",
-            body=sum_nuts.apply(NumFormat.format_col)
+            body=res_pm["nuts_tot"]["sum"]
+            .apply(NumFormat.format_col)
             .style.format(
                 formatter={
                     r"$\hat{R}$": NumFormat(my_format="{:.2f}").format_post

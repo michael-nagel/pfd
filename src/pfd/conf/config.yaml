@@ -4,26 +4,42 @@ defaults: # Entries below _self_ override the config in this file
   - _self_ 
   - override hydra/job_logging: custom
 
-# paths:  # TODO
-#   acc: ${hydra:runtime.cwd}/../../accessories/
-#   data_ext: ${hydra:runtime.cwd}/../../data/external/
-#   data_intrm: ${hydra:runtime.cwd}/../../data/interim/
-#   data_proc: ${hydra:runtime.cwd}/../../data/processed/
-#   data_raw: ${hydra:runtime.cwd}/../../data/raw/
-#   models: ${hydra:runtime.cwd}/../../models/
-#   figures: ${hydra:runtime.cwd}/../../reports/figures/
-#   tables: ${hydra:runtime.cwd}/../../reports/tables/
-#   values: ${hydra:runtime.cwd}/../../reports/values/
-paths:
-  acc: ../../../accessories/
-  data_ext: ../../../data/external/
-  data_intrm: ../../../data/interim/
-  data_proc: ../../../data/processed/
-  data_raw: ../../../data/raw/
-  models: ../../../models/
-  figures: ../../../reports/figures/
-  tables: ../../../reports/tables/
-  vals: ../../../reports/values/
+estimation:
+  spec: BmHome # Which odds to use for analysis
+  compets: null # Which competitions ["ATP", "WTA"] or null
+  bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
+  odds_mvmnts: [2, 20] # Minimum and maximum of odds movements
+  ts_dur: [12, 72] # Min and max time series duration in hours
+  period: 12  # The period in hours of the time series to keep (e.g. last 12h)
+  resample_freq: 30min # Frequency to which the series is resampled in min.
+  incr: 4 # Incremental step for periods for GMM estimation
+  max_iter: 100 # Maximum number of iterations for GMM
+
+filenames:
+  exam_sls: fig1.pdf 
+  exam_cues: fig2.pdf
+  post_main: fig3.pdf
+  gru_n_obs_ts: onl_appx_fig1.pdf
+  gru_metrics: onl_appx_fig2.pdf
+  ffnn_n_obs_ts: onl_appx_fig3.pdf
+  ffnn_metrics: onl_appx_fig4.pdf
+  state_dist: onl_appx_fig5.pdf
+  forest_plot: onl_appx_fig6.pdf
+  post_reg_horse: onl_appx_fig7.pdf 
+  post_norm: onl_appx_fig8.pdf 
+  post_seasons: onl_appx_fig9.pdf 
+  post_shock: onl_appx_fig10.pdf 
+  post_fans: onl_appx_fig11.pdf 
+  post_shandy: onl_appx_fig12.pdf 
+  post_softdrinks: onl_appx_fig13.pdf 
+  desc_sls: tab1.tex
+  gru_config: onl_appx_tab1.tex
+  ffnn_config: onl_appx_tab2.tex
+  var_comments: onl_appx_tab3.tex
+  state_desc: onl_appx_tab5.tex
+  var_desc_s0: onl_appx_tab6.tex
+  var_desc_s1: onl_appx_tab7.tex
+  res_est: onl_appx_tab8.tex
 
 files:
   clr_plt: stata_colors.json # Color palette
@@ -41,23 +57,39 @@ general:
         run_descriptives.py,
     ]
 
-scraping:
-  headless: False # Do not show browser window
-  crawl_till: 2023-11-28 09:00:00
-  repeat_per: 9 # Period in hours during which matches are crawled
-                # before new tournaments are crawled
-  sleep: 3 # Hours to sleep between repeats
+# paths:  # TODO
+#   acc: ${hydra:runtime.cwd}/../../accessories/
+#   data_ext: ${hydra:runtime.cwd}/../../data/external/
+#   data_intrm: ${hydra:runtime.cwd}/../../data/interim/
+#   data_proc: ${hydra:runtime.cwd}/../../data/processed/
+#   data_raw: ${hydra:runtime.cwd}/../../data/raw/
+#   models: ${hydra:runtime.cwd}/../../models/
+#   figures: ${hydra:runtime.cwd}/../../reports/figures/
+#   tables: ${hydra:runtime.cwd}/../../reports/tables/
+#   vals: ${hydra:runtime.cwd}/../../reports/values/
+paths:
+  acc: ../../../accessories/
+  data_ext: ../../../data/external/
+  data_intrm: ../../../data/interim/
+  data_proc: ../../../data/processed/
+  data_raw: ../../../data/raw/
+  models: ../../../models/
+  figures: ../../../reports/figures/
+  tables: ../../../reports/tables/
+  vals: ../../../reports/values/
 
-estimation:
-  spec: BmHome # Which odds to use for analysis
-  compets: null # Which competitions ["ATP", "WTA"] or null
-  bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
-  odds_mvmnts: [2, 20] # Minimum and maximum of odds movements
-  ts_dur: [12, 72] # Min and max time series duration in hours
-  period: 12  # The period in hours of the time series to keep (e.g. last 12h)
-  resample_freq: "30min" # Frequency to which the series is resampled in min.
-  incr: 4 # Incremental step for periods for GMM estimation
-  max_iter: 100 # Maximum number of iterations for GMM
+
+plotting:
+  base_size: 16 # Base size of plotting objects
+  leg_mkr_size: 1 # Legend marker size
+  line_width: 1 # Line width
+  mkr_size: 8 # Marker size
+  ax_line_width: 0.8  # Axes line width
+  xtick_maj_width: 0.8 # Xticks major width
+  ytick_maj_width: 0.8 # Yticks major width
+  xtick_maj_size: 3.5 # Xticks major size
+  ytick_maj_size: 3.5 # Yticks major size
+  font_family: sans-serif # Font family
 
 sampling:
   # Normal means problem, multiple regression problem, and real-data example
@@ -70,14 +102,9 @@ sampling:
   vi_n_iter: 25000 # Number of iterations for variational inference
   vi_n_draws: 10000 # Number of draws for variational inference
 
-plotting:
-  base_size: 15 # Base size of plotting objects
-  leg_mkr_size: 1 # Legend marker size
-  line_width: 1.2 # Line width
-  mkr_size: 8 # Marker size
-  ax_line_width: 0.8  # Axes line width
-  xtick_maj_width: 0.8 # Xticks major width
-  ytick_maj_width: 0.8 # Yticks major width
-  xtick_maj_size: 3.5 # Xticks major size
-  ytick_maj_size: 3.5 # Yticks major size
-  font_family: sans-serif # Font family
+scraping:
+  headless: False # Do not show browser window
+  crawl_till: "2023-11-28 09:00:00"
+  repeat_per: 9 # Period in hours during which matches are crawled
+                # before new tournaments are crawled
+  sleep: 3 # Hours to sleep between repeats
