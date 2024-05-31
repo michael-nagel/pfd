@@ -9,7 +9,7 @@ import arviz as az
 import numpy as np
 import pandas as pd
 
-from pfd.helpers import create_pm_mod
+from pfd.helpers.base import create_pm_mod
 from pfd.utils import est_pm_mod
 
 # %% Class

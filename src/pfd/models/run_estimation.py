@@ -25,12 +25,13 @@ from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 
 from pfd.helpers import (
-    create_pm_mod,
     fit_gmm_mod,
     fit_rfa_mod,
+    gen_res_obj,
     impute_missings,
     save_tex_vals,
 )
+from pfd.helpers.base import create_pm_mod
 from pfd.utils import (
     Logger,
     NumFormat,
@@ -537,69 +538,6 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # PyMC probabilistic modeling
     # TODO helper fct?
-    def gen_res_obj(
-        df: pd.DataFrame, est_method: str, subset: str
-    ) -> Tuple[Any, Any, Any] | az.InferenceData:
-        """
-        Generate the result objects for ADVI and NUTS.
-
-        Parameters
-        ----------
-        df: pd.DataFrame
-            Input DataFrame.
-        est_method : str
-            Estimation method ("advi" or "nuts").
-        subset: str
-            Which subset of the data should be used for estimation.
-            Possible arguments are [tot, pro, amat].
-
-        Returns
-        -------
-        Tuple[Any, Any, Any] | az.InferenceData
-            Results for either ADVI or NUTS.
-        """
-        if subset not in ["tot", "pro", "amat"]:
-            raise ValueError("subset must be 'tot', 'pro' or 'amat'")
-
-        if subset == "pro":
-            df = df.loc[df["IsPro"] == 1]
-        elif subset == "amat":
-            df = df.loc[df["IsPro"] == 0]
-        else:
-            pass
-
-        model = create_pm_mod(df=df, n_per=n_per, incr=cfg.estimation.incr)
-
-        if est_method == "advi":
-            trace, tracker, advi = est_pm_mod(
-                model=model,
-                seed=cfg.general.seed,
-                vi=True,
-                vi_n_iter=100,
-                vi_n_draws=100,
-            )
-
-            return trace, tracker, advi
-
-        elif est_method == "nuts":
-            trace = est_pm_mod(
-                model=model,
-                seed=cfg.general.seed,
-                n_draws=500,
-                n_tune=100,
-                n_chains=cfg.sampling.n_chains,
-                n_cores=cfg.sampling.n_cores,
-                targ_acpt=cfg.sampling.targ_acpt,
-            )
-
-        else:
-            raise ValueError("est_method must be either 'advi' or 'nuts'")
-
-        trace.to_netcdf(
-            filename=f"{cfg.paths.models}trace_{est_method}_{subset}.nc"
-        )
-
-        return trace
 
     # trace = az.from_netcdf(
     #     filename=f"{cfg.paths.models}trace_{est_method}.nc"
@@ -608,19 +546,21 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
-        gen_res_obj(df=df, est_method="advi", subset="tot")
+        gen_res_obj(
+            df=df, est_method="advi", subset="tot", n_per=n_per, cfg=cfg
+        )
     )
 
     res_pm["nuts_tot"]["trace"] = gen_res_obj(
-        df=df, est_method="nuts", subset="tot"
+        df=df, est_method="nuts", subset="tot", n_per=n_per, cfg=cfg
     )
 
     res_pm["nuts_pro"]["trace"] = gen_res_obj(
-        df=df, est_method="nuts", subset="pro"
+        df=df, est_method="nuts", subset="pro", n_per=n_per, cfg=cfg
     )
 
     res_pm["nuts_amat"]["trace"] = gen_res_obj(
-        df=df, est_method="nuts", subset="amat"
+        df=df, est_method="nuts", subset="amat", n_per=n_per, cfg=cfg
     )
 
     for key in list(res_pm.keys()):
@@ -633,12 +573,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_pm[key]["sum"] = res_pm[key]["sum"][
             ~res_pm[key]["sum"].index.str.contains("interval__|log__")
         ].copy()
-        res_pm[key]["sum"] = format_sum(df=res_pm["nuts_tot"]["sum"], cfg=cfg)
-
-    # TODO save
-    gamma_mean, gamma_sd = res_pm["nuts_tot"]["sum"].loc[
-        ["mean_gamma", "sd_gamma"], "median"
-    ]
 
     pylab.rcParams.update(rcp_m)
 
@@ -720,6 +654,13 @@ def run_estimation(cfg: PFDConfig) -> None:
         path=f"{cfg.paths.figures}facetgrid_gamma_nuts_pro_amat.pdf",
         save=cfg.general.save,
     )
+
+    # TODO save
+    gamma_mean, gamma_sd = res_pm["nuts_tot"]["sum"].loc[
+        ["mean_gamma", "sd_gamma"], "median"
+    ]
+    for key in list(res_pm.keys()):
+        res_pm[key]["sum"] = format_sum(df=res_pm[key]["sum"], cfg=cfg)
 
     # test = pd.merge(
     #     left=sum_nuts_pro["mean"],

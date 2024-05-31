@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 
+from pfd.helpers.base import create_pm_mod
 from pfd.utils import NumFormat
-from pfd.helpers import create_pm_mod
 
 # %% Class
 
@@ -28,11 +28,7 @@ class UnitTest(unittest.TestCase):
         df["Bookies"] = np.repeat(["Pinnacle", "Marathonbet"], 50)
 
         # Instatiate model
-        model = create_pm_mod(
-            df=df,
-            n_per=21,
-            incr=4
-        )
+        model = create_pm_mod(df=df, n_per=21, incr=4)
 
         self.assertIsInstance(model, pm.Model)
 
