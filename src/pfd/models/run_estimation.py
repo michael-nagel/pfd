@@ -537,11 +537,15 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     # PyMC probabilistic modeling
-    # TODO helper fct?
 
     # trace = az.from_netcdf(
     #     filename=f"{cfg.paths.models}trace_{est_method}.nc"
     # )
+
+    # def dd():
+    #     return defaultdict()
+
+    # res_pm: DefaultDict[str, Any] = defaultdict(dd)
 
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 

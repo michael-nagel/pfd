@@ -6,6 +6,7 @@
 from typing import Any, Tuple
 
 import arviz as az
+import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
@@ -60,6 +61,12 @@ def gen_res_obj(
             vi_n_iter=cfg.sampling.vi_n_iter,
             vi_n_draws=cfg.sampling.vi_n_draws,
         )
+
+        np.save(
+            file=f"{cfg.paths.models}tracker_mean.npy", arr=tracker["mean"]
+        )
+        np.save(file=f"{cfg.paths.models}tracker_std.npy", arr=tracker["std"])
+        np.save(file=f"{cfg.paths.models}advi_hist.npy", arr=advi.hist)
 
         return trace, tracker, advi
 
