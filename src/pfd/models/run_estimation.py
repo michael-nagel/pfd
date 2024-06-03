@@ -651,7 +651,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     plot_facetgrid(
         mod_trace={
             "Professionals": res_pm["nuts_pro"]["trace"],
-            "Amateurs": res_pm["nuts_pro"]["trace"],
+            "Amateurs": res_pm["nuts_amat"]["trace"],
         },
         param="gamma",
         color_palette=stata_colors,
@@ -722,6 +722,12 @@ def run_estimation(cfg: PFDConfig) -> None:
         # TODO see eca -> eval_ffnn.py
         values_path = f"{cfg.paths.vals}{cfg.files.vals}"
         save_tex_vals(key="n_obs", value=n_obs, file_name=values_path)
+        save_tex_vals(
+            key="gamma_mean", value=gamma_mean, file_name=values_path, fmt="2f"
+        )
+        save_tex_vals(
+            key="gamma_std", value=gamma_sd, file_name=values_path, fmt="2f"
+        )
         save_tex_vals(
             key="is_amateur",
             value=is_amateur,

@@ -78,9 +78,9 @@ def plot_facetgrid(
         g = sns.FacetGrid(
             param_vals,
             col="Bookies",
-            col_wrap=4,
+            col_wrap=6,
             sharex=True,
-            sharey=False,
+            sharey=True,
         )
         g.map(
             sns.violinplot,
@@ -98,7 +98,7 @@ def plot_facetgrid(
         g.add_legend(
             title=None,
             loc="upper center",
-            bbox_to_anchor=(0.38, 0.015),
+            bbox_to_anchor=(0.42, 0.015),
             ncol=2,
         )
         if param == "Phi":
@@ -118,9 +118,9 @@ def plot_facetgrid(
         g = sns.FacetGrid(
             param_vals,
             col="Bookies",
-            col_wrap=4,
+            col_wrap=6,
             sharex=True,
-            sharey=False,
+            sharey=True,
         )
         g.map(
             sns.violinplot,
