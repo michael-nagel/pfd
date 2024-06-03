@@ -79,7 +79,7 @@ def plot_facetgrid(
             param_vals,
             col="Bookies",
             col_wrap=4,
-            sharex=False,
+            sharex=True,
             sharey=False,
         )
         g.map(
@@ -119,7 +119,7 @@ def plot_facetgrid(
             param_vals,
             col="Bookies",
             col_wrap=4,
-            sharex=False,
+            sharex=True,
             sharey=False,
         )
         g.map(
