@@ -14,7 +14,7 @@ import hydra
 import pandas as pd
 from hydra.core.config_store import ConfigStore
 
-from pfd.helpers import save_tex_vals
+from pfd.helpers import save_values
 from pfd.utils import Logger, PFDConfig, shape_odds
 
 # Hydra Setup
@@ -295,10 +295,10 @@ def shape_data(cfg: PFDConfig) -> None:
 
     if cfg.general.save:
         values_path = f"{cfg.paths.vals}{cfg.files.vals}"
-        save_tex_vals(
+        save_values(
             key="n_matches_tot", value=n_matches_tot, file_name=values_path
         )
-        save_tex_vals(key="n_bm_tot", value=n_bm_tot, file_name=values_path)
+        save_values(key="n_bm_tot", value=n_bm_tot, file_name=values_path)
 
         timestamps.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}timestamps.h5",

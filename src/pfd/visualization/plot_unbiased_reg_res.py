@@ -46,7 +46,7 @@ def plot_unbiased_reg_res(
     intcp_ax.hlines(
         y=0, xmin=0, xmax=len(res_ur["beta_0"]) - 1, linestyles="dotted"
     )
-    intcp_ax.set(xlabel="Hours Before Market Close", ylabel="Intercept")
+    intcp_ax.set(xlabel="", ylabel="Intercept")
     intcp_ax.set_xticks(
         np.arange(0, len(res_ur["beta_0"]))[::4],
         np.flip(np.arange(0, len(res_ur["beta_0"])))[::4] * len_per + len_per,
@@ -63,7 +63,7 @@ def plot_unbiased_reg_res(
     slope_ax.hlines(
         y=1, xmin=0, xmax=len(res_ur["beta_1"]) - 1, linestyles="dotted"
     )
-    slope_ax.set(xlabel="Hours Before Market Close", ylabel="Slope")
+    slope_ax.set(xlabel="", ylabel="Slope")
     slope_ax.set_xticks(
         np.arange(0, len(res_ur["beta_1"]))[::4],
         np.flip(np.arange(0, len(res_ur["beta_1"])))[::4] * len_per + len_per,

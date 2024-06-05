@@ -8,7 +8,7 @@ from pfd.utils import NumFormat
 # Function
 
 
-def save_tex_vals(
+def save_values(
     key: str, value: float, file_name: str, fmt: str | None = None
 ) -> None:
     """

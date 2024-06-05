@@ -29,7 +29,7 @@ from pfd.helpers import (
     fit_rfa_mod,
     gen_res_obj,
     impute_missings,
-    save_tex_vals,
+    save_values,
 )
 from pfd.helpers.base import create_pm_mod
 from pfd.utils import (
@@ -44,6 +44,7 @@ from pfd.utils import (
     finalize_plot,
     fit_mixed_lm,
     format_sum,
+    mod_tex_tab,
     pivot_df,
     resample,
     scale_vars,
@@ -214,8 +215,8 @@ def run_estimation(cfg: PFDConfig) -> None:
     icc = group_var / (group_var + resid_var)  # calculate ICC
 
     tex_res_rfa = res_rfa_re.summary().as_latex().splitlines(True)
-    tex_res_rfa_p1 = tex_res_rfa[5:13]  # export part 1 to latex
-    tex_res_rfa_p2 = tex_res_rfa[18:-4]  # export part 2 to latex
+    tex_res_rfa_p1 = tex_res_rfa[6:13]  # export part 1 to latex
+    tex_res_rfa_p2 = tex_res_rfa[19:-4]  # export part 2 to latex
 
     df_res_rfa = pd.DataFrame(data=res_rfa, index=bookies + ["All"])
     df_res_rfa = df_res_rfa.loc[:, df_res_rfa.columns != "fitted_model"]
@@ -309,8 +310,8 @@ def run_estimation(cfg: PFDConfig) -> None:
     # ["bfgs", "lbfgs", "cg"]
 
     tex_res_wp = res_mod_win_props.summary().as_latex().splitlines(True)
-    tex_res_wp_p1 = tex_res_wp[5:13]  # export part 1 to latex
-    tex_res_wp_p2 = tex_res_wp[18:-4]  # export part 2 to latex
+    tex_res_wp_p1 = tex_res_wp[6:13]  # export part 1 to latex
+    tex_res_wp_p2 = tex_res_wp[19:-4]  # export part 2 to latex
 
     for bookie in bookies + ["All"]:
         res_win_props[bookie].rename(
@@ -587,11 +588,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     std_ax = fig.add_subplot(222)
     hist_ax = fig.add_subplot(212)
     mu_ax.plot(res_pm["vi"]["tracker"]["mean"])
-    mu_ax.set(title="Mean Track", xlabel="Iterations", ylabel="Value")
+    mu_ax.set(xlabel="Iterations", ylabel="Mean")
     std_ax.plot(res_pm["vi"]["tracker"]["std"])
-    std_ax.set(title="Std.Track", xlabel="Iterations", ylabel="Value")
+    std_ax.set(xlabel="Iterations", ylabel="Std")
     hist_ax.plot(res_pm["vi"]["advi"].hist)
-    hist_ax.set(title="Neg. ELBO Track", xlabel="Iterations", ylabel="Value")
+    hist_ax.set(xlabel="Iterations", ylabel="Neg. ELBO")
     finalize_plot(
         path=f"{cfg.paths.figures}tracker_advi.pdf",
         save=cfg.general.save,
@@ -661,8 +662,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # TODO save
-    gamma_mean, gamma_sd = res_pm["nuts_tot"]["sum"].loc[
+    gamma_mean, gamma_std = res_pm["nuts_tot"]["sum"].loc[
         ["mean_gamma", "sd_gamma"], "median"
     ]
     for key in list(res_pm.keys()):
@@ -721,36 +721,27 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
-        # TODO see eca -> eval_ffnn.py
-        values_path = f"{cfg.paths.vals}{cfg.files.vals}"
-        save_tex_vals(key="n_obs", value=n_obs, file_name=values_path)
-        save_tex_vals(
-            key="gamma_mean", value=gamma_mean, file_name=values_path, fmt="2f"
-        )
-        save_tex_vals(
-            key="gamma_std", value=gamma_sd, file_name=values_path, fmt="2f"
-        )
-        save_tex_vals(
-            key="is_amateur",
-            value=is_amateur,
-            file_name=values_path,
-            fmt=".2%",
-        )
-        save_tex_vals(
-            key="is_pro", value=is_pro, file_name=values_path, fmt=".2%"
-        )
-        save_tex_vals(key="icc", value=icc, file_name=values_path)
-        save_tex_vals(
-            key="n_missings", value=n_missings, file_name=values_path
-        )
-        save_tex_vals(key="n_per", value=n_per, file_name=values_path)
-        save_tex_vals(key="len_per", value=len_per, file_name=values_path)
-        save_tex_vals(
-            key="avg_gamma_gmm", value=avg_gamma_gmm, file_name=values_path
-        )
-        save_tex_vals(
-            key="avg_phi_gmm", value=avg_phi_gmm, file_name=values_path
-        )
+        values_to_save = {
+            "n_obs": (n_obs, ".6g"),
+            "gamma_mean": (gamma_mean, ".2f"),
+            "gamma_std": (gamma_std, ".2f"),
+            "is_amateur": (is_amateur, ".2%"),
+            "is_pro": (is_pro, ".2%"),
+            "icc": (icc, ".4f"),
+            "n_missings": (n_missings + 1, ".4g"),
+            "n_per": (n_per, ".2f"),
+            "len_per": (len_per, ".2f"),
+            "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
+            "avg_phi_gmm": (avg_phi_gmm, ".4f"),
+        }
+
+        for key, (value, fmt) in values_to_save.items():
+            save_values(
+                key=key,
+                value=value,
+                file_name=f"{cfg.paths.vals}{cfg.files.vals}",
+                fmt=fmt,
+            )
 
         write_text_file(
             file=f"{cfg.paths.tables}res_rfa_p1.tex",
@@ -768,9 +759,11 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         write_text_file(
             file=f"{cfg.paths.tables}res_rfa_tot.tex",
-            body=df_res_rfa.apply(NumFormat.format_col)
-            .style.format(na_rep="")
-            .to_latex(),
+            body=mod_tex_tab(
+                tab=df_res_rfa.apply(NumFormat.format_col)
+                .style.format(na_rep="")
+                .to_latex()
+            ),
         )
 
         write_text_file(
@@ -789,24 +782,28 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         write_text_file(
             file=f"{cfg.paths.tables}res_wp_re.tex",
-            body=res_win_props["All"]
-            .apply(NumFormat.format_col)
-            .style.hide(axis="index")
-            .format(na_rep="")
-            .to_latex(),
+            body=mod_tex_tab(
+                tab=res_win_props["All"]
+                .apply(NumFormat.format_col)
+                .style.hide(axis="index")
+                .format(na_rep="")
+                .to_latex()
+            ),
         )
 
         write_text_file(
             file=f"{cfg.paths.tables}res_pm_mod.tex",
-            body=res_pm["nuts_tot"]["sum"]
-            .apply(NumFormat.format_col)
-            .style.format(
-                formatter={
-                    r"$\hat{R}$": NumFormat(my_format="{:.2f}").format_post
-                },
-                na_rep="",
-            )
-            .to_latex(),
+            body=mod_tex_tab(
+                tab=res_pm["nuts_tot"]["sum"]
+                .apply(NumFormat.format_col)
+                .style.format(
+                    formatter={
+                        r"$\hat{R}$": NumFormat(my_format="{:.2f}").format_post
+                    },
+                    na_rep="",
+                )
+                .to_latex()
+            ),
         )
 
     # Execution Time and Log File Finish

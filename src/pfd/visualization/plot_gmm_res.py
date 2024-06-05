@@ -66,7 +66,7 @@ def plot_gmm_res(
         lw=1,
     )
     ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[1].set(ylabel=r"$\hat{\Phi}$")
+    ax[1].set(xlabel="Bookmaker", ylabel=r"$\hat{\Phi}$")
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[0], save=save)
 
@@ -86,7 +86,7 @@ def plot_gmm_res(
         edgecolor=edgecolor,
     )
     ax[1].hlines(y=0.05, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[1].set(ylabel="p-value")
+    ax[1].set(xlabel="Bookmaker", ylabel="p-value")
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[1], save=save)
 
@@ -96,6 +96,6 @@ def plot_gmm_res(
     ax[0].set(ylabel=r"$\hat{\gamma}$")
     sns.boxplot(data=phi_tot, ax=ax[1], showfliers=False)
     ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[1].set(ylabel=r"$\hat{\Phi}$")
+    ax[1].set(xlabel="Bookmaker", ylabel=r"$\hat{\Phi}$")
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[2], save=save)
