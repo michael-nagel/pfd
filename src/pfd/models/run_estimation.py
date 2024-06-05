@@ -193,7 +193,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     sns.histplot(data=df_oc, x="DltOpnCls", stat="density")
     ax.set(xlabel="$Q_T - Q_1$")
     finalize_plot(
-        path=f"{cfg.paths.figures}delta_opn_cls.pdf", save=cfg.general.save
+        path=f"{cfg.paths.figures}delta_opn_cls.png",
+        save=cfg.general.save,
+        fmt="png",
     )
 
     exog_cols = [col for col in df_oc.columns if col.startswith("Compet")] + [

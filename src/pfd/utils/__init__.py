@@ -22,6 +22,7 @@ from .fit_mixed_lm import fit_mixed_lm
 from .format_sum import format_sum
 from .logger import Logger
 from .login import login
+from .mod_tex_tab import mod_tex_tab
 from .num_format import NumFormat
 from .pivot_df import pivot_df
 from .plot_params import PlotParams

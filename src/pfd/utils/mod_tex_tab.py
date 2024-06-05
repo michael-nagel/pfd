@@ -18,6 +18,7 @@ def mod_tex_tab(tab: str) -> str:
     str
         Modified TeX table.
     """
-    lines = tab.split('\n')
-    lines.insert(2, '\\midrule')
-    return '\n'.join(lines)
+    lines = tab.split("\n")
+    lines.insert(2, "\\midrule")
+    lines.insert(-2, "\\bottomrule")
+    return "\n".join(lines)

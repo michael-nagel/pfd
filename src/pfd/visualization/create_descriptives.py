@@ -25,6 +25,7 @@ from pfd.utils import (
     PlotParams,
     calc_losses,
     finalize_plot,
+    mod_tex_tab,
     write_text_file,
 )
 
@@ -120,8 +121,9 @@ def create_descriptives(cfg: PFDConfig) -> None:
     ax.set(xlabel="Crawling Date")
     plt.xticks(rotation=45)
     finalize_plot(
-        path=f"{cfg.paths.figures}crawling_process.pdf",
+        path=f"{cfg.paths.figures}crawling_process.png",
         save=cfg.general.save,
+        fmt="png",
     )
 
     exem_match = df.loc[
@@ -137,7 +139,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     _, ax = plt.subplots()
     ax.plot(exem_match.index, exem_match["OddsMvt"])
-    ax.set(xlabel="Timestamp", ylabel="Implied Probability")
+    ax.set(xlabel="Update", ylabel="Implied Probability")
     plt.xticks(rotation=45)
     finalize_plot(
         path=f"{cfg.paths.figures}ts_exem_match.pdf", save=cfg.general.save
@@ -147,14 +149,14 @@ def create_descriptives(cfg: PFDConfig) -> None:
     sns.histplot(
         data=df.groupby("GroupId")["NumOddsMvt"].first(),
         bins=df["NumOddsMvt"].nunique(),
-        binrange=[1, 20],
         discrete=True,
         stat="density",
     )
     ax.set(xlabel="Number of Odds Movements")
     plt.xticks(np.arange(1, 21, 1))
     finalize_plot(
-        path=f"{cfg.paths.figures}hist_odds_mvts.pdf", save=cfg.general.save
+        path=f"{cfg.paths.figures}hist_odds_mvts.pdf",
+        save=cfg.general.save,
     )
 
     _, ax = plt.subplots()
@@ -167,23 +169,29 @@ def create_descriptives(cfg: PFDConfig) -> None:
     ax.set(xlabel="Time Series Duration (h)")
     plt.xticks(np.linspace(df["TsDur"].min(), df["TsDur"].max(), 6, dtype=int))
     finalize_plot(
-        path=f"{cfg.paths.figures}hist_ts_dur.pdf", save=cfg.general.save
+        path=f"{cfg.paths.figures}hist_ts_dur.png",
+        save=cfg.general.save,
+        fmt="png",
     )
 
     # Saving
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_num.tex",
-        body=desc_num.map(NumFormat.format_num)
-        .style.format(na_rep="")
-        .to_latex(),
+        body=mod_tex_tab(
+            tab=desc_num.map(NumFormat.format_num)
+            .style.format(na_rep="")
+            .to_latex()
+        ),
     )
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_cat.tex",
-        body=desc_cat.apply(NumFormat.format_col)
-        .style.format(na_rep="")
-        .to_latex(),
+        body=mod_tex_tab(
+            tab=desc_cat.apply(NumFormat.format_col)
+            .style.format(na_rep="")
+            .to_latex()
+        ),
     )
 
     # Execution Time and Log File Finish
