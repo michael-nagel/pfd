@@ -552,6 +552,24 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 
+    # res_pm["vi"]["trace"] = az.from_netcdf(
+    #     filename=f"{cfg.paths.models}trace_advi_tot.nc"
+    # )
+    # res_pm["nuts_tot"]["trace"] = az.from_netcdf(
+    #     filename=f"{cfg.paths.models}trace_nuts_tot.nc"
+    # )
+    # res_pm["nuts_pro"]["trace"] = az.from_netcdf(
+    #     filename=f"{cfg.paths.models}trace_nuts_pro.nc"
+    # )
+    # res_pm["nuts_amat"]["trace"] = az.from_netcdf(
+    #     filename=f"{cfg.paths.models}trace_nuts_amat.nc"
+    # )
+    # res_pm["vi"]["tracker"] = {
+    #     "mean": np.load(file=f"{cfg.paths.models}tracker_mean.npy"),
+    #     "std": np.load(file=f"{cfg.paths.models}tracker_std.npy")
+    # }
+    # res_pm["vi"]["advi"] = np.load(file=f"{cfg.paths.models}advi_hist.npy")
+
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
         gen_res_obj(
             df=df, est_method="advi", subset="tot", n_per=n_per, cfg=cfg
@@ -588,9 +606,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     std_ax = fig.add_subplot(222)
     hist_ax = fig.add_subplot(212)
     mu_ax.plot(res_pm["vi"]["tracker"]["mean"])
-    mu_ax.set(xlabel="Iterations", ylabel="Mean")
+    mu_ax.set(xlabel="", ylabel="Mean")
     std_ax.plot(res_pm["vi"]["tracker"]["std"])
-    std_ax.set(xlabel="Iterations", ylabel="Std")
+    std_ax.set(xlabel="", ylabel="Std.")
     hist_ax.plot(res_pm["vi"]["advi"].hist)
     hist_ax.set(xlabel="Iterations", ylabel="Neg. ELBO")
     finalize_plot(
@@ -629,7 +647,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     plot_traces(
         mod_trace=res_pm["nuts_tot"]["trace"],
         param="gamma",
-        path=f"{cfg.paths.figures}traces_gamma_nuts_tot.pdf",
+        path=[
+            f"{cfg.paths.figures}traces_gamma_nuts_tot_1.pdf",
+            f"{cfg.paths.figures}traces_gamma_nuts_tot_2.pdf",
+        ],
         save=cfg.general.save,
     )
 
@@ -722,15 +743,15 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
         values_to_save = {
-            "n_obs": (n_obs, ".6g"),
+            "n_obs": (n_obs, ".0f"),
             "gamma_mean": (gamma_mean, ".2f"),
             "gamma_std": (gamma_std, ".2f"),
-            "is_amateur": (is_amateur, ".2%"),
-            "is_pro": (is_pro, ".2%"),
+            "is_amateur": (is_amateur, ".2\%"),  # TODO check if this works
+            "is_pro": (is_pro, ".2\%"),
             "icc": (icc, ".4f"),
-            "n_missings": (n_missings + 1, ".4g"),
-            "n_per": (n_per, ".2f"),
-            "len_per": (len_per, ".2f"),
+            "n_missings": (n_missings + 1, ".0f"),
+            "n_per": (n_per, ".0f"),
+            "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
             "avg_phi_gmm": (avg_phi_gmm, ".4f"),
         }

@@ -85,6 +85,6 @@ def plot_posteriors(
             ax=ax[1],
             ref_val=ref_vals[1] if ref_vals else {},
         )
-        ax[1].set(title="", xlabel="$\\widebar{\\,\\Phi}$", ylabel="")
+        ax[1].set(title="", xlabel="$\\widebar{\\,\\Phi}$", ylabel="Density")
         ax[1].ticklabel_format(style="sci", scilimits=(0, 0), axis="x")
         finalize_plot(path=path, save=save)

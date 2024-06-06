@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # Function
 
 
-def finalize_plot(path: str, save: bool, fmt: str = "pdf") -> None:
+def finalize_plot(path: str | list, save: bool, fmt: str = "pdf") -> None:
     """
     Finalize plot.
 
@@ -16,7 +16,7 @@ def finalize_plot(path: str, save: bool, fmt: str = "pdf") -> None:
 
     Parameters
     ----------
-    path : str
+    path : str | list
         The location and file name for the plot to be stored.
     save : bool
         Save figure if True.
