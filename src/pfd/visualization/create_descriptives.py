@@ -73,6 +73,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     # Tables
 
+    # Descriptives for numerical variables
     desc_num = df[
         ["Match", "OddsMvt", "OpnOdds", "ClsOdds", "TsDur", "NumOddsMvt"]
     ].describe()
@@ -87,6 +88,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
         )
     )
 
+    # Descriptives for categorical variables
     desc_cat = df[
         ["Bookies", "Country", "Competition", "Tournament"]
     ].describe()
@@ -94,6 +96,56 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     # Plotting
 
+    # Empirical distribution of implied probabilities
+    pylab.rcParams.update(rcp_s)
+
+    _, ax = plt.subplots()
+    sns.histplot(
+        data=df,
+        x="OddsMvt",
+        stat="density",
+        kde=True,
+        bins=25,
+    )
+    ax.set(xlabel="$Q$")
+    finalize_plot(
+        path=f"{cfg.paths.figures}dist_implied_probs.pdf",
+        save=cfg.general.save,
+    )
+
+    opn_cls = pd.concat(
+        objs=[df["OpnOdds"], df["ClsOdds"]], keys=["$Q_1$", "$Q_T$"]
+    ).reset_index()
+    opn_cls.columns = ["Type", "Index", "Odds"]
+    opn_cls = opn_cls.drop(columns=["Index"])
+
+    # _, ax = plt.subplots()
+    # sns.kdeplot(data=df[["OpnOdds", "ClsOdds"]], fill=True, alpha=0.2)
+    # ax.set(xlabel="Value")
+    # ax.legend(title="")
+    # finalize_plot(
+    #     path=f"{cfg.paths.figures}violin_opn_cls.pdf",
+    #     save=cfg.general.save,
+    # )
+
+    _, ax = plt.subplots()
+    sns.violinplot(
+        data=opn_cls,
+        x="Odds",
+        hue="Type",
+        inner="quart",
+        split=True,
+        gap=0.05,
+        common_norm=True,
+    )
+    ax.set(ylabel="Density", xlabel="Value")
+    ax.legend(title="")
+    finalize_plot(
+        path=f"{cfg.paths.figures}violin_opn_cls.pdf",
+        save=cfg.general.save,
+    )
+
+    # Brierscore and log loss
     metrics = df.groupby("Bookies").apply(calc_losses, include_groups=False)
     metrics = pd.DataFrame(
         metrics.tolist(), columns=["BrierLoss", "LogLoss"], index=metrics.index
@@ -111,7 +163,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
         path=f"{cfg.paths.figures}log_brier_loss.pdf", save=cfg.general.save
     )
 
-    timestamps = pd.to_datetime(timestamps, errors="coerce")
     timestamps = timestamps.dt.date
 
     pylab.rcParams.update(rcp_s)

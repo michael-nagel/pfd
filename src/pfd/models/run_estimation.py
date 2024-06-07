@@ -114,6 +114,8 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df["GroupId"] = df.groupby(["Matchup", "Bookies"]).ngroup()
 
+    n_groups = df["GroupId"].nunique()
+
     df = df[
         df.groupby("Bookies")["Bookies"].transform("size")
         > df["Bookies"].value_counts().quantile(cfg.estimation.bm_quantile)
@@ -744,10 +746,11 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         values_to_save = {
             "n_obs": (n_obs, ".0f"),
+            "n_groups": (n_groups, ".0f"),
             "gamma_mean": (gamma_mean, ".2f"),
             "gamma_std": (gamma_std, ".2f"),
-            "is_amateur": (is_amateur, ".2\%"),  # TODO check if this works
-            "is_pro": (is_pro, ".2\%"),
+            "is_amateur": (is_amateur, ".4f"),
+            "is_pro": (is_pro, ".4f"),
             "icc": (icc, ".4f"),
             "n_missings": (n_missings + 1, ".0f"),
             "n_per": (n_per, ".0f"),

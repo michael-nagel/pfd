@@ -11,7 +11,9 @@ import json
 from typing import Any, List
 
 import hydra
+import numpy as np
 import pandas as pd
+from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 
 from pfd.helpers import save_values
@@ -21,6 +23,11 @@ from pfd.utils import Logger, PFDConfig, shape_odds
 
 cs = ConfigStore.instance()
 cs.store(name="pfd_config", node=PFDConfig)
+
+with initialize(
+    version_base=None, config_path="../conf", job_name="shape_data"
+):
+    cfg = compose(config_name="config")
 
 # Function
 
@@ -47,7 +54,13 @@ def shape_data(cfg: PFDConfig) -> None:
 
     n_matches_tot = df.shape[0]
     n_bm_tot = df["Bookies"].map(len).max()
+
     timestamps = df["Timestamp"].copy()
+    timestamps = pd.to_datetime(timestamps, errors="coerce")
+
+    crawl_dur = (timestamps.iloc[-1] - timestamps.iloc[0]) / np.timedelta64(
+        1, "W"
+    )
 
     df = df.dropna(
         subset=[
@@ -299,6 +312,9 @@ def shape_data(cfg: PFDConfig) -> None:
             key="n_matches_tot", value=n_matches_tot, file_name=values_path
         )
         save_values(key="n_bm_tot", value=n_bm_tot, file_name=values_path)
+        save_values(
+            key="crawl_dur", value=crawl_dur, file_name=values_path, fmt=".0f"
+        )
 
         timestamps.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}timestamps.h5",
