@@ -10,9 +10,10 @@ estimation:
   bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
   odds_mvmnts: [2, 20] # Minimum and maximum of odds movements
   ts_dur: [12, 72] # Min and max time series duration in hours
-  period: 12  # The period in hours of the time series to keep (e.g. last 12h)
-  resample_freq: 30min # Frequency to which the series is resampled in min.
-  incr: 4 # Incremental step for periods for GMM estimation
+  period: Null  # The period (h) of the time series to keep (e.g., last 12h)
+  resample_freq: 1min # Frequency (min) to which the series is resampled
+  pctl: 0.02  # Percentile time increments
+  incr: 2 # Incremental step for periods for GMM estimation
   max_iter: 100 # Maximum number of iterations for GMM
 
 filenames:

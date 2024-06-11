@@ -20,6 +20,7 @@ from .est_pm_mod import est_pm_mod
 from .finalize_plot import finalize_plot
 from .fit_mixed_lm import fit_mixed_lm
 from .format_sum import format_sum
+from .keep_pctls import keep_pctls
 from .logger import Logger
 from .login import login
 from .mod_tex_tab import mod_tex_tab

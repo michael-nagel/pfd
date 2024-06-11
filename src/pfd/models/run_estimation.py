@@ -8,6 +8,7 @@ This file runs the estimation procedure.
 # Imports
 
 import json
+import os
 from collections import defaultdict
 from functools import partial
 from multiprocessing import Pool
@@ -21,8 +22,12 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import statsmodels.formula.api as smf
+from arch import arch_model
 from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
+from matplotlib.ticker import MaxNLocator
+from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.tsa.stattools import acf
 
 from pfd.helpers import (
     fit_gmm_mod,
@@ -44,6 +49,7 @@ from pfd.utils import (
     finalize_plot,
     fit_mixed_lm,
     format_sum,
+    keep_pctls,
     mod_tex_tab,
     pivot_df,
     resample,
@@ -217,8 +223,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     icc = group_var / (group_var + resid_var)  # calculate ICC
 
     tex_res_rfa = res_rfa_re.summary().as_latex().splitlines(True)
-    tex_res_rfa_p1 = tex_res_rfa[6:13]  # export part 1 to latex
-    tex_res_rfa_p2 = tex_res_rfa[19:-4]  # export part 2 to latex
+    tex_res_rfa_p1 = tex_res_rfa[6:12]  # export part 1 to latex
+    tex_res_rfa_p1.append("\\bottomrule\n")
+    tex_res_rfa_p2 = tex_res_rfa[19:-5]  # export part 2 to latex
+    tex_res_rfa_p2.append("\\bottomrule\n")
+    tex_res_rfa_p2[1] = "\\midrule\n"
 
     df_res_rfa = pd.DataFrame(data=res_rfa, index=bookies + ["All"])
     df_res_rfa = df_res_rfa.loc[:, df_res_rfa.columns != "fitted_model"]
@@ -229,12 +238,12 @@ def run_estimation(cfg: PFDConfig) -> None:
                 df_res_rfa.columns,
                 [
                     "$N$",
-                    "$rmse(e_1)$",
-                    "$rmse(e_2)$",
+                    "RMSE$(e_1)$",
+                    "RMSE$(e_2)$",
                     r"$\beta_0$",
                     r"$\beta_1$",
-                    r"$p_{\beta_0}$",
-                    r"$p_{\beta_1}$",
+                    r"$p(\beta_0)$",
+                    r"$p(\beta_1)$",
                 ],
             )
         )
@@ -312,8 +321,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     # ["bfgs", "lbfgs", "cg"]
 
     tex_res_wp = res_mod_win_props.summary().as_latex().splitlines(True)
-    tex_res_wp_p1 = tex_res_wp[6:13]  # export part 1 to latex
-    tex_res_wp_p2 = tex_res_wp[19:-4]  # export part 2 to latex
+    tex_res_wp_p1 = tex_res_wp[6:12]  # export part 1 to latex
+    tex_res_wp_p1.append("\\bottomrule\n")
+    tex_res_wp_p2 = tex_res_wp[19:-5]  # export part 2 to latex
+    tex_res_wp_p2.append("\\bottomrule\n")
+    tex_res_wp_p2[1] = "\\midrule\n"
 
     for bookie in bookies + ["All"]:
         res_win_props[bookie].rename(
@@ -365,57 +377,142 @@ def run_estimation(cfg: PFDConfig) -> None:
     # print(res_wls.summary())
     # print(res_wls.summary().as_latex())
 
-    # Unbiasedness Regressions
+    # Odds Series
 
     # df = df.drop_duplicates(subset=["GroupId", "Update"])
 
-    df = df[df["NumOddsMvt"] > 4]
-    df = df.reset_index(drop=True)
+    # df = df[df["NumOddsMvt"] > 4]  # TODO
+    # df = df.reset_index(drop=True)
 
     df["TsStart"] = df.groupby("Matchup")["Update"].transform("min")
     df["TsEnd"] = df.groupby("Matchup")["Update"].transform("max")
 
     df = df.set_index("Update")
 
-    # df_x = df[df["NumOddsMvt"] > 4]
-    # df_sub_1 = df_x.groupby("GroupId").last()
-    # df_sub_2 = df_x.loc[
-    #     df_x["TsEnd"] - pd.Timedelta(hours=2) < df_x.index
-    # ].copy()
-    # df_sub_2 = df_sub_2.groupby("GroupId").first()
-    # df_sub = pd.merge(
-    #     left=df_sub_1, right=df_sub_2, how="inner", on="GroupId"
-    #     )
-    # print((df_sub.OddsMvt_x == df_sub.OddsMvt_y).sum() / len(df_sub))
+    group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
+    df = df[group_std > 0]  # remove groups with zero odds variance
 
-    df = df.groupby("GroupId").apply(
-        resample,
-        period=cfg.estimation.period,
-        freq=cfg.estimation.resample_freq,
-        include_groups=False,
+    def partition_list(lst, n_parts):
+        # Calculate the size of each partition
+        avg = len(lst) / float(n_parts)
+        out = []
+        last = 0.0
+
+        while last < len(lst):
+            out.append(lst[int(last) : int(last + avg)])
+            last += avg
+
+        return out
+
+    def process_group(df_sub):
+        return df_sub.groupby("GroupId").apply(
+            resample,
+            period=cfg.estimation.period,
+            freq=cfg.estimation.resample_freq,
+            pctls=np.arange(0, 1 + cfg.estimation.pctl, cfg.estimation.pctl),
+            include_groups=False,
+        )
+
+    def split_calc(df):
+        partitions = partition_list(
+            lst=list(df["Matchup"].unique()), n_parts=cfg.sampling.n_cores
+        )
+
+        with Pool(processes=os.cpu_count()) as pool:
+            res_pool_resample = pool.map(
+                process_group,
+                [
+                    df.loc[df["Matchup"].isin(partition)]
+                    for partition in partitions
+                ],
+            )
+
+        df = pd.concat(res_pool_resample, ignore_index=False)
+
+        return df
+
+    df_part_1 = df.loc[
+        df["GroupId"].isin(
+            df["GroupId"].unique()[: df["GroupId"].nunique() // 2]
+        ),
+        :,
+    ]
+    df_part_2 = df.loc[
+        df["GroupId"].isin(
+            df["GroupId"].unique()[df["GroupId"].nunique() // 2 : :]
+        ),
+        :,
+    ]
+
+    unique_group_ids = df["GroupId"].unique()
+
+    # Calculate the number of unique GroupIds
+    num_unique_group_ids = df["GroupId"].nunique()
+
+    # Determine the split points
+    split_points = [
+        num_unique_group_ids // 4,
+        num_unique_group_ids // 2,
+        3 * num_unique_group_ids // 4,
+    ]
+
+    # Split the unique GroupIds into 4 parts
+    group_ids_part_1 = unique_group_ids[: split_points[0]]
+    group_ids_part_2 = unique_group_ids[split_points[0] : split_points[1]]
+    group_ids_part_3 = unique_group_ids[split_points[1] : split_points[2]]
+    group_ids_part_4 = unique_group_ids[split_points[2] :]
+
+    # Create the 4 DataFrame parts based on the split GroupIds
+    df_part_1 = df.loc[df["GroupId"].isin(group_ids_part_1), :]
+    df_part_2 = df.loc[df["GroupId"].isin(group_ids_part_2), :]
+    df_part_3 = df.loc[df["GroupId"].isin(group_ids_part_3), :]
+    df_part_4 = df.loc[df["GroupId"].isin(group_ids_part_4), :]
+
+    df_part_1 = split_calc(df=df_part_1)
+    df_part_2 = split_calc(df=df_part_2)
+    df_part_3 = split_calc(df=df_part_3)
+    df_part_4 = split_calc(df=df_part_4)
+
+    df = pd.concat(
+        objs=[df_part_1, df_part_2, df_part_4, df_part_4], ignore_index=False
     )
+
+    # df = df.groupby("GroupId").apply(
+    #     resample,
+    #     period=cfg.estimation.period,
+    #     freq=cfg.estimation.resample_freq,
+    #     pctls=np.arange(0, 1.02, 0.02),
+    #     include_groups=False,
+    # )
 
     df = df.reset_index(level=1, drop=True).reset_index()
 
-    n_missings = df["OddsMvt"].isna().sum()
+    # df.to_hdf(
+    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
+    #     key="data_resampled",
+    #     mode="w",
+    # )
 
-    # def calc_elap_time(group):
-    #     group["ElapTime"] = group["Update"].diff().fillna(
+    # def calc_elap_time(df):
+    #     return df.diff().fillna(
     #         pd.Timedelta(seconds=0)
     #     ).cumsum() / pd.Timedelta(hours=1)
-    #     return group
 
-    # # Apply the function to each group
-    # df = df.groupby("GroupId").apply(calc_elap_time)
+    # df["ElapTime"] = df.groupby("GroupId")["Update"].transform(calc_elap_time)
 
-    # df["ElapTime"] = df.groupby("GroupId")["Update"].diff().fillna(
-    #     pd.Timedelta(seconds=0)
-    # ).cumsum() / pd.Timedelta(hours=1)
-
-    # Keep every 5% percentile of variable "PctElapTime"
-    # df = df.groupby("GroupId", group_keys=False).apply(
-    # keep_pctls, np.arange(0, 1.05, 0.05)
+    # # Keep every x percentile of variable
+    # df = df.groupby("GroupId").apply(
+    #     keep_pctls,
+    #     np.arange(0, 1.05, 0.05),
+    #     include_groups=False,  # TODO cfg?, 2% or 5% increments?
     # )
+    # df = df.reset_index(level=1, drop=True).reset_index(drop=False)
+
+    group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
+    df = df[group_std > 0]  # remove groups with zero odds variance
+
+    n_missings = df["OddsMvt"].isna().sum()
+    frac_missings = n_missings / df["OddsMvt"].shape[0]
 
     df.to_hdf(
         path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
@@ -432,9 +529,6 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     "TsDur"
     # ]
 
-    group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
-    df = df[group_std > 0]  # remove groups with zero odds variance
-
     df["CumCount"] = df.groupby("GroupId").cumcount()
 
     n_per = int(df.shape[0] / df.groupby("GroupId").ngroups)
@@ -446,6 +540,89 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     df = impute_missings(df=df, seed=cfg.general.seed)
+
+    # GARCH
+
+    df_garch = df.melt(
+        id_vars=["Matchup", "Bookies"] + exog_cols + ["NumOddsMvt", "IsPro"],
+        value_name="OddsMvt",
+        var_name="CumCount",
+        value_vars=[f"OddsMvt{i}" for i in range(0, n_per)],
+    )
+
+    df_garch["CumCount"] = df_garch["CumCount"].str.replace(
+        pat="OddsMvt", repl=""
+    )
+    df_garch["CumCount"] = df_garch["CumCount"].astype(int)
+
+    df_garch["GroupId"] = df_garch.groupby(["Matchup", "Bookies"]).ngroup()
+
+    df_garch = df_garch.sort_values(by=["GroupId", "CumCount"])
+
+    def calc_returns(df):
+        return df / df.shift() - 1
+
+    df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
+        calc_returns
+    )
+
+    _, ax = plt.subplots()
+    ax.plot(
+        np.arange(0, n_per, 1),
+        df_garch.groupby("CumCount")["Return"].mean(),
+    )
+    ax.set(xlabel="Time", ylabel="Return")
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    finalize_plot(
+        path=f"{cfg.paths.figures}odds_ts_mean_return.pdf",
+        save=cfg.general.save,
+    )
+
+    ts_mean_return = df_garch.groupby("CumCount")["Return"].mean().dropna()
+
+    acf_values, confint, qstat, pvalues = acf(
+        ts_mean_return**2,
+        alpha=0.05,
+        nlags=len(ts_mean_return) - 1,
+        qstat=True,
+        fft=True,
+    )
+
+    signific_idxs = np.where(
+        ((confint[:, 0] <= 0) & (confint[:, 1] <= 0))
+        | ((confint[:, 0] >= 0) & (confint[:, 1] >= 0))
+    )
+
+    garch_lags = signific_idxs[0].max() if signific_idxs[0].shape[0] > 0 else 1
+
+    _, ax = plt.subplots()
+    plot_acf(
+        x=ts_mean_return**2,
+        ax=ax,
+        alpha=0.05,
+    )
+    ax.set(title="", xlabel="Lags", ylabel="Autocorrelation")
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    finalize_plot(
+        path=f"{cfg.paths.figures}acf.pdf",
+        save=cfg.general.save,
+    )
+
+    # GARCH Model
+    mod_garch = arch_model(
+        y=ts_mean_return,  # / ts_mean_return.mean(),
+        mean="Constant",
+        vol="EGARCH",
+        p=int(garch_lags),
+        q=int(garch_lags),
+    )
+    res_garch = mod_garch.fit()
+    tex_res_garch = res_garch.summary().as_latex().splitlines(True)
+    indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
+    tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
+    tex_res_garch_p2 = tex_res_garch[indices[0] + 3 : indices[1] + 1]
+
+    # Unbiasedness Regressions
 
     df_ur = df.loc[df["NumOddsMvt"] < 20, :].copy()
     df_ur[odds_mvt_cols] = df_ur[odds_mvt_cols].subtract(
@@ -468,7 +645,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_ur["rmse"].append(ele["rmse"])
 
     pylab.rcParams.update(rcp_m)
-
+    # TODO xticks
     plot_unbiased_reg_res(
         res_ur=res_ur,
         len_per=len_per,
@@ -492,7 +669,8 @@ def run_estimation(cfg: PFDConfig) -> None:
         fit_gmm_mod,
         df,
         n_per,
-        cfg.estimation.incr,
+        # cfg.estimation.incr,
+        2,  # TODO
         start_params,
         cfg.estimation.max_iter,
     )
@@ -502,7 +680,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_res_gmm = pd.DataFrame(data=[ele[0] for ele in res_gmm], index=bookies)
 
-    avg_gamma_gmm, avg_phi_gmm = df_res_gmm[["gamma", "Phi"]].agg("mean")
+    avg_gamma_gmm, avg_phi_gmm = df_res_gmm[["gamma", "Phi"]].agg("median")
 
     # df_res_gmm = df_res_gmm.rename(
     #     columns=dict(
@@ -752,7 +930,8 @@ def run_estimation(cfg: PFDConfig) -> None:
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
             "icc": (icc, ".4f"),
-            "n_missings": (n_missings + 1, ".0f"),
+            "n_missings": (n_missings, ".0f"),
+            "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
             "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
@@ -805,7 +984,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
         write_text_file(
-            file=f"{cfg.paths.tables}res_wp_re.tex",
+            file=f"{cfg.paths.tables}res_wp.tex",
             body=mod_tex_tab(
                 tab=res_win_props["All"]
                 .apply(NumFormat.format_col)
@@ -813,6 +992,20 @@ def run_estimation(cfg: PFDConfig) -> None:
                 .format(na_rep="")
                 .to_latex()
             ),
+        )
+
+        write_text_file(
+            file=f"{cfg.paths.tables}res_garch_p1.tex",
+            body="".join(tex_res_garch_p1),
+            first_line=None,
+            last_line=None,
+        )
+
+        write_text_file(
+            file=f"{cfg.paths.tables}res_garch_p2.tex",
+            body="".join(tex_res_garch_p2),
+            first_line=None,
+            last_line=None,
         )
 
         write_text_file(

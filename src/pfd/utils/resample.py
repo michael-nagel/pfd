@@ -10,7 +10,9 @@ import pandas as pd
 # Function
 
 
-def resample(df: pd.DataFrame, period: int | None, freq: str) -> pd.DataFrame:
+def resample(
+    df: pd.DataFrame, period: int | None, freq: str, pctls
+) -> pd.DataFrame:
     """
     Resample time series
 
@@ -37,15 +39,30 @@ def resample(df: pd.DataFrame, period: int | None, freq: str) -> pd.DataFrame:
 
     if df.index.min() > df["TsStart"].iat[0]:
         ix.appendleft(df["TsStart"].iat[0])
+
     if df.index.max() < df["TsEnd"].iat[0]:
         ix.append(df["TsEnd"].iat[0])
-    df = df.reindex(ix)
-    df = df.ffill()
+
+    df = df.reindex(ix).ffill()
     df.loc[:, df.columns != "OddsMvt"] = df.loc[
         :, df.columns != "OddsMvt"
     ].bfill()
+
     df = df.asfreq(freq=freq, method="ffill")
     df["Update"] = df.index
+
     if period:
-        df = df[(df["Update"].iat[-1] - pd.offsets.Hour(period)):]
+        df = df[(df["Update"].iat[-1] - pd.offsets.Hour(period)) :]
+
+    df["ElapTime"] = df["Update"].diff().fillna(
+        pd.Timedelta(seconds=0)
+    ).cumsum() / pd.Timedelta(hours=1)
+
+    df = df.loc[
+        df["ElapTime"].isin(
+            df["ElapTime"].quantile(pctls, interpolation="lower").to_numpy()
+        ),
+        :,
+    ]
+
     return df
