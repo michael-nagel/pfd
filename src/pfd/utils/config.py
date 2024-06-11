@@ -19,6 +19,7 @@ class Estimation:
     ts_dur: list
     period: float | None
     resample_freq: str
+    pctl: float
     incr: int
     start_params: list
     max_iter: int | str
@@ -40,6 +41,8 @@ class Estimation:
             raise ValueError("ts_dur[0] must be larger or equal than period")
         if not isinstance(self.resample_freq, str):
             raise TypeError("resample_freq must be a string")
+        if not isinstance(self.pctl, float):
+            raise TypeError("pctl must be a float")
         if not isinstance(self.incr, str):
             raise TypeError("incr must be an integer")
         if not isinstance(self.start_params, list):

@@ -47,10 +47,10 @@ def plot_unbiased_reg_res(
         y=0, xmin=0, xmax=len(res_ur["beta_0"]) - 1, linestyles="dotted"
     )
     intcp_ax.set(xlabel="", ylabel="Intercept")
-    intcp_ax.set_xticks(
-        np.arange(0, len(res_ur["beta_0"]))[::4],
-        np.flip(np.arange(0, len(res_ur["beta_0"])))[::4] * len_per + len_per,
-    )
+    # intcp_ax.set_xticks(
+    #     np.arange(0, len(res_ur["beta_0"]))[::4],
+    #     np.flip(np.arange(0, len(res_ur["beta_0"])))[::4] * len_per + len_per,
+    # )
     slope_ax.plot(np.arange(0, len(res_ur["beta_1"])), res_ur["beta_1"])
     slope_ax.fill_between(
         x=np.arange(0, len(res_ur["beta_1"])),
@@ -64,14 +64,18 @@ def plot_unbiased_reg_res(
         y=1, xmin=0, xmax=len(res_ur["beta_1"]) - 1, linestyles="dotted"
     )
     slope_ax.set(xlabel="", ylabel="Slope")
-    slope_ax.set_xticks(
-        np.arange(0, len(res_ur["beta_1"]))[::4],
-        np.flip(np.arange(0, len(res_ur["beta_1"])))[::4] * len_per + len_per,
-    )
+    # slope_ax.set_xticks(
+    #     np.arange(0, len(res_ur["beta_1"]))[::4],
+    #     np.flip(np.arange(0, len(res_ur["beta_1"])))[::4] * len_per + len_per,
+    # )
     rmse_ax.plot(np.arange(0, len(res_ur["rmse"])), res_ur["rmse"])
-    rmse_ax.set(xlabel="Hours Before Market Close", ylabel="RMSE")
+    rmse_ax.set(xlabel="Percentile Time Increments", ylabel="RMSE")
     rmse_ax.set_xticks(
         np.arange(0, len(res_ur["rmse"]))[::4],
-        np.flip(np.arange(0, len(res_ur["rmse"])))[::4] * len_per + len_per,
+        np.arange(2, 102, 2)[::4],
     )
+    # rmse_ax.set_xticks(
+    #     np.arange(0, len(res_ur["rmse"]))[::4],
+    #     np.flip(np.arange(0, len(res_ur["rmse"])))[::4] * len_per + len_per,
+    # )
     finalize_plot(path=path, save=save)

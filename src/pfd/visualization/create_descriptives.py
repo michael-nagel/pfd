@@ -83,7 +83,14 @@ def create_descriptives(cfg: PFDConfig) -> None:
         columns=dict(
             zip(
                 desc_num.columns,
-                ["$\\omega$", "$\\mathbf{Q}$", "$Q_1$", "$Q_T$", "$T$", "$C$"],
+                [
+                    "$\\omega$",
+                    "$\\bs{Q}$",
+                    "$\\bs{Q_1}$",
+                    "$\bs{Q_T}$",
+                    "$T$",
+                    "$C$",
+                ],
             )
         )
     )
