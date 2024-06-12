@@ -9,6 +9,7 @@ This file runs the estimation procedure.
 
 import json
 import os
+import time
 from collections import defaultdict
 from functools import partial
 from multiprocessing import Pool
@@ -409,7 +410,9 @@ def run_estimation(cfg: PFDConfig) -> None:
             resample,
             period=cfg.estimation.period,
             freq=cfg.estimation.resample_freq,
-            pctls=np.arange(0, 1 + cfg.estimation.pctl, cfg.estimation.pctl),
+            pctls=np.arange(
+                0, 1 + cfg.estimation.pctl / 100, cfg.estimation.pctl / 100
+            ),
             include_groups=False,
         )
 
@@ -431,46 +434,31 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         return df
 
-    df_part_1 = df.loc[
-        df["GroupId"].isin(
-            df["GroupId"].unique()[: df["GroupId"].nunique() // 2]
-        ),
-        :,
-    ]
-    df_part_2 = df.loc[
-        df["GroupId"].isin(
-            df["GroupId"].unique()[df["GroupId"].nunique() // 2 : :]
-        ),
-        :,
-    ]
-
     unique_group_ids = df["GroupId"].unique()
-
-    # Calculate the number of unique GroupIds
     num_unique_group_ids = df["GroupId"].nunique()
 
-    # Determine the split points
     split_points = [
         num_unique_group_ids // 4,
         num_unique_group_ids // 2,
         3 * num_unique_group_ids // 4,
     ]
 
-    # Split the unique GroupIds into 4 parts
     group_ids_part_1 = unique_group_ids[: split_points[0]]
     group_ids_part_2 = unique_group_ids[split_points[0] : split_points[1]]
     group_ids_part_3 = unique_group_ids[split_points[1] : split_points[2]]
     group_ids_part_4 = unique_group_ids[split_points[2] :]
 
-    # Create the 4 DataFrame parts based on the split GroupIds
     df_part_1 = df.loc[df["GroupId"].isin(group_ids_part_1), :]
     df_part_2 = df.loc[df["GroupId"].isin(group_ids_part_2), :]
     df_part_3 = df.loc[df["GroupId"].isin(group_ids_part_3), :]
     df_part_4 = df.loc[df["GroupId"].isin(group_ids_part_4), :]
 
     df_part_1 = split_calc(df=df_part_1)
+    time.sleep(5)
     df_part_2 = split_calc(df=df_part_2)
+    time.sleep(5)
     df_part_3 = split_calc(df=df_part_3)
+    time.sleep(5)
     df_part_4 = split_calc(df=df_part_4)
 
     df = pd.concat(
@@ -520,10 +508,10 @@ def run_estimation(cfg: PFDConfig) -> None:
         mode="w",
     )
 
-    # df = pd.read_hdf(
-    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
-    #     key="data_resampled",
-    # )
+    df = pd.read_hdf(
+        path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
+        key="data_resampled",
+    )
     # bookies = sorted(list(df["Bookies"].unique()))
     # exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
     #     "TsDur"
@@ -532,8 +520,8 @@ def run_estimation(cfg: PFDConfig) -> None:
     df["CumCount"] = df.groupby("GroupId").cumcount()
 
     n_per = int(df.shape[0] / df.groupby("GroupId").ngroups)
-    len_per = float(cfg.estimation.resample_freq.strip("min")) / 60
-    odds_mvt_cols = [f"OddsMvt{i}" for i in range(1, n_per - 1)]
+    # len_per = float(cfg.estimation.resample_freq.strip("min")) / 60
+    odds_mvt_cols = [f"OddsMvt{i}" for i in range(0, n_per)]
 
     df = pivot_df(
         df=df, exog_cols=exog_cols + ["NumOddsMvt", "IsPro"], n_per=n_per
@@ -547,8 +535,10 @@ def run_estimation(cfg: PFDConfig) -> None:
         id_vars=["Matchup", "Bookies"] + exog_cols + ["NumOddsMvt", "IsPro"],
         value_name="OddsMvt",
         var_name="CumCount",
-        value_vars=[f"OddsMvt{i}" for i in range(0, n_per)],
+        value_vars=odds_mvt_cols,
     )
+
+    df_garch = df_garch.loc[df_garch["NumOddsMvt"] < 20, :]
 
     df_garch["CumCount"] = df_garch["CumCount"].str.replace(
         pat="OddsMvt", repl=""
@@ -571,8 +561,11 @@ def run_estimation(cfg: PFDConfig) -> None:
         np.arange(0, n_per, 1),
         df_garch.groupby("CumCount")["Return"].mean(),
     )
-    ax.set(xlabel="Time", ylabel="Return")
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.set(xlabel="Percentile Time Increments", ylabel="Return")
+    plt.xticks(
+        np.arange(0, n_per, 1)[::5],
+        np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
+    )
     finalize_plot(
         path=f"{cfg.paths.figures}odds_ts_mean_return.pdf",
         save=cfg.general.save,
@@ -617,7 +610,13 @@ def run_estimation(cfg: PFDConfig) -> None:
         q=int(garch_lags),
     )
     res_garch = mod_garch.fit()
-    tex_res_garch = res_garch.summary().as_latex().splitlines(True)
+    tex_res_garch = (
+        res_garch.summary()
+        .as_latex()
+        .replace("\\textbf{", "")
+        .replace("}", "")
+        .splitlines(True)
+    )
     indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
     tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
     tex_res_garch_p2 = tex_res_garch[indices[0] + 3 : indices[1] + 1]
@@ -625,7 +624,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # Unbiasedness Regressions
 
     df_ur = df.loc[df["NumOddsMvt"] < 20, :].copy()
-    df_ur[odds_mvt_cols] = df_ur[odds_mvt_cols].subtract(
+    df_ur[odds_mvt_cols[1:-1]] = df_ur[odds_mvt_cols[1:-1]].subtract(
         df_ur["OddsMvt0"], axis=0
     )
     df_ur["Endog"] = df_ur[f"OddsMvt{n_per - 1}"] - df_ur["OddsMvt0"]
@@ -635,7 +634,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     part_fit_mixed_lm = partial(fit_mixed_lm, df_ur)
 
     with Pool() as pool:
-        res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols)
+        res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols[1:-1])
 
     for ele in res_pool_ur:
         res_ur["beta_1"].append(ele["beta_1"])
@@ -645,10 +644,10 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_ur["rmse"].append(ele["rmse"])
 
     pylab.rcParams.update(rcp_m)
-    # TODO xticks
+
     plot_unbiased_reg_res(
         res_ur=res_ur,
-        len_per=len_per,
+        cfg=cfg,
         path=f"{cfg.paths.figures}unbiased_reg.pdf",
         save=cfg.general.save,
     )
@@ -669,8 +668,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         fit_gmm_mod,
         df,
         n_per,
-        # cfg.estimation.incr,
-        2,  # TODO
+        cfg.estimation.incr,  # TODO
         start_params,
         cfg.estimation.max_iter,
     )
