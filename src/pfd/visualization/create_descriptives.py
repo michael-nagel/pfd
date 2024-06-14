@@ -18,6 +18,7 @@ import seaborn as sns
 from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 
+from pfd.helpers import save_values
 from pfd.utils import (
     Logger,
     NumFormat,
@@ -87,7 +88,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
                     "$\\omega$",
                     "$\\bs{Q}$",
                     "$\\bs{Q_1}$",
-                    "$\bs{Q_T}$",
+                    "$\\bs{Q_T}$",
                     "$T$",
                     "$C$",
                 ],
@@ -233,6 +234,13 @@ def create_descriptives(cfg: PFDConfig) -> None:
     )
 
     # Saving
+
+    save_values(
+        key="ts_dur_med",
+        value=desc_num.loc["50\%", "$T$"],
+        file_name=f"{cfg.paths.vals}{cfg.files.vals}",
+        fmt=".2f",
+    )
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_num.tex",

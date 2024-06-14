@@ -152,6 +152,13 @@ def run_estimation(cfg: PFDConfig) -> None:
         ClsOdds=df.groupby("GroupId")["OddsMvt"].transform("last"),
     )
 
+    bookies = sorted(list(df["Bookies"].unique()))
+
+    df["IsPro"] = 0
+    df.loc[df["Competition"].isin(["ATP", "WTA"]), "IsPro"] = 1
+
+    is_amateur, is_pro = df["IsPro"].value_counts(True).tolist()
+
     df_desc = df.copy()
 
     df = df[
@@ -159,6 +166,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             "Matchup",
             "GroupId",
             "Competition",
+            "IsPro",
             "Bookies",
             "NumOddsMvt",
             "TsDur",
@@ -169,13 +177,6 @@ def run_estimation(cfg: PFDConfig) -> None:
             "ClsOdds",
         ]
     ]
-
-    bookies = sorted(list(df["Bookies"].unique()))
-
-    df["IsPro"] = 0
-    df.loc[df["Competition"].isin(["ATP", "WTA"]), "IsPro"] = 1
-
-    is_amateur, is_pro = df["IsPro"].value_counts(True).tolist()
 
     df = enc_categ_var(
         df=df,
@@ -382,7 +383,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # df = df.drop_duplicates(subset=["GroupId", "Update"])
 
-    # df = df[df["NumOddsMvt"] > 4]  # TODO
+    # df = df[df["NumOddsMvt"] > 1]  # TODO
     # df = df.reset_index(drop=True)
 
     df["TsStart"] = df.groupby("Matchup")["Update"].transform("min")
@@ -453,17 +454,15 @@ def run_estimation(cfg: PFDConfig) -> None:
     df_part_3 = df.loc[df["GroupId"].isin(group_ids_part_3), :]
     df_part_4 = df.loc[df["GroupId"].isin(group_ids_part_4), :]
 
-    df_part_1 = split_calc(df=df_part_1)
+    # df_part_1 = split_calc(df=df_part_1)
     time.sleep(5)
     df_part_2 = split_calc(df=df_part_2)
     time.sleep(5)
-    df_part_3 = split_calc(df=df_part_3)
+    # df_part_3 = split_calc(df=df_part_3)
     time.sleep(5)
     df_part_4 = split_calc(df=df_part_4)
 
-    df = pd.concat(
-        objs=[df_part_1, df_part_2, df_part_4, df_part_4], ignore_index=False
-    )
+    df = pd.concat(objs=[df_part_2, df_part_4], ignore_index=False)
 
     # df = df.groupby("GroupId").apply(
     #     resample,
@@ -473,7 +472,15 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     include_groups=False,
     # )
 
-    df = df.reset_index(level=1, drop=True).reset_index()
+    df = df.reset_index(level=1, drop=True).reset_index(drop=False)
+
+    # import pickle
+
+    # with open(f"{cfg.paths.data_intrm}data_resampled.pkl", "wb") as f:
+    #     pickle.dump(df, f)
+
+    # with open(f"{cfg.paths.data_intrm}data_resampled.pkl", "rb") as f:
+    #     df = pickle.load(f)
 
     # df.to_hdf(
     #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
@@ -492,7 +499,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # df = df.groupby("GroupId").apply(
     #     keep_pctls,
     #     np.arange(0, 1.05, 0.05),
-    #     include_groups=False,  # TODO cfg?, 2% or 5% increments?
+    #     include_groups=False,
     # )
     # df = df.reset_index(level=1, drop=True).reset_index(drop=False)
 
@@ -508,10 +515,12 @@ def run_estimation(cfg: PFDConfig) -> None:
         mode="w",
     )
 
-    df = pd.read_hdf(
-        path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
-        key="data_resampled",
-    )
+    # df = pd.read_hdf(
+    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
+    #     key="data_resampled",
+    #     mode="r",
+    # )
+
     # bookies = sorted(list(df["Bookies"].unique()))
     # exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
     #     "TsDur"
@@ -561,7 +570,9 @@ def run_estimation(cfg: PFDConfig) -> None:
         np.arange(0, n_per, 1),
         df_garch.groupby("CumCount")["Return"].mean(),
     )
-    ax.set(xlabel="Percentile Time Increments", ylabel="Return")
+    ax.set(
+        xlabel="Percentile Time Increments", ylabel="Time Series Mean Return"
+    )
     plt.xticks(
         np.arange(0, n_per, 1)[::5],
         np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
@@ -786,7 +797,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     mu_ax.plot(res_pm["vi"]["tracker"]["mean"])
     mu_ax.set(xlabel="", ylabel="Mean")
     std_ax.plot(res_pm["vi"]["tracker"]["std"])
-    std_ax.set(xlabel="", ylabel="Std.")
+    std_ax.set(xlabel="", ylabel="Std. Deviation")
     hist_ax.plot(res_pm["vi"]["advi"].hist)
     hist_ax.set(xlabel="Iterations", ylabel="Neg. ELBO")
     finalize_plot(
@@ -931,7 +942,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             "n_missings": (n_missings, ".0f"),
             "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
-            "len_per": (len_per, ".4g"),
+            # "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
             "avg_phi_gmm": (avg_phi_gmm, ".4f"),
         }
