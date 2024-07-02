@@ -58,7 +58,7 @@ def fit_rfa_mod(df: pd.DataFrame, exog_cols: list, bookie: str) -> dict:
         )
 
         res_rfa = mod_rfa.fit(
-            reml=True, method="cg"
+            reml=False, method="lbfgs"
         )  # ['bfgs', 'lbfgs', 'cg']
 
     else:
@@ -80,10 +80,15 @@ def fit_rfa_mod(df: pd.DataFrame, exog_cols: list, bookie: str) -> dict:
                 + df.loc[df["Bookies"] == bookie, "FECls"].mean()
             )
         )
+
+        exog["Exog"] = scale_vars(X=exog["Exog"].values.reshape(-1, 1))
+
         exog = sm.add_constant(exog)
 
+        df["Endog"] = df["FEOpn"] - df["FECls"]
+
         mod_rfa = sm.OLS(
-            endog=df.loc[df["Bookies"] == bookie, "DltOpnCls"], exog=exog
+            endog=df.loc[df["Bookies"] == bookie, "Endog"], exog=exog
         )
         mod_rfa.exog_names[0] = "Intercept"
         res_rfa = mod_rfa.fit(cov_type="HC1")

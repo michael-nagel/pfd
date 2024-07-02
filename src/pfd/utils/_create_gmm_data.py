@@ -44,14 +44,16 @@ def _create_gmm_data(
         raise ValueError("Input 'incr' must be a positive integer.")
 
     # Endogenous variable
-    endog = df[f"OddsMvt{n_per - 1}"].to_numpy()
+    # TODO
+    endog = df["Match"].to_numpy()
+    # endog = df[f"OddsMvt{n_per - 1}"].to_numpy()
 
     # Exogenous variables and Instruments
     exog_list = []
     inst_list = [np.ones(shape=endog.shape[0])]
 
-    for i in range(1, 6):
-        p = df[f"OddsMvt{n_per - (1 + i * incr)}"].to_numpy()
+    for i in range(1, 6):  # TODO 0 + ...
+        p = df[f"OddsMvt{n_per - (0 + i * incr)}"].to_numpy()
         exog_list.append(p)
 
         if i > 3:
@@ -66,11 +68,11 @@ def _create_gmm_data(
     exog, inst = np.column_stack(exog_list), np.column_stack(inst_list)
 
     # Exogenous variables  # TODO
-    # p_t = df[f"OddsMvt{n_per - (1 + 1 * incr)}"].to_numpy()
-    # p_t_1 = df[f"OddsMvt{n_per - (1 + 2 * incr)}"].to_numpy()
-    # p_t_2 = df[f"OddsMvt{n_per - (1 + 3 * incr)}"].to_numpy()
-    # p_t_3 = df[f"OddsMvt{n_per - (1 + 4 * incr)}"].to_numpy()
-    # p_t_4 = df[f"OddsMvt{n_per - (1 + 5 * incr)}"].to_numpy()
+    # p_t = df[f"OddsMvt{n_per - (0 + 1 * incr)}"].to_numpy()
+    # p_t_1 = df[f"OddsMvt{n_per - (0 + 2 * incr)}"].to_numpy()
+    # p_t_2 = df[f"OddsMvt{n_per - (0 + 3 * incr)}"].to_numpy()
+    # p_t_3 = df[f"OddsMvt{n_per - (0 + 4 * incr)}"].to_numpy()
+    # p_t_4 = df[f"OddsMvt{n_per - (0 + 5 * incr)}"].to_numpy()
     # p_0 = df["OddsMvt0"].to_numpy()
     # exog = np.column_stack((p_t, p_t_1, p_t_2, p_t_3, p_t_4, p_0))
 
@@ -83,4 +85,5 @@ def _create_gmm_data(
     # z_6 = p_t_4 - p_0
     # z_7 = (p_t_4 - p_0) ** 2
     # inst = np.column_stack((z_1, z_2, z_3, z_4, z_5, z_6, z_7))
+
     return endog, exog, inst

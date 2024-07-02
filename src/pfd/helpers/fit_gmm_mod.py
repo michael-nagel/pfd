@@ -3,9 +3,11 @@
 
 # Imports
 
+from typing import Dict, List
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List
+
 from pfd.utils import _create_gmm_data, _GenMethMom
 
 # Function
@@ -68,8 +70,6 @@ def fit_gmm_mod(
             {
                 "gamma": res_gmm.params[0],
                 "std_gamma": res_gmm.bse[0],
-                "Phi": res_gmm.params[1],
-                "std_Phi": res_gmm.bse[1],
                 "J_stat": res_gmm.jtest()[0],
                 "p_value": res_gmm.jtest()[1],
             }

@@ -86,11 +86,6 @@ def plot_traces(
         ax1[i, 1].set(xlabel="", ylabel="", title=bookie)
         ax1[i, 0].title.set_size(10)
         ax1[i, 1].title.set_size(10)
-        if param == "Phi":
-            ax1[i, 0].ticklabel_format(
-                style="sci", scilimits=(0, 0), axis="both"
-            )
-            ax1[i, 1].ticklabel_format(style="sci", scilimits=(0, 0), axis="y")
     finalize_plot(path=path[0], save=save)
 
     # Second half
@@ -111,9 +106,4 @@ def plot_traces(
         ax2[i, 1].set(xlabel="", ylabel="", title=bookie)
         ax2[i, 0].title.set_size(10)
         ax2[i, 1].title.set_size(10)
-        if param == "Phi":
-            ax2[i, 0].ticklabel_format(
-                style="sci", scilimits=(0, 0), axis="both"
-            )
-            ax2[i, 1].ticklabel_format(style="sci", scilimits=(0, 0), axis="y")
     finalize_plot(path=path[1], save=save)

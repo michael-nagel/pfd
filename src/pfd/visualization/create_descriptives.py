@@ -86,9 +86,9 @@ def create_descriptives(cfg: PFDConfig) -> None:
                 desc_num.columns,
                 [
                     "$\\omega$",
-                    "$\\bs{Q}$",
-                    "$\\bs{Q_1}$",
-                    "$\\bs{Q_T}$",
+                    "$\\bs{p}$",
+                    "$\\bs{p}_1$",
+                    "$\\bs{p}_T$",
                     "$T$",
                     "$C$",
                 ],
@@ -115,14 +115,14 @@ def create_descriptives(cfg: PFDConfig) -> None:
         kde=True,
         bins=25,
     )
-    ax.set(xlabel="$Q$")
+    ax.set(xlabel="Implied Probabilities")
     finalize_plot(
-        path=f"{cfg.paths.figures}dist_implied_probs.pdf",
+        path=f"{cfg.paths.figures}dist_impl_probs.pdf",
         save=cfg.general.save,
     )
 
     opn_cls = pd.concat(
-        objs=[df["OpnOdds"], df["ClsOdds"]], keys=["$Q_1$", "$Q_T$"]
+        objs=[df["OpnOdds"], df["ClsOdds"]], keys=["Opening", "Closing"]
     ).reset_index()
     opn_cls.columns = ["Type", "Index", "Odds"]
     opn_cls = opn_cls.drop(columns=["Index"])
@@ -146,7 +146,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
         gap=0.05,
         common_norm=True,
     )
-    ax.set(ylabel="Density", xlabel="Value")
+    ax.set(ylabel="Density", xlabel="Price")
     ax.legend(title="")
     finalize_plot(
         path=f"{cfg.paths.figures}violin_opn_cls.pdf",
@@ -185,24 +185,24 @@ def create_descriptives(cfg: PFDConfig) -> None:
         fmt="png",
     )
 
-    exem_match = df.loc[
-        (df["NumOddsMvt"] == 20) & (df["TsDur"] > 12) & (df["TsDur"] < 24)
-    ].copy()
-    exem_match = exem_match.loc[
-        exem_match["GroupId"] == exem_match["GroupId"].min(), :
-    ]
-    exem_match["Time"] = pd.to_datetime(exem_match["Update"]).dt.strftime(
-        "%H:%M"
-    )
-    exem_match = exem_match.set_index(["Time"])
+    # exem_match = df.loc[
+    #     (df["NumOddsMvt"] == 20) & (df["TsDur"] > 12) & (df["TsDur"] < 24)
+    # ].copy()
+    # exem_match = exem_match.loc[
+    #     exem_match["GroupId"] == exem_match["GroupId"].min(), :
+    # ]
+    # exem_match["Time"] = pd.to_datetime(exem_match["Update"]).dt.strftime(
+    #     "%H:%M"
+    # )
+    # exem_match = exem_match.set_index(["Time"])
 
-    _, ax = plt.subplots()
-    ax.plot(exem_match.index, exem_match["OddsMvt"])
-    ax.set(xlabel="Update", ylabel="Implied Probability")
-    plt.xticks(rotation=45)
-    finalize_plot(
-        path=f"{cfg.paths.figures}ts_exem_match.pdf", save=cfg.general.save
-    )
+    # _, ax = plt.subplots()
+    # ax.plot(exem_match.index, exem_match["OddsMvt"])
+    # ax.set(xlabel="Update", ylabel="Implied Probability")
+    # plt.xticks(rotation=45)
+    # finalize_plot(
+    #     path=f"{cfg.paths.figures}ts_exem_match.pdf", save=cfg.general.save
+    # )
 
     _, ax = plt.subplots()
     sns.histplot(
@@ -211,10 +211,10 @@ def create_descriptives(cfg: PFDConfig) -> None:
         discrete=True,
         stat="density",
     )
-    ax.set(xlabel="Number of Odds Movements")
+    ax.set(xlabel="Number of Price Movements")
     plt.xticks(np.arange(1, 21, 1))
     finalize_plot(
-        path=f"{cfg.paths.figures}hist_odds_mvts.pdf",
+        path=f"{cfg.paths.figures}hist_price_mvts.pdf",
         save=cfg.general.save,
     )
 

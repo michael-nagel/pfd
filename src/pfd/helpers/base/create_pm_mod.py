@@ -70,10 +70,10 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
         # Random effects gamma
         mean_gamma = pm.Truncated(
             name="mean_gamma",
-            dist=pm.Normal.dist(mu=0, sigma=5),
+            dist=pm.Normal.dist(mu=0, sigma=1),
             lower=0,
         )
-        sd_gamma = pm.HalfCauchy(name="sd_gamma", beta=1)
+        sd_gamma = pm.HalfNormal(name="sd_gamma", sigma=1)
         gamma = pm.Truncated(
             name="gamma",
             dist=pm.Normal.dist(mu=mean_gamma, sigma=sd_gamma),
@@ -81,28 +81,13 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
             dims="bookmakers",
         )
 
-        # Random effects phi
-        mean_phi = pm.Normal(name="mean_Phi", mu=0, sigma=0.1)
-        sd_phi = pm.HalfCauchy(name="sd_Phi", beta=0.01)
-        phi = pm.Normal(
-            name="Phi", mu=mean_phi, sigma=sd_phi, dims="bookmakers"
-        )
-
         # Moment conditions
-        mom_cond_1 = (
-            (exog[:, 0] - endog) ** 2
-            - (((n_per - 1) / n_per) ** (2 * gamma[bookie_idx]))
-            * (exog[:, 1] - endog) ** 2
-            - phi[bookie_idx]
-            * (1 - ((n_per - 1) / n_per) ** (2 * gamma[bookie_idx]))
-        )
-        mom_cond_2 = (
-            (exog[:, 1] - endog) ** 2
-            - (((n_per - 2) / (n_per - 1)) ** (2 * gamma[bookie_idx]))
-            * (exog[:, 2] - endog) ** 2
-            - phi[bookie_idx]
-            * (1 - ((n_per - 2) / (n_per - 1)) ** (2 * gamma[bookie_idx]))
-        )
+        mom_cond_1 = (exog[:, 0] - endog) ** 2 - (
+            ((n_per - 1) / n_per) ** (2 * gamma[bookie_idx])
+        ) * (exog[:, 1] - endog) ** 2
+        mom_cond_2 = (exog[:, 1] - endog) ** 2 - (
+            ((n_per - 2) / (n_per - 1)) ** (2 * gamma[bookie_idx])
+        ) * (exog[:, 2] - endog) ** 2
 
         mom_conds = []
 

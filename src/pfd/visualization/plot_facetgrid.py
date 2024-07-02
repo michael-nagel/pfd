@@ -101,9 +101,6 @@ def plot_facetgrid(
             bbox_to_anchor=(0.42, 0.015),
             ncol=2,
         )
-        if param == "Phi":
-            for ax in g.axes.flat:
-                ax.ticklabel_format(style="sci", scilimits=(0, 0), axis="both")
         if save:
             plt.savefig(
                 fname=path,
@@ -131,9 +128,6 @@ def plot_facetgrid(
         # g.map(sns.kdeplot, f"$\\{param}_i$")
         g.set_titles(col_template="{col_name}")
         g.set(ylabel="", xlabel="")
-        if param == "Phi":
-            for ax in g.axes.flat:
-                ax.ticklabel_format(style="sci", scilimits=(0, 0), axis="both")
         if save:
             plt.savefig(
                 fname=path,

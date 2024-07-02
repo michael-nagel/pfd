@@ -11,7 +11,7 @@ from sklearn.metrics import brier_score_loss, log_loss
 
 def calc_losses(grouped_df: pd.DataFrame) -> list:
     """
-    Calculate the brier score loss and the log loss of each group.
+    Calculate the Brier score loss and the log loss of each group.
 
     Parameters
     ----------
@@ -25,7 +25,7 @@ def calc_losses(grouped_df: pd.DataFrame) -> list:
 
     """
     b_loss = brier_score_loss(
-        y_true=grouped_df["Match"], y_prob=grouped_df["ClsOdds"]
+        y_true=grouped_df["Match"], y_prob=grouped_df["OpnOdds"]
     )
-    l_loss = log_loss(y_true=grouped_df["Match"], y_pred=grouped_df["ClsOdds"])
+    l_loss = log_loss(y_true=grouped_df["Match"], y_pred=grouped_df["OpnOdds"])
     return [b_loss, l_loss]

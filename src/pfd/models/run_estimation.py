@@ -24,14 +24,16 @@ import pandas as pd
 import seaborn as sns
 import statsmodels.formula.api as smf
 from arch import arch_model
+from arch.unitroot import ADF
 from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 from matplotlib.ticker import MaxNLocator
-from statsmodels.graphics.tsaplots import plot_acf
-from statsmodels.tsa.stattools import acf
+from statsmodels.graphics.tsaplots import plot_pacf
+from statsmodels.tsa.stattools import pacf
 
 from pfd.helpers import (
     fit_gmm_mod,
+    fit_gpm_mod,
     fit_rfa_mod,
     gen_res_obj,
     impute_missings,
@@ -188,30 +190,48 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df["TsDur"] = scale_vars(df["TsDur"].to_numpy().reshape(-1, 1))
 
-    # Relative Forecast Accuracy of Opening and Closing Lines
+    exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
+        "TsDur"
+    ]
+
+    # General Price Movements
 
     df_oc = df.groupby("GroupId", as_index=False).first()
 
-    df_oc["DltOpnCls"] = df_oc["ClsOdds"] - df_oc["OpnOdds"]
-    df_oc = df_oc[df_oc["DltOpnCls"].abs() > 0]
-
-    df_oc["FEOpn"] = (df_oc["Match"] - df_oc["OpnOdds"]).abs()
-    df_oc["FECls"] = (df_oc["Match"] - df_oc["ClsOdds"]).abs()
+    df_oc["RtrnOpnCls"] = df_oc["ClsOdds"] / df_oc["OpnOdds"] - 1
+    df_oc = df_oc[df_oc["RtrnOpnCls"].abs() > 0]
+    iqr_rtrns = df_oc["RtrnOpnCls"].quantile(0.75) - df_oc[
+        "RtrnOpnCls"
+    ].quantile(0.25)
 
     pylab.rcParams.update(rcp_s)
 
     _, ax = plt.subplots()
-    sns.histplot(data=df_oc, x="DltOpnCls", stat="density")
-    ax.set(xlabel="$Q_T - Q_1$")
+    sns.histplot(data=df_oc, x="RtrnOpnCls", stat="density")
+    ax.set(xlabel="Return")
     finalize_plot(
-        path=f"{cfg.paths.figures}delta_opn_cls.png",
+        path=f"{cfg.paths.figures}rtrn_opn_cls.png",
         save=cfg.general.save,
         fmt="png",
     )
 
-    exog_cols = [col for col in df_oc.columns if col.startswith("Compet")] + [
-        "TsDur"
-    ]
+    res_gpm_re = fit_gpm_mod(df=df_oc, exog_cols=exog_cols)
+
+    tex_res_gpm = res_gpm_re.summary().as_latex().splitlines(True)
+    tex_res_gpm_p1 = tex_res_gpm[6:12]  # export part 1 to latex
+    tex_res_gpm_p1.append("\\bottomrule\n")
+    tex_res_gpm_p2 = tex_res_gpm[19:-5]  # export part 2 to latex
+    tex_res_gpm_p2.append("\\bottomrule\n")
+    tex_res_gpm_p2[1] = "\\midrule\n"
+
+    # group_var = res_gpm_re.cov_re.iat[0, 0]
+    # resid_var = res_gpm_re.scale
+    # icc = group_var / (group_var + resid_var)  # calculate ICC
+
+    # Relative Forecast Accuracy of Opening and Closing Lines
+
+    df_oc["FEOpn"] = (df_oc["Match"] - df_oc["OpnOdds"]).abs()
+    df_oc["FECls"] = (df_oc["Match"] - df_oc["ClsOdds"]).abs()
 
     part_fit_rfa_mod = partial(fit_rfa_mod, df_oc, exog_cols)
 
@@ -219,10 +239,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_rfa = pool.map(part_fit_rfa_mod, bookies + ["All"])
 
     res_rfa_re = res_rfa[-1]["fitted_model"]
-
-    group_var = res_rfa_re.cov_re.iat[0, 0]
-    resid_var = res_rfa_re.scale
-    icc = group_var / (group_var + resid_var)  # calculate ICC
 
     tex_res_rfa = res_rfa_re.summary().as_latex().splitlines(True)
     tex_res_rfa_p1 = tex_res_rfa[6:12]  # export part 1 to latex
@@ -252,6 +268,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     # Magnitude and Direction of Odds Movements
+
+    df_oc["DltOpnCls"] = df_oc["ClsOdds"] - df_oc["OpnOdds"]
+
     res_win_props: DefaultDict[Any, list] = defaultdict(list)
 
     ivals = [
@@ -454,15 +473,17 @@ def run_estimation(cfg: PFDConfig) -> None:
     df_part_3 = df.loc[df["GroupId"].isin(group_ids_part_3), :]
     df_part_4 = df.loc[df["GroupId"].isin(group_ids_part_4), :]
 
-    # df_part_1 = split_calc(df=df_part_1)
+    df_part_1 = split_calc(df=df_part_1)
     time.sleep(5)
     df_part_2 = split_calc(df=df_part_2)
     time.sleep(5)
-    # df_part_3 = split_calc(df=df_part_3)
+    df_part_3 = split_calc(df=df_part_3)
     time.sleep(5)
     df_part_4 = split_calc(df=df_part_4)
 
-    df = pd.concat(objs=[df_part_2, df_part_4], ignore_index=False)
+    df = pd.concat(
+        objs=[df_part_1, df_part_2, df_part_3, df_part_4], ignore_index=False
+    )
 
     # df = df.groupby("GroupId").apply(
     #     resample,
@@ -515,11 +536,11 @@ def run_estimation(cfg: PFDConfig) -> None:
         mode="w",
     )
 
-    # df = pd.read_hdf(
-    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
-    #     key="data_resampled",
-    #     mode="r",
-    # )
+    df = pd.read_hdf(
+        path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
+        key="data_resampled",
+        mode="r",
+    )
 
     # bookies = sorted(list(df["Bookies"].unique()))
     # exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
@@ -533,12 +554,14 @@ def run_estimation(cfg: PFDConfig) -> None:
     odds_mvt_cols = [f"OddsMvt{i}" for i in range(0, n_per)]
 
     df = pivot_df(
-        df=df, exog_cols=exog_cols + ["NumOddsMvt", "IsPro"], n_per=n_per
+        df=df,
+        exog_cols=exog_cols + ["NumOddsMvt", "IsPro", "Match"],
+        n_per=n_per,
     )
 
     df = impute_missings(df=df, seed=cfg.general.seed)
 
-    # GARCH
+    # GARCH Model
 
     df_garch = df.melt(
         id_vars=["Matchup", "Bookies"] + exog_cols + ["NumOddsMvt", "IsPro"],
@@ -548,46 +571,73 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     df_garch = df_garch.loc[df_garch["NumOddsMvt"] < 20, :]
-
     df_garch["CumCount"] = df_garch["CumCount"].str.replace(
         pat="OddsMvt", repl=""
     )
+
     df_garch["CumCount"] = df_garch["CumCount"].astype(int)
-
     df_garch["GroupId"] = df_garch.groupby(["Matchup", "Bookies"]).ngroup()
-
     df_garch = df_garch.sort_values(by=["GroupId", "CumCount"])
 
-    def calc_returns(df):
-        return df / df.shift() - 1
+    # def calc_returns(df):
+    #     return df - df.shift()
 
-    df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
-        calc_returns
-    )
+    # df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
+    #     calc_returns
+    # )
+
+    cs_mean_ip = df_garch.groupby("CumCount")["OddsMvt"].mean()
+    cs_std_ip = df_garch.groupby("CumCount")["OddsMvt"].std()
 
     _, ax = plt.subplots()
-    ax.plot(
+    # for i, ele in enumerate(df_garch["GroupId"].unique()):
+    #     ax.plot(
+    #         np.arange(0, n_per, 1),
+    #         df_garch.loc[df_garch["GroupId"] == ele, "OddsMvt"],
+    #     )
+    lns_1 = ax.plot(np.arange(0, n_per, 1), cs_mean_ip, label="Mean")
+    ax_2 = ax.twinx()
+    lns_2 = ax_2.plot(
         np.arange(0, n_per, 1),
-        df_garch.groupby("CumCount")["Return"].mean(),
+        cs_std_ip,
+        color=stata_colors[1],
+        label="Std. Dev",
     )
-    ax.set(
-        xlabel="Percentile Time Increments", ylabel="Time Series Mean Return"
-    )
+    ax.set(xlabel="Percentile Time Increments", ylabel="Mean")
+    ax_2.set(ylabel="Std. Dev.")
     plt.xticks(
         np.arange(0, n_per, 1)[::5],
         np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
     )
+    lns = lns_1 + lns_2
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc="lower right")
     finalize_plot(
-        path=f"{cfg.paths.figures}odds_ts_mean_return.pdf",
+        path=f"{cfg.paths.figures}cs_mean_std_ip.pdf",
         save=cfg.general.save,
     )
 
-    ts_mean_return = df_garch.groupby("CumCount")["Return"].mean().dropna()
+    # ADF Test for Stationarity
+    adf = ADF(
+        y=cs_mean_ip, lags=None, trend="ctt", max_lags=None, method="bic"
+    )
+    adf_stat, adf_p = adf.stat, adf.pvalue
 
-    acf_values, confint, qstat, pvalues = acf(
-        ts_mean_return**2,
+    tex_res_adf = (
+        adf.regression.summary()
+        .as_latex()
+        .replace("\\textbf{", "")
+        .replace("}", "")
+        .splitlines(True)
+    )
+    indices = [i for i, x in enumerate(tex_res_adf) if x == "\\bottomrule\n"]
+    tex_res_adf_p1 = tex_res_adf[3 : indices[0] + 1]
+    tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
+
+    pacf_values, confint, qstat, pvalues = pacf(
+        cs_mean_ip,
         alpha=0.05,
-        nlags=len(ts_mean_return) - 1,
+        nlags=len(cs_mean_ip) - 1,
         qstat=True,
         fft=True,
     )
@@ -597,30 +647,32 @@ def run_estimation(cfg: PFDConfig) -> None:
         | ((confint[:, 0] >= 0) & (confint[:, 1] >= 0))
     )
 
-    garch_lags = signific_idxs[0].max() if signific_idxs[0].shape[0] > 0 else 1
+    garch_lags = signific_idxs[0].max()
+    garch_lags = int(max(garch_lags, 1))
 
     _, ax = plt.subplots()
-    plot_acf(
-        x=ts_mean_return**2,
+    plot_pacf(
+        x=cs_mean_ip,
         ax=ax,
         alpha=0.05,
     )
     ax.set(title="", xlabel="Lags", ylabel="Autocorrelation")
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     finalize_plot(
-        path=f"{cfg.paths.figures}acf.pdf",
+        path=f"{cfg.paths.figures}pacf.pdf",
         save=cfg.general.save,
     )
 
-    # GARCH Model
+    # Test GARCH Model
     mod_garch = arch_model(
-        y=ts_mean_return,  # / ts_mean_return.mean(),
+        y=cs_mean_ip,  # / ts_mean_return.mean(),
         mean="Constant",
         vol="EGARCH",
-        p=int(garch_lags),
-        q=int(garch_lags),
+        p=garch_lags,
+        q=garch_lags,
     )
     res_garch = mod_garch.fit()
+
     tex_res_garch = (
         res_garch.summary()
         .as_latex()
@@ -630,22 +682,25 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
     indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
     tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
-    tex_res_garch_p2 = tex_res_garch[indices[0] + 3 : indices[1] + 1]
+    tex_res_garch_p2 = tex_res_garch[indices[0] + 3 : indices[0] + 6]
+    tex_res_garch_p3 = tex_res_garch[indices[0] + 6 : indices[1] + 1]
 
     # Unbiasedness Regressions
 
+    # TODO use match outcome
     df_ur = df.loc[df["NumOddsMvt"] < 20, :].copy()
-    df_ur[odds_mvt_cols[1:-1]] = df_ur[odds_mvt_cols[1:-1]].subtract(
+    df_ur[odds_mvt_cols[1:]] = df_ur[odds_mvt_cols[1:]].subtract(
         df_ur["OddsMvt0"], axis=0
     )
-    df_ur["Endog"] = df_ur[f"OddsMvt{n_per - 1}"] - df_ur["OddsMvt0"]
+    df_ur["Endog"] = df_ur["Match"] - df_ur["OddsMvt0"]
+    # df_ur["Endog"] = df_ur[f"OddsMvt{n_per - 1}"] - df_ur["OddsMvt0"]
 
     res_ur: DefaultDict[Any, list] = defaultdict(list)
 
     part_fit_mixed_lm = partial(fit_mixed_lm, df_ur)
 
     with Pool() as pool:
-        res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols[1:-1])
+        res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols[1:])
 
     for ele in res_pool_ur:
         res_ur["beta_1"].append(ele["beta_1"])
@@ -669,11 +724,10 @@ def run_estimation(cfg: PFDConfig) -> None:
         np.array(
             [
                 np.random.uniform(low=0, high=5, size=10),
-                np.random.uniform(low=-0.25, high=0.25, size=10),
             ]
         ).T
     )
-    start_params[0] = np.array([1, 0.01])
+    start_params[0] = np.array([1])
 
     part_fit_gmm_mod = partial(
         fit_gmm_mod,
@@ -689,7 +743,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_res_gmm = pd.DataFrame(data=[ele[0] for ele in res_gmm], index=bookies)
 
-    avg_gamma_gmm, avg_phi_gmm = df_res_gmm[["gamma", "Phi"]].agg("median")
+    avg_gamma_gmm = df_res_gmm["gamma"].mean()
 
     # df_res_gmm = df_res_gmm.rename(
     #     columns=dict(
@@ -723,7 +777,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         paths=[
             f"{cfg.paths.figures}gmm_params.pdf",
             f"{cfg.paths.figures}gmm_jstat.pdf",
-            f"{cfg.paths.figures}gmm_params_start_vals.pdf",
         ],
         save=cfg.general.save,
     )
@@ -805,7 +858,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    pylab.rcParams.update(rcp_l)
+    pylab.rcParams.update(rcp_s)
 
     plot_posteriors(
         mod_trace=res_pm["vi"]["trace"],
@@ -820,6 +873,8 @@ def run_estimation(cfg: PFDConfig) -> None:
         path=f"{cfg.paths.figures}post_means_nuts_tot.pdf",
         save=cfg.general.save,
     )
+
+    pylab.rcParams.update(rcp_l)
 
     plot_posteriors(
         mod_trace={
@@ -932,19 +987,22 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
         values_to_save = {
-            "n_obs": (n_obs, ".0f"),
-            "n_groups": (n_groups, ".0f"),
+            "iqr_rtrns": (iqr_rtrns, ".4f"),
+            "n_obs": (n_obs, None),
+            "n_groups": (n_groups, None),
             "gamma_mean": (gamma_mean, ".2f"),
             "gamma_std": (gamma_std, ".2f"),
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
-            "icc": (icc, ".4f"),
-            "n_missings": (n_missings, ".0f"),
+            # "icc": (icc, ".4f"),
+            "n_missings": (n_missings, None),
             "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
             # "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
-            "avg_phi_gmm": (avg_phi_gmm, ".4f"),
+            # "avg_phi_gmm": (avg_phi_gmm, ".4f"),
+            "adf_stat": (adf_stat, ".2f"),
+            "adf_p": (adf_p, ".4f"),
         }
 
         for key, (value, fmt) in values_to_save.items():
@@ -955,19 +1013,31 @@ def run_estimation(cfg: PFDConfig) -> None:
                 fmt=fmt,
             )
 
-        write_text_file(
-            file=f"{cfg.paths.tables}res_rfa_p1.tex",
-            body="".join(tex_res_rfa_p1),
-            first_line=None,
-            last_line=None,
-        )
+        for key, value in cfg.sampling.items():
+            save_values(
+                key=key,
+                value=value,
+                file_name=f"{cfg.paths.vals}{cfg.files.vals}",
+            )
 
-        write_text_file(
-            file=f"{cfg.paths.tables}res_rfa_p2.tex",
-            body="".join(tex_res_rfa_p2),
-            first_line=None,
-            last_line=None,
-        )
+        file_configs = [
+            (f"{cfg.paths.tables}res_gpm_p1.tex", "".join(tex_res_gpm_p1)),
+            (f"{cfg.paths.tables}res_gpm_p2.tex", "".join(tex_res_gpm_p2)),
+            (f"{cfg.paths.tables}res_rfa_p1.tex", "".join(tex_res_rfa_p1)),
+            (f"{cfg.paths.tables}res_rfa_p2.tex", "".join(tex_res_rfa_p2)),
+            (f"{cfg.paths.tables}res_wp_p1.tex", "".join(tex_res_wp_p1)),
+            (f"{cfg.paths.tables}res_wp_p2.tex", "".join(tex_res_wp_p2)),
+            (f"{cfg.paths.tables}res_adf_p1.tex", "".join(tex_res_adf_p1)),
+            (f"{cfg.paths.tables}res_adf_p2.tex", "".join(tex_res_adf_p2)),
+            (f"{cfg.paths.tables}res_garch_p1.tex", "".join(tex_res_garch_p1)),
+            (f"{cfg.paths.tables}res_garch_p2.tex", "".join(tex_res_garch_p2)),
+            (f"{cfg.paths.tables}res_garch_p3.tex", "".join(tex_res_garch_p3)),
+        ]
+
+        for file, body in file_configs:
+            write_text_file(
+                file=file, body=body, first_line=None, last_line=None
+            )
 
         write_text_file(
             file=f"{cfg.paths.tables}res_rfa_tot.tex",
@@ -979,20 +1049,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
         write_text_file(
-            file=f"{cfg.paths.tables}res_wp_p1.tex",
-            body="".join(tex_res_wp_p1),
-            first_line=None,
-            last_line=None,
-        )
-
-        write_text_file(
-            file=f"{cfg.paths.tables}res_wp_p2.tex",
-            body="".join(tex_res_wp_p2),
-            first_line=None,
-            last_line=None,
-        )
-
-        write_text_file(
             file=f"{cfg.paths.tables}res_wp.tex",
             body=mod_tex_tab(
                 tab=res_win_props["All"]
@@ -1001,20 +1057,6 @@ def run_estimation(cfg: PFDConfig) -> None:
                 .format(na_rep="")
                 .to_latex()
             ),
-        )
-
-        write_text_file(
-            file=f"{cfg.paths.tables}res_garch_p1.tex",
-            body="".join(tex_res_garch_p1),
-            first_line=None,
-            last_line=None,
-        )
-
-        write_text_file(
-            file=f"{cfg.paths.tables}res_garch_p2.tex",
-            body="".join(tex_res_garch_p2),
-            first_line=None,
-            last_line=None,
         )
 
         write_text_file(

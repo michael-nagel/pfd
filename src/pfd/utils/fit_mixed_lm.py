@@ -26,7 +26,7 @@ def fit_mixed_lm(df: pd.DataFrame, exog_var: str) -> dict:
     dict
         Dictionary with various metrics.
     """
-    optimizers = ["lbfgs", "nm", "cg", "bfgs"]
+    # optimizers = ["lbfgs", "nm", "cg", "bfgs"]
 
     df["Exog"] = df[exog_var]
 
@@ -38,16 +38,18 @@ def fit_mixed_lm(df: pd.DataFrame, exog_var: str) -> dict:
         re_formula="1 + Exog",
     )
 
-    counter = 0
-    converged = False
-    while not converged and counter < len(optimizers) - 1:
-        re_mod_res = re_mod.fit(reml=True, method=optimizers[counter])
-        converged = re_mod_res.converged
-        counter += 1
+    # counter = 0
+    # converged = False
+    # while not converged and counter < len(optimizers) - 1:
+    # re_mod_res = re_mod.fit(reml=True, method=optimizers[counter])
+    re_mod_res = re_mod.fit(reml=False, method="lbfgs")
+
+    # converged = re_mod_res.converged
+    # counter += 1
 
     return {
-        "converged": re_mod_res.converged,
-        "optimizer": optimizers[counter - 1],
+        # "converged": re_mod_res.converged,
+        # "optimizer": optimizers[counter - 1],
         "beta_1": re_mod_res.fe_params["Exog"],
         "std_beta_1": re_mod_res.bse_fe["Exog"],
         "beta_0": re_mod_res.fe_params["Intercept"],

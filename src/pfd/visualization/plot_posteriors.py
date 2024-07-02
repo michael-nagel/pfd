@@ -65,7 +65,7 @@ def plot_posteriors(
         finalize_plot(path=path, save=save)
 
     else:
-        _, ax = plt.subplots(nrows=1, ncols=2)
+        _, ax = plt.subplots()
         az.plot_posterior(  # TODO lw 0.8 ?
             mod_trace,
             var_names=["mean_gamma"],
@@ -73,18 +73,7 @@ def plot_posteriors(
             point_estimate="median",
             ref_val=ref_vals[0] if ref_vals else {},
             # rope=[0, 0.5],
-            ax=ax[0],
+            ax=ax,
         )
-        ax[0].set(title="", xlabel="$\\widebar{\\gamma}$", ylabel="Density")
-        az.plot_posterior(
-            mod_trace,
-            var_names=["mean_Phi"],
-            hdi_prob=0.95,
-            point_estimate="median",
-            # # rope=[-0.001, 0.001],
-            ax=ax[1],
-            ref_val=ref_vals[1] if ref_vals else {},
-        )
-        ax[1].set(title="", xlabel="$\\widebar{\\,\\Phi}$", ylabel="Density")
-        ax[1].ticklabel_format(style="sci", scilimits=(0, 0), axis="x")
+        ax.set(title="", xlabel="$\\widebar{\\gamma}$", ylabel="Density")
         finalize_plot(path=path, save=save)

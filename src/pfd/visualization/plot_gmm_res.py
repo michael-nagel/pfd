@@ -39,9 +39,6 @@ def plot_gmm_res(
     gamma_tot = np.array(
         [[sub_ele["gamma"] for sub_ele in ele] for ele in res_gmm]
     ).T
-    phi_tot = np.array(
-        [[sub_ele["Phi"] for sub_ele in ele] for ele in res_gmm]
-    ).T
 
     _, ax = plt.subplots(nrows=2, ncols=1, sharex="all")
     ax[0].errorbar(
@@ -56,17 +53,9 @@ def plot_gmm_res(
     ax[0].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
     ax[0].set(ylabel=r"$\hat{\gamma}$")
     ax[0].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
-    ax[1].errorbar(
-        x=np.arange(0, len(bookies)),
-        y=df_res_gmm["Phi"],
-        yerr=df_res_gmm["std_Phi"] * norm.ppf(0.975),
-        fmt="o",
-        markerfacecolor="none",
-        capsize=5,
-        lw=1,
-    )
+    sns.boxplot(data=gamma_tot, ax=ax[1], showfliers=False)
     ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[1].set(xlabel="Bookmaker", ylabel=r"$\hat{\Phi}$")
+    ax[1].set(ylabel=r"$\hat{\gamma}$")
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[0], save=save)
 
@@ -86,16 +75,7 @@ def plot_gmm_res(
         edgecolor=edgecolor,
     )
     ax[1].hlines(y=0.05, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
+    ax[1].set_ylim(bottom=0)
     ax[1].set(xlabel="Bookmaker", ylabel="p-value")
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[1], save=save)
-
-    _, ax = plt.subplots(nrows=2, ncols=1, sharex="all")
-    sns.boxplot(data=gamma_tot, ax=ax[0], showfliers=False)
-    ax[0].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[0].set(ylabel=r"$\hat{\gamma}$")
-    sns.boxplot(data=phi_tot, ax=ax[1], showfliers=False)
-    ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[1].set(xlabel="Bookmaker", ylabel=r"$\hat{\Phi}$")
-    ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
-    finalize_plot(path=paths[2], save=save)
