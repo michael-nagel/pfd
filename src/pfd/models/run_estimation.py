@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from arch import arch_model
 from arch.unitroot import ADF
@@ -256,8 +257,8 @@ def run_estimation(cfg: PFDConfig) -> None:
                 df_res_rfa.columns,
                 [
                     "$N$",
+                    "RMSE$(e_0)$",
                     "RMSE$(e_1)$",
-                    "RMSE$(e_2)$",
                     r"$\beta_0$",
                     r"$\beta_1$",
                     r"$p(\beta_0)$",
@@ -354,8 +355,8 @@ def run_estimation(cfg: PFDConfig) -> None:
                 zip(
                     res_win_props[bookie].columns,
                     [
-                        r"$\Delta(Q_T, Q_1)$",
-                        r"$\overline{\Delta}(Q_T, Q_1)$",
+                        r"$\Delta(p_T, p_0)$",
+                        r"$\overline{\Delta}(p_T, p_0)$",
                         r"$\overline{C}$",
                         "$N$",
                         r"$\pi$",
@@ -367,17 +368,17 @@ def run_estimation(cfg: PFDConfig) -> None:
             inplace=True,
         )
 
-        res_win_props[bookie][r"$\Delta(Q_T, Q_1)$"] = res_win_props[bookie][
-            r"$\Delta(Q_T, Q_1)$"
+        res_win_props[bookie][r"$\Delta(p_T, p_0)$"] = res_win_props[bookie][
+            r"$\Delta(p_T, p_0)$"
         ].map(lambda x: "$" + str(x) + "$")
-        res_win_props[bookie].loc[0:6, r"$\Delta(Q_T, Q_1)$"] = (
+        res_win_props[bookie].loc[0:6, r"$\Delta(p_T, p_0)$"] = (
             res_win_props[bookie]
-            .loc[0:6, r"$\Delta(Q_T, Q_1)$"]
+            .loc[0:6, r"$\Delta(p_T, p_0)$"]
             .str.replace("$[", "$]", regex=False)
         )
-        res_win_props[bookie].loc[5::, r"$\Delta(Q_T, Q_1)$"] = (
+        res_win_props[bookie].loc[5::, r"$\Delta(p_T, p_0)$"] = (
             res_win_props[bookie]
-            .loc[5::, r"$\Delta(Q_T, Q_1)$"]
+            .loc[5::, r"$\Delta(p_T, p_0)$"]
             .str.replace("]$", "[$", regex=False)
         )
 
@@ -468,18 +469,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     group_ids_part_3 = unique_group_ids[split_points[1] : split_points[2]]
     group_ids_part_4 = unique_group_ids[split_points[2] :]
 
-    df_part_1 = df.loc[df["GroupId"].isin(group_ids_part_1), :]
-    df_part_2 = df.loc[df["GroupId"].isin(group_ids_part_2), :]
-    df_part_3 = df.loc[df["GroupId"].isin(group_ids_part_3), :]
-    df_part_4 = df.loc[df["GroupId"].isin(group_ids_part_4), :]
-
-    df_part_1 = split_calc(df=df_part_1)
-    time.sleep(5)
-    df_part_2 = split_calc(df=df_part_2)
-    time.sleep(5)
-    df_part_3 = split_calc(df=df_part_3)
-    time.sleep(5)
-    df_part_4 = split_calc(df=df_part_4)
+    df_part_1 = split_calc(df=df.loc[df["GroupId"].isin(group_ids_part_1), :])
+    df_part_2 = split_calc(df=df.loc[df["GroupId"].isin(group_ids_part_2), :])
+    df_part_3 = split_calc(df=df.loc[df["GroupId"].isin(group_ids_part_3), :])
+    df_part_4 = split_calc(df=df.loc[df["GroupId"].isin(group_ids_part_4), :])
 
     df = pd.concat(
         objs=[df_part_1, df_part_2, df_part_3, df_part_4], ignore_index=False
@@ -494,14 +487,6 @@ def run_estimation(cfg: PFDConfig) -> None:
     # )
 
     df = df.reset_index(level=1, drop=True).reset_index(drop=False)
-
-    # import pickle
-
-    # with open(f"{cfg.paths.data_intrm}data_resampled.pkl", "wb") as f:
-    #     pickle.dump(df, f)
-
-    # with open(f"{cfg.paths.data_intrm}data_resampled.pkl", "rb") as f:
-    #     df = pickle.load(f)
 
     # df.to_hdf(
     #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
@@ -536,11 +521,11 @@ def run_estimation(cfg: PFDConfig) -> None:
         mode="w",
     )
 
-    df = pd.read_hdf(
-        path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
-        key="data_resampled",
-        mode="r",
-    )
+    # df = pd.read_hdf(
+    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
+    #     key="data_resampled",
+    #     mode="r",
+    # )
 
     # bookies = sorted(list(df["Bookies"].unique()))
     # exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
@@ -564,7 +549,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # GARCH Model
 
     df_garch = df.melt(
-        id_vars=["Matchup", "Bookies"] + exog_cols + ["NumOddsMvt", "IsPro"],
+        id_vars=["Matchup", "Bookies", "NumOddsMvt"] + exog_cols,
         value_name="OddsMvt",
         var_name="CumCount",
         value_vars=odds_mvt_cols,
@@ -579,15 +564,14 @@ def run_estimation(cfg: PFDConfig) -> None:
     df_garch["GroupId"] = df_garch.groupby(["Matchup", "Bookies"]).ngroup()
     df_garch = df_garch.sort_values(by=["GroupId", "CumCount"])
 
-    # def calc_returns(df):
-    #     return df - df.shift()
+    def calc_returns(df):
+        return df - df.shift()
 
-    # df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
-    #     calc_returns
-    # )
+    df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
+        calc_returns
+    )
 
-    cs_mean_ip = df_garch.groupby("CumCount")["OddsMvt"].mean()
-    cs_std_ip = df_garch.groupby("CumCount")["OddsMvt"].std()
+    cs_mean_rtrn = df_garch.groupby("CumCount")["Return"].mean().dropna()
 
     _, ax = plt.subplots()
     # for i, ele in enumerate(df_garch["GroupId"].unique()):
@@ -595,31 +579,33 @@ def run_estimation(cfg: PFDConfig) -> None:
     #         np.arange(0, n_per, 1),
     #         df_garch.loc[df_garch["GroupId"] == ele, "OddsMvt"],
     #     )
-    lns_1 = ax.plot(np.arange(0, n_per, 1), cs_mean_ip, label="Mean")
+    lns_1 = ax.plot(np.arange(1, n_per, 1), cs_mean_rtrn, label="Returns")
+    plt.ticklabel_format(axis="y", style="sci", scilimits=(-4, -4))
     ax_2 = ax.twinx()
     lns_2 = ax_2.plot(
-        np.arange(0, n_per, 1),
-        cs_std_ip,
+        np.arange(1, n_per, 1),
+        cs_mean_rtrn**2,
         color=stata_colors[1],
-        label="Std. Dev",
+        label="Sq. Returns",
     )
-    ax.set(xlabel="Percentile Time Increments", ylabel="Mean")
-    ax_2.set(ylabel="Std. Dev.")
+    ax.set_xlabel("Percentile Time Increments")
+    ax.set_ylabel("Mean Returns", labelpad=-3)
+    ax_2.set_ylabel("Squared Mean Returns", labelpad=10)
     plt.xticks(
         np.arange(0, n_per, 1)[::5],
         np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
     )
     lns = lns_1 + lns_2
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="lower right")
+    ax.legend(lns, labs, loc="best")
     finalize_plot(
-        path=f"{cfg.paths.figures}cs_mean_std_ip.pdf",
+        path=f"{cfg.paths.figures}cs_mean_rtrn.pdf",
         save=cfg.general.save,
     )
 
     # ADF Test for Stationarity
     adf = ADF(
-        y=cs_mean_ip, lags=None, trend="ctt", max_lags=None, method="bic"
+        y=cs_mean_rtrn, lags=None, trend="ct", max_lags=None, method="bic"
     )
     adf_stat, adf_p = adf.stat, adf.pvalue
 
@@ -634,12 +620,12 @@ def run_estimation(cfg: PFDConfig) -> None:
     tex_res_adf_p1 = tex_res_adf[3 : indices[0] + 1]
     tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
 
-    pacf_values, confint, qstat, pvalues = pacf(
-        cs_mean_ip,
+    pacf_values, confint = pacf(
+        x=cs_mean_rtrn,
         alpha=0.05,
-        nlags=len(cs_mean_ip) - 1,
-        qstat=True,
-        fft=True,
+        # nlags=len(cs_mean_rtrn),
+        # qstat=True,
+        # fft=True,
     )
 
     signific_idxs = np.where(
@@ -652,7 +638,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     _, ax = plt.subplots()
     plot_pacf(
-        x=cs_mean_ip,
+        x=cs_mean_rtrn,
         ax=ax,
         alpha=0.05,
     )
@@ -663,15 +649,35 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Detrend time series
+    trend = np.arange(len(cs_mean_rtrn))
+    trend = sm.add_constant(trend)
+    mod_trend = sm.OLS(cs_mean_rtrn, trend).fit()
+    cs_mean_rtrn = cs_mean_rtrn - mod_trend.predict(trend)
+
     # Test GARCH Model
     mod_garch = arch_model(
-        y=cs_mean_ip,  # / ts_mean_return.mean(),
+        y=cs_mean_rtrn * 1e04,
         mean="Constant",
         vol="EGARCH",
         p=garch_lags,
+        o=garch_lags,
         q=garch_lags,
     )
     res_garch = mod_garch.fit()
+
+    # Plot the conditional volatility
+    fig, ax = plt.subplots()
+    ax.plot(res_garch.conditional_volatility)
+    ax.set(xlabel="Percentile Time Increments", ylabel="Volatility")
+    plt.xticks(
+        np.arange(0, n_per, 1)[::5],
+        np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
+    )
+    finalize_plot(
+        path=f"{cfg.paths.figures}egarch_cond_vola.pdf",
+        save=cfg.general.save,
+    )
 
     tex_res_garch = (
         res_garch.summary()
@@ -687,7 +693,6 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Unbiasedness Regressions
 
-    # TODO use match outcome
     df_ur = df.loc[df["NumOddsMvt"] < 20, :].copy()
     df_ur[odds_mvt_cols[1:]] = df_ur[odds_mvt_cols[1:]].subtract(
         df_ur["OddsMvt0"], axis=0
@@ -709,6 +714,17 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_ur["std_beta_0"].append(ele["std_beta_0"])
         res_ur["rmse"].append(ele["rmse"])
 
+    signific_time_idx = (
+        pd.Series(res_ur["beta_1"]) + 1.96 * pd.Series(res_ur["std_beta_1"])
+        > 1
+    ) & (
+        pd.Series(res_ur["beta_1"]) - 1.96 * pd.Series(res_ur["std_beta_1"])
+        < 1
+    )
+    signific_time_idx = (
+        1 + signific_time_idx[signific_time_idx].index
+    ) * cfg.estimation.pctl
+
     pylab.rcParams.update(rcp_m)
 
     plot_unbiased_reg_res(
@@ -723,11 +739,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     start_params = list(
         np.array(
             [
-                np.random.uniform(low=0, high=5, size=10),
+                np.random.uniform(low=0, high=1, size=10),
             ]
         ).T
     )
-    start_params[0] = np.array([1])
+    start_params[0] = np.array([0.01])
 
     part_fit_gmm_mod = partial(
         fit_gmm_mod,
@@ -930,6 +946,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     gamma_mean, gamma_std = res_pm["nuts_tot"]["sum"].loc[
         ["mean_gamma", "sd_gamma"], "median"
     ]
+
     for key in list(res_pm.keys()):
         res_pm[key]["sum"] = format_sum(df=res_pm[key]["sum"], cfg=cfg)
 
@@ -988,8 +1005,10 @@ def run_estimation(cfg: PFDConfig) -> None:
 
         values_to_save = {
             "iqr_rtrns": (iqr_rtrns, ".4f"),
-            "n_obs": (n_obs, None),
+            "n_obs": (n_obs, ","),
             "n_groups": (n_groups, None),
+            "first_time_idx": (signific_time_idx[0], None),
+            "last_time_idx": (signific_time_idx[-1], None),
             "gamma_mean": (gamma_mean, ".2f"),
             "gamma_std": (gamma_std, ".2f"),
             "is_amateur": (is_amateur, ".4f"),

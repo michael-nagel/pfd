@@ -50,8 +50,8 @@ def format_sum(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     rows_nuts = (
         ["mean_gamma", "sd_gamma"]
         + [row for row in df.index if row.startswith("gamma[")]
-        + ["mean_Phi", "sd_Phi"]
-        + [row for row in df.index if row.startswith("Phi[")]
+        # + ["mean_Phi", "sd_Phi"]
+        # + [row for row in df.index if row.startswith("Phi[")]
         + ["sd_eps"]
     )
     df = df.loc[rows_nuts, :]
@@ -59,16 +59,16 @@ def format_sum(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     df = df.rename(
         index={
             "mean_gamma": "$\\hat{\\mu}_{\\gamma}$",
-            "mean_Phi": "$\\hat{\\mu}_{\\Phi}$",
+            # "mean_Phi": "$\\hat{\\mu}_{\\Phi}$",
             "sd_gamma": "$\\hat{\\sigma}_{\\gamma}$",
-            "sd_Phi": "$\\hat{\\sigma}_{\\Phi}$",
+            # "sd_Phi": "$\\hat{\\sigma}_{\\Phi}$",
             "sd_eps": "$\\hat{\\sigma}$",
         }
     )
 
     new_index = {
         idx: idx.replace("gamma[", "$\\hat{\\gamma}_{")
-        .replace("Phi[", "$\\hat{\\Phi}_{")
+        # .replace("Phi[", "$\\hat{\\Phi}_{")
         .replace("]", "}$")
         for idx in df.index
     }
