@@ -41,7 +41,7 @@ def format_sum(df: pd.DataFrame, cfg: DictConfig) -> pd.DataFrame:
     df = df.rename(
         columns={
             "sd": "std\_mean",
-            "std_median": "std_\median",
+            "std_median": "std\_median",
             f"hdi_{hdi_lwr}%": f"HDI$^{{{hdi_lwr}\\%}}$",
             f"hdi_{hdi_upr}%": f"HDI$^{{{hdi_upr}\\%}}$",
             "r_hat": "$\\hat{R}$",
