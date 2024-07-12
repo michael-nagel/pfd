@@ -99,7 +99,7 @@ sampling:
   n_draws: 4000 # Number of draws per chain
   n_tune: 2000 # Number of tuning steps (burn-in) per chain
   n_cores: 4 # Number of cores
-  targ_acpt: 0.8 # Acceptance probability
+  targ_acpt: 0.85 # Acceptance probability
   vi_n_iter: 25000 # Number of iterations for variational inference
   vi_n_draws: 10000 # Number of draws for variational inference
 

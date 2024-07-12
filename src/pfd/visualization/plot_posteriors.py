@@ -36,7 +36,7 @@ def plot_posteriors(
     if isinstance(mod_trace, dict):
         _, ax = plt.subplots(nrows=1, ncols=2, sharex="all", sharey="none")
         az.plot_posterior(
-            mod_trace["Professionals"],
+            mod_trace[list(mod_trace.keys())[0]],
             var_names=["mean_gamma"],
             hdi_prob=0.95,
             point_estimate="median",
@@ -47,10 +47,10 @@ def plot_posteriors(
         ax[0].set(
             title=list(mod_trace.keys())[0],
             xlabel="$\\widebar{\\,\\gamma}$",
-            ylabel="Density",
+            # ylabel="Density",
         )
         az.plot_posterior(
-            mod_trace["Amateurs"],
+            mod_trace[list(mod_trace.keys())[1]],
             var_names=["mean_gamma"],
             hdi_prob=0.95,
             point_estimate="median",
@@ -60,7 +60,7 @@ def plot_posteriors(
         ax[1].set(
             title=list(mod_trace.keys())[1],
             xlabel="$\\widebar{\\,\\gamma}$",
-            ylabel="Density",
+            # ylabel="Density",
         )
         finalize_plot(path=path, save=save)
 
@@ -75,5 +75,5 @@ def plot_posteriors(
             # rope=[0, 0.5],
             ax=ax,
         )
-        ax.set(title="", xlabel="$\\widebar{\\gamma}$", ylabel="Density")
+        ax.set(title="", xlabel="$\\widebar{\\gamma}$", ylabel="")
         finalize_plot(path=path, save=save)

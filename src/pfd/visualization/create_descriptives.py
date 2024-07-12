@@ -87,7 +87,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
                 [
                     "$\\omega$",
                     "$\\bs{p}$",
-                    "$\\bs{p}_1$",
+                    "$\\bs{p}_0$",
                     "$\\bs{p}_T$",
                     "$T$",
                     "$C$",

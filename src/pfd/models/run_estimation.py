@@ -759,7 +759,9 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_res_gmm = pd.DataFrame(data=[ele[0] for ele in res_gmm], index=bookies)
 
-    avg_gamma_gmm = df_res_gmm["gamma"].mean()
+    gamma_stats_gmm = df_res_gmm["gamma"].agg(["mean", "min", "max"])
+    idxmin_gamma_gmm = df_res_gmm["gamma"].idxmin()
+    idxmax_gamma_gmm = df_res_gmm["gamma"].idxmax()
 
     # df_res_gmm = df_res_gmm.rename(
     #     columns=dict(
@@ -874,19 +876,13 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    pylab.rcParams.update(rcp_s)
-
-    plot_posteriors(
-        mod_trace=res_pm["vi"]["trace"],
-        ref_vals=None,
-        path=f"{cfg.paths.figures}post_means_advi.pdf",
-        save=cfg.general.save,
-    )
-
-    plot_posteriors(
+    plot_traces(
         mod_trace=res_pm["nuts_tot"]["trace"],
-        ref_vals=None,
-        path=f"{cfg.paths.figures}post_means_nuts_tot.pdf",
+        param="gamma",
+        path=[
+            f"{cfg.paths.figures}traces_gamma_tot_1.pdf",
+            f"{cfg.paths.figures}traces_gamma_tot_2.pdf",
+        ],
         save=cfg.general.save,
     )
 
@@ -894,23 +890,21 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     plot_posteriors(
         mod_trace={
-            "Professionals": res_pm["nuts_pro"]["trace"],
-            "Amateurs": res_pm["nuts_amat"]["trace"],
+            "NUTS": res_pm["nuts_tot"]["trace"],
+            "ADVI": res_pm["vi"]["trace"],
         },
-        ref_vals=round(res_pm["vi"]["sum"].at["mean_gamma", "mean"], 2),
-        path=f"{cfg.paths.figures}post_means_nuts_pro_amat.pdf",
+        ref_vals=None,
+        path=f"{cfg.paths.figures}post_gamma_tot.pdf",
         save=cfg.general.save,
     )
 
-    pylab.rcParams.update(rcp_m)
-
-    plot_traces(
-        mod_trace=res_pm["nuts_tot"]["trace"],
-        param="gamma",
-        path=[
-            f"{cfg.paths.figures}traces_gamma_nuts_tot_1.pdf",
-            f"{cfg.paths.figures}traces_gamma_nuts_tot_2.pdf",
-        ],
+    plot_posteriors(
+        mod_trace={
+            "Professionals": res_pm["nuts_pro"]["trace"],
+            "Amateurs": res_pm["nuts_amat"]["trace"],
+        },
+        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        path=f"{cfg.paths.figures}post_gamma_nuts_pro_amat.pdf",
         save=cfg.general.save,
     )
 
@@ -943,9 +937,9 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    gamma_mean, gamma_std = res_pm["nuts_tot"]["sum"].loc[
-        ["mean_gamma", "sd_gamma"], "median"
-    ]
+    gamma_med_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "median"]
+    gamma_lower_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_2.5%"]
+    gamma_upper_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_97.5%"]
 
     for key in list(res_pm.keys()):
         res_pm[key]["sum"] = format_sum(df=res_pm[key]["sum"], cfg=cfg)
@@ -1009,8 +1003,9 @@ def run_estimation(cfg: PFDConfig) -> None:
             "n_groups": (n_groups, None),
             "first_time_idx": (signific_time_idx[0], None),
             "last_time_idx": (signific_time_idx[-1], None),
-            "gamma_mean": (gamma_mean, ".2f"),
-            "gamma_std": (gamma_std, ".2f"),
+            "gamma_med_nuts": (gamma_med_nuts, ".4f"),
+            "gamma_lower_nuts": (gamma_lower_nuts, ".4f"),
+            "gamma_upper_nuts": (gamma_upper_nuts, ".4f"),
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
             # "icc": (icc, ".4f"),
@@ -1018,7 +1013,11 @@ def run_estimation(cfg: PFDConfig) -> None:
             "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
             # "len_per": (len_per, ".4g"),
-            "avg_gamma_gmm": (avg_gamma_gmm, ".2f"),
+            "avg_gamma_gmm": (gamma_stats_gmm["mean"], ".4f"),
+            "min_gamma_gmm": (gamma_stats_gmm["min"], ".4f"),
+            "max_gamma_gmm": (gamma_stats_gmm["max"], ".4f"),
+            "idxmax_gamma_gmm": (idxmax_gamma_gmm, None),
+            "idxmin_gamma_gmm": (idxmin_gamma_gmm, None),
             # "avg_phi_gmm": (avg_phi_gmm, ".4f"),
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
@@ -1087,7 +1086,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                     formatter={
                         r"$\hat{R}$": NumFormat(my_format="{:.2f}").format_post
                     },
-                    na_rep="",
+                    na_rep="NaN",
                 )
                 .to_latex()
             ),

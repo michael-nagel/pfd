@@ -89,7 +89,7 @@ def plot_facetgrid(
             hue_order=["Professionals", "Amateurs"],
             split=True,
             palette=color_palette[0:2],
-            inner="quart",
+            inner=None,
             gap=0.05,
             data=param_vals,
         )
@@ -122,7 +122,7 @@ def plot_facetgrid(
         g.map(
             sns.violinplot,
             f"$\\{param}_i$",
-            inner="quart",
+            inner=None,
             data=param_vals,
         )
         # g.map(sns.kdeplot, f"$\\{param}_i$")
