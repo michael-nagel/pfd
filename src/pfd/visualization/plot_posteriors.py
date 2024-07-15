@@ -66,7 +66,7 @@ def plot_posteriors(
 
     else:
         _, ax = plt.subplots()
-        az.plot_posterior(  # TODO lw 0.8 ?
+        az.plot_posterior(
             mod_trace,
             var_names=["mean_gamma"],
             hdi_prob=0.95,

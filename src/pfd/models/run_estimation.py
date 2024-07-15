@@ -359,7 +359,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                         r"$\overline{\Delta}(p_T, p_0)$",
                         r"$\overline{C}$",
                         "$N$",
-                        r"$\pi$",
+                        r"$\overline{pi}$",
                         "$Z$",
                         "$p$",
                     ],
@@ -403,7 +403,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # df = df.drop_duplicates(subset=["GroupId", "Update"])
 
-    # df = df[df["NumOddsMvt"] > 1]  # TODO
+    # df = df[df["NumOddsMvt"] > 1]
     # df = df.reset_index(drop=True)
 
     df["TsStart"] = df.groupby("Matchup")["Update"].transform("min")
@@ -749,7 +749,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         fit_gmm_mod,
         df,
         n_per,
-        cfg.estimation.incr,  # TODO
+        cfg.estimation.incr,
         start_params,
         cfg.estimation.max_iter,
     )

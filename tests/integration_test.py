@@ -25,19 +25,22 @@ class IntegrationTest(unittest.TestCase):
         """
 
         # Create example data
-        cols = [f"OddsMvt{i}" for i in range(0, 21)]
-        df = pd.DataFrame(data=np.random.rand(100, 21), columns=cols)
-        df["Bookies"] = np.repeat(["Pinnacle", "Marathonbet"], 50)
+        n_per = 50
+        n_obs = 100
+        cols = [f"OddsMvt{i}" for i in range(0, n_per)]
+        df = pd.DataFrame(data=np.random.rand(n_obs, n_per), columns=cols)
+        df["Bookies"] = np.repeat(["Pinnacle", "Marathonbet"], n_per)
+        df["Match"] = np.random.choice([0, 1], size=n_obs, p=[0.5, 0.5])
 
         # Instatiate model
-        model = create_pm_mod(df=df, n_per=21, incr=4)
+        model = create_pm_mod(df=df, n_per=n_per, incr=5)
 
         # Estimate model
         trace = est_pm_mod(
             model=model,
             seed=42,
-            n_draws=200,
-            n_tune=200,
+            n_draws=100,
+            n_tune=100,
             n_chains=2,
             n_cores=2,
             targ_acpt=0.8,

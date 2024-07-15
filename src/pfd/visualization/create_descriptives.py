@@ -127,15 +127,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
     opn_cls.columns = ["Type", "Index", "Odds"]
     opn_cls = opn_cls.drop(columns=["Index"])
 
-    # _, ax = plt.subplots()
-    # sns.kdeplot(data=df[["OpnOdds", "ClsOdds"]], fill=True, alpha=0.2)
-    # ax.set(xlabel="Value")
-    # ax.legend(title="")
-    # finalize_plot(
-    #     path=f"{cfg.paths.figures}violin_opn_cls.pdf",
-    #     save=cfg.general.save,
-    # )
-
     _, ax = plt.subplots()
     sns.violinplot(
         data=opn_cls,
@@ -175,7 +166,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     pylab.rcParams.update(rcp_s)
 
-    _, ax = plt.subplots()  # TODO title: crawling process density
+    _, ax = plt.subplots()
     sns.histplot(data=timestamps, discrete=True, stat="density")
     ax.set(xlabel="Crawling Date")
     plt.xticks(rotation=45)
@@ -184,25 +175,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
         save=cfg.general.save,
         fmt="png",
     )
-
-    # exem_match = df.loc[
-    #     (df["NumOddsMvt"] == 20) & (df["TsDur"] > 12) & (df["TsDur"] < 24)
-    # ].copy()
-    # exem_match = exem_match.loc[
-    #     exem_match["GroupId"] == exem_match["GroupId"].min(), :
-    # ]
-    # exem_match["Time"] = pd.to_datetime(exem_match["Update"]).dt.strftime(
-    #     "%H:%M"
-    # )
-    # exem_match = exem_match.set_index(["Time"])
-
-    # _, ax = plt.subplots()
-    # ax.plot(exem_match.index, exem_match["OddsMvt"])
-    # ax.set(xlabel="Update", ylabel="Implied Probability")
-    # plt.xticks(rotation=45)
-    # finalize_plot(
-    #     path=f"{cfg.paths.figures}ts_exem_match.pdf", save=cfg.general.save
-    # )
 
     _, ax = plt.subplots()
     sns.histplot(

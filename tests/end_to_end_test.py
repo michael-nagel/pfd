@@ -6,8 +6,6 @@
 import os
 import unittest
 
-# TODO number of objects
-
 
 class EndToEndTest(unittest.TestCase):
     def test_num_of_gen_figs(self) -> None:
@@ -20,9 +18,9 @@ class EndToEndTest(unittest.TestCase):
         figs = [
             fig
             for fig in os.listdir("reports/figures")
-            if fig.startswith("fig")
+            if ".pdf" in fig or ".png" in fig
         ]
-        self.assertEqual(len(figs), 5)
+        self.assertEqual(len(figs), 24)
 
     def test_num_of_gen_tbls(self) -> None:
         """
@@ -31,12 +29,8 @@ class EndToEndTest(unittest.TestCase):
         This function compares the number of tables generated to the
         asserted number.
         """
-        tabs = [
-            tab
-            for tab in os.listdir("reports/tables")
-            if tab.startswith("tab")
-        ]
-        self.assertEqual(len(tabs), 4)
+        tabs = [tab for tab in os.listdir("reports/tables") if ".tex" in tab]
+        self.assertEqual(len(tabs), 16)
 
 
 if __name__ == "__main__":
