@@ -5,7 +5,7 @@ Main Moduls
 
 - This program shapes the crawled data.
 
-- Last run on Feb, 2024.
+- Last run on July, 2024.
 
 - Runtime: 0 days 00:05:14
 
@@ -13,7 +13,7 @@ Main Moduls
 
 - This program runs the estimation procedure.
 
-- Last run on Feb, 2024.
+- Last run on July, 2024.
 
 - Runtime: 4 days 20:10:00
 
@@ -21,6 +21,6 @@ Main Moduls
 
 - This program creates descriptive statistics.
 
-- Last run on Feb, 2024.
+- Last run on July, 2024.
 
 - Runtime: 3 days 21:06:03
