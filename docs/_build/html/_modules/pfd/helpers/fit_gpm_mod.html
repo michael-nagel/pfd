@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pfd.utils.fit_mixed_lm &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+  <title>pfd.helpers.fit_gpm_mod &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -67,7 +67,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">pfd.utils.fit_mixed_lm</li>
+      <li class="breadcrumb-item active">pfd.helpers.fit_gpm_mod</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -76,67 +76,58 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for pfd.utils.fit_mixed_lm</h1><div class="highlight"><pre>
+  <h1>Source code for pfd.helpers.fit_gpm_mod</h1><div class="highlight"><pre>
 <span></span><span class="c1"># !/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="c1"># Imports</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">statsmodels</span>
 <span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="k">as</span> <span class="nn">smf</span>
+
+<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">scale_vars</span>
 
 <span class="c1"># Function</span>
 
 
-<div class="viewcode-block" id="fit_mixed_lm">
-<a class="viewcode-back" href="../../../pfd.utils.html#pfd.utils.fit_mixed_lm.fit_mixed_lm">[docs]</a>
-<span class="k">def</span> <span class="nf">fit_mixed_lm</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">exog_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="fit_gpm_mod">
+<a class="viewcode-back" href="../../../pfd.helpers.html#pfd.helpers.fit_gpm_mod.fit_gpm_mod">[docs]</a>
+<span class="k">def</span> <span class="nf">fit_gpm_mod</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">exog_cols</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">statsmodels</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">mixed_linear_model</span><span class="o">.</span><span class="n">MixedLMResultsWrapper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fit mixed linear model.</span>
+<span class="sd">    Fit general price movements model.</span>
+
+<span class="sd">    This function fits the model to assess the general price movements.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pd.DataFrame</span>
 <span class="sd">        DataFrame containing the data.</span>
-<span class="sd">    exog_var : str</span>
-<span class="sd">        Exogenous variable.</span>
+<span class="sd">    exog_cols: list</span>
+<span class="sd">        Exogenous variables.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Dictionary with various metrics.</span>
+<span class="sd">    statsmodels.regression.mixed_linear_model.MixedLMResultsWrapper</span>
+<span class="sd">        Regression output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># optimizers = [&quot;lbfgs&quot;, &quot;nm&quot;, &quot;cg&quot;, &quot;bfgs&quot;]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;RtrnClsEnd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;RtrnOpnCls&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;RtrnOpnCls&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_vars</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;RtrnOpnCls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Exog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">exog_var</span><span class="p">]</span>
-
-    <span class="n">re_mod</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span>
-        <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;Endog ~ 1 + Exog + TsDur + Compet_Challenger_Men +</span><span class="se">\</span>
-<span class="s2">              Compet_ITF_Men + Compet_Misc + Compet_WTA&quot;</span><span class="p">,</span>
+    <span class="n">mod_gpm</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span>
+        <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;RtrnClsEnd ~ 1 + RtrnOpnCls + TsDur + Compet_Challenger_Men +</span><span class="se">\</span>
+<span class="s2">            Compet_ITF_Men + Compet_Misc + Compet_WTA&quot;</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="n">groups</span><span class="o">=</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
-        <span class="n">re_formula</span><span class="o">=</span><span class="s2">&quot;1 + Exog&quot;</span><span class="p">,</span>
+        <span class="n">re_formula</span><span class="o">=</span><span class="s2">&quot;1 + RtrnOpnCls&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># counter = 0</span>
-    <span class="c1"># converged = False</span>
-    <span class="c1"># while not converged and counter &lt; len(optimizers) - 1:</span>
-    <span class="c1"># re_mod_res = re_mod.fit(reml=True, method=optimizers[counter])</span>
-    <span class="n">re_mod_res</span> <span class="o">=</span> <span class="n">re_mod</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">reml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">)</span>
+    <span class="n">res_gpm</span> <span class="o">=</span> <span class="n">mod_gpm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">reml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nm&quot;</span><span class="p">)</span>
 
-    <span class="c1"># converged = re_mod_res.converged</span>
-    <span class="c1"># counter += 1</span>
-
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="c1"># &quot;converged&quot;: re_mod_res.converged,</span>
-        <span class="c1"># &quot;optimizer&quot;: optimizers[counter - 1],</span>
-        <span class="s2">&quot;beta_1&quot;</span><span class="p">:</span> <span class="n">re_mod_res</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;Exog&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;std_beta_1&quot;</span><span class="p">:</span> <span class="n">re_mod_res</span><span class="o">.</span><span class="n">bse_fe</span><span class="p">[</span><span class="s2">&quot;Exog&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;beta_0&quot;</span><span class="p">:</span> <span class="n">re_mod_res</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;std_beta_0&quot;</span><span class="p">:</span> <span class="n">re_mod_res</span><span class="o">.</span><span class="n">bse_fe</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;rmse&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">re_mod_res</span><span class="o">.</span><span class="n">resid</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()),</span>
-    <span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">res_gpm</span></div>
 
 </pre></div>
 

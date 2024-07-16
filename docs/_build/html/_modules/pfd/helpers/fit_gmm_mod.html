@@ -82,9 +82,11 @@
 
 <span class="c1"># Imports</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
 <span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">_create_gmm_data</span><span class="p">,</span> <span class="n">_GenMethMom</span>
 
 <span class="c1"># Function</span>
@@ -149,8 +151,6 @@
             <span class="p">{</span>
                 <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="s2">&quot;std_gamma&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">bse</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="s2">&quot;Phi&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;std_Phi&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">bse</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                 <span class="s2">&quot;J_stat&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">jtest</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="s2">&quot;p_value&quot;</span><span class="p">:</span> <span class="n">res_gmm</span><span class="o">.</span><span class="n">jtest</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
             <span class="p">}</span>

@@ -92,7 +92,8 @@ def plot_unbiased_reg_res(
     # )
     # # rmse_ax.set_xticks(
     # #     np.arange(0, len(res_ur["rmse"]))[::4],
-    # #     np.flip(np.arange(0, len(res_ur["rmse"])))[::4] * len_per + len_per,
+    # #     np.flip(np.arange(0,
+    # len(res_ur["rmse"])))[::4] * len_per + len_per,
     # # )
     # slope_ax.plot(np.arange(0, len(res_ur["beta_1"])), res_ur["beta_1"])
     # slope_ax.fill_between(
@@ -114,6 +115,7 @@ def plot_unbiased_reg_res(
     # plt.ylim(bottom=0)
     # # slope_ax.set_xticks(
     # #     np.arange(0, len(res_ur["beta_1"]))[::4],
-    # #     np.flip(np.arange(0, len(res_ur["beta_1"])))[::4] * len_per + len_per,
+    # #     np.flip(np.arange(0,
+    #  len(res_ur["beta_1"])))[::4] * len_per + len_per,
     # # )
     # finalize_plot(path=path, save=save)

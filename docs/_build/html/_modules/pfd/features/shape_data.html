@@ -90,16 +90,23 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">hydra</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">hydra</span> <span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">initialize</span>
 <span class="kn">from</span> <span class="nn">hydra.core.config_store</span> <span class="kn">import</span> <span class="n">ConfigStore</span>
 
-<span class="kn">from</span> <span class="nn">pfd.helpers</span> <span class="kn">import</span> <span class="n">save_tex_vals</span>
+<span class="kn">from</span> <span class="nn">pfd.helpers</span> <span class="kn">import</span> <span class="n">save_values</span>
 <span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">PFDConfig</span><span class="p">,</span> <span class="n">shape_odds</span>
 
 <span class="c1"># Hydra Setup</span>
 
 <span class="n">cs</span> <span class="o">=</span> <span class="n">ConfigStore</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
 <span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;pfd_config&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">PFDConfig</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">initialize</span><span class="p">(</span>
+    <span class="n">version_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../conf&quot;</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="s2">&quot;shape_data&quot;</span>
+<span class="p">):</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
 
 <span class="c1"># Function</span>
 
@@ -128,7 +135,13 @@
 
     <span class="n">n_matches_tot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n_bm_tot</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
     <span class="n">timestamps</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+    <span class="n">crawl_dur</span> <span class="o">=</span> <span class="p">(</span><span class="n">timestamps</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span>
+        <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span>
+    <span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
         <span class="n">subset</span><span class="o">=</span><span class="p">[</span>
@@ -376,10 +389,13 @@
 
     <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">:</span>
         <span class="n">values_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">vals</span><span class="si">}{</span><span class="n">cfg</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">vals</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">save_tex_vals</span><span class="p">(</span>
+        <span class="n">save_values</span><span class="p">(</span>
             <span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_matches_tot&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_matches_tot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span>
         <span class="p">)</span>
-        <span class="n">save_tex_vals</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_bm_tot&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_bm_tot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_values</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;n_bm_tot&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">n_bm_tot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_values</span><span class="p">(</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;crawl_dur&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">crawl_dur</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.0f&quot;</span>
+        <span class="p">)</span>
 
         <span class="n">timestamps</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
             <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">timestamps.h5&quot;</span><span class="p">,</span>

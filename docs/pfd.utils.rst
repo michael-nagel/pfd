@@ -76,6 +76,22 @@ pfd.utils.fit\_mixed\_lm module
    :undoc-members:
    :show-inheritance:
 
+pfd.utils.format\_sum module
+----------------------------
+
+.. automodule:: pfd.utils.format_sum
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pfd.utils.keep\_pctls module
+----------------------------
+
+.. automodule:: pfd.utils.keep_pctls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pfd.utils.logger module
 -----------------------
 

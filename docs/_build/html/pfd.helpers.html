@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pfd.models package" href="pfd.models.html" />
+    <link rel="next" title="pfd.helpers.base package" href="pfd.helpers.base.html" />
     <link rel="prev" title="pfd.features package" href="pfd.features.html" /> 
 </head>
 
@@ -99,33 +99,24 @@
              
   <section id="pfd-helpers-package">
 <h1>pfd.helpers package<a class="headerlink" href="#pfd-helpers-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pfd.helpers.base.html">pfd.helpers.base package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pfd.helpers.base.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pfd.helpers.base.html#module-pfd.helpers.base.create_pm_mod">pfd.helpers.base.create_pm_mod module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pfd.helpers.base.html#pfd.helpers.base.create_pm_mod.create_pm_mod"><code class="docutils literal notranslate"><span class="pre">create_pm_mod()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pfd.helpers.base.html#module-pfd.helpers.base">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
-</section>
-<section id="module-pfd.helpers.create_pm_mod">
-<span id="pfd-helpers-create-pm-mod-module"></span><h2>pfd.helpers.create_pm_mod module<a class="headerlink" href="#module-pfd.helpers.create_pm_mod" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pfd.helpers.create_pm_mod.create_pm_mod">
-<span class="sig-prename descclassname"><span class="pre">pfd.helpers.create_pm_mod.</span></span><span class="sig-name descname"><span class="pre">create_pm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Model</span></span></span><a class="reference internal" href="_modules/pfd/helpers/create_pm_mod.html#create_pm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.create_pm_mod.create_pm_mod" title="Link to this definition"></a></dt>
-<dd><p>Create PyMC model.</p>
-<p>This function creates the PyMC model for estimation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
-<li><p><strong>nper</strong> (<em>int</em>) – Number of periods.</p></li>
-<li><p><strong>incr</strong> (<em>int</em>) – Incremental step for periods</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyMC model to be numerically estimated.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pm.Model</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-pfd.helpers.fit_gmm_mod">
 <span id="pfd-helpers-fit-gmm-mod-module"></span><h2>pfd.helpers.fit_gmm_mod module<a class="headerlink" href="#module-pfd.helpers.fit_gmm_mod" title="Link to this heading"></a></h2>
@@ -149,6 +140,30 @@
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List[Dict[str, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.helpers.fit_gpm_mod">
+<span id="pfd-helpers-fit-gpm-mod-module"></span><h2>pfd.helpers.fit_gpm_mod module<a class="headerlink" href="#module-pfd.helpers.fit_gpm_mod" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.fit_gpm_mod.fit_gpm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.fit_gpm_mod.</span></span><span class="sig-name descname"><span class="pre">fit_gpm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MixedLMResultsWrapper</span></span></span><a class="reference internal" href="_modules/pfd/helpers/fit_gpm_mod.html#fit_gpm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.fit_gpm_mod.fit_gpm_mod" title="Link to this definition"></a></dt>
+<dd><p>Fit general price movements model.</p>
+<p>This function fits the model to assess the general price movements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em>) – Exogenous variables.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Regression output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>statsmodels.regression.mixed_linear_model.MixedLMResultsWrapper</p>
 </dd>
 </dl>
 </dd></dl>
@@ -180,6 +195,33 @@ accuracy of different bookmakers.</p>
 </dd></dl>
 
 </section>
+<section id="module-pfd.helpers.gen_res_obj">
+<span id="pfd-helpers-gen-res-obj-module"></span><h2>pfd.helpers.gen_res_obj module<a class="headerlink" href="#module-pfd.helpers.gen_res_obj" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.helpers.gen_res_obj.gen_res_obj">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.gen_res_obj.</span></span><span class="sig-name descname"><span class="pre">gen_res_obj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">est_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">InferenceData</span></span></span><a class="reference internal" href="_modules/pfd/helpers/gen_res_obj.html#gen_res_obj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.gen_res_obj.gen_res_obj" title="Link to this definition"></a></dt>
+<dd><p>Generate the result objects for ADVI and NUTS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>est_method</strong> (<em>str</em>) – Estimation method (“advi” or “nuts”).</p></li>
+<li><p><strong>subset</strong> (<em>str</em>) – Which subset of the data should be used for estimation.
+Possible arguments are [tot, pro, amat].</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods</p></li>
+<li><p><strong>cfg</strong> (<em>DictConfig</em>) – Dictionary that contains the config parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Results for either ADVI or NUTS.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Any, Any, Any] | az.InferenceData</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-pfd.helpers.impute_missings">
 <span id="pfd-helpers-impute-missings-module"></span><h2>pfd.helpers.impute_missings module<a class="headerlink" href="#module-pfd.helpers.impute_missings" title="Link to this heading"></a></h2>
 <dl class="py function">
@@ -205,11 +247,11 @@ imputer.</p>
 </dd></dl>
 
 </section>
-<section id="module-pfd.helpers.save_tex_vals">
-<span id="pfd-helpers-save-tex-vals-module"></span><h2>pfd.helpers.save_tex_vals module<a class="headerlink" href="#module-pfd.helpers.save_tex_vals" title="Link to this heading"></a></h2>
+<section id="module-pfd.helpers.save_values">
+<span id="pfd-helpers-save-values-module"></span><h2>pfd.helpers.save_values module<a class="headerlink" href="#module-pfd.helpers.save_values" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="pfd.helpers.save_tex_vals.save_tex_vals">
-<span class="sig-prename descclassname"><span class="pre">pfd.helpers.save_tex_vals.</span></span><span class="sig-name descname"><span class="pre">save_tex_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/helpers/save_tex_vals.html#save_tex_vals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.save_tex_vals.save_tex_vals" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pfd.helpers.save_values.save_values">
+<span class="sig-prename descclassname"><span class="pre">pfd.helpers.save_values.</span></span><span class="sig-name descname"><span class="pre">save_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/helpers/save_values.html#save_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.helpers.save_values.save_values" title="Link to this definition"></a></dt>
 <dd><p>Save tex values</p>
 <p>This function saves values in a .dat file for automatic use in tex
 files.</p>
@@ -236,7 +278,7 @@ files.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="pfd.features.html" class="btn btn-neutral float-left" title="pfd.features package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pfd.models.html" class="btn btn-neutral float-right" title="pfd.models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pfd.helpers.base.html" class="btn btn-neutral float-right" title="pfd.helpers.base package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

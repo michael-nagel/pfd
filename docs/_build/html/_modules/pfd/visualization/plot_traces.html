@@ -91,6 +91,45 @@
 <span class="c1"># Function</span>
 
 
+<span class="c1"># def plot_traces(</span>
+<span class="c1">#     mod_trace: az.InferenceData, param: str, path: str, save: bool</span>
+<span class="c1"># ) -&gt; None:</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     Plot posterior distributions.</span>
+
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     mod_trace : az.InferenceData</span>
+<span class="c1">#         Record of the sampling process.</span>
+<span class="c1">#     param: str</span>
+<span class="c1">#         Parameter to be plotted.</span>
+<span class="c1">#     path : str</span>
+<span class="c1">#         Path for saving.</span>
+<span class="c1">#     save : bool</span>
+<span class="c1">#         Save figure if True.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     bookies_traces = mod_trace.posterior[&quot;bookmakers&quot;].to_numpy()</span>
+<span class="c1">#     param_vals = mod_trace.posterior[param].to_numpy()</span>
+
+<span class="c1">#     _, ax = plt.subplots(</span>
+<span class="c1">#         nrows=len(bookies_traces), ncols=2, figsize=(6.4, 28.8)</span>
+<span class="c1">#     )</span>
+<span class="c1">#     for i, bookie in enumerate(bookies_traces):</span>
+<span class="c1">#         for c in range(0, param_vals.shape[0]):</span>
+<span class="c1">#             sns.kdeplot(</span>
+<span class="c1">#                 param_vals[c, :, i].flatten(), label=bookie, ax=ax[i, 0]</span>
+<span class="c1">#             )</span>
+<span class="c1">#             ax[i, 1].plot(param_vals[c, :, i].flatten(), label=bookie)</span>
+<span class="c1">#         ax[i, 0].set(xlabel=&quot;&quot;, ylabel=&quot;&quot;, title=bookie)</span>
+<span class="c1">#         ax[i, 1].set(xlabel=&quot;&quot;, ylabel=&quot;&quot;, title=bookie)</span>
+<span class="c1">#         if param == &quot;Phi&quot;:</span>
+<span class="c1">#             ax[i, 0].ticklabel_format(</span>
+<span class="c1">#                 style=&quot;sci&quot;, scilimits=(0, 0), axis=&quot;both&quot;</span>
+<span class="c1">#             )</span>
+<span class="c1">#             ax[i, 1].ticklabel_format(style=&quot;sci&quot;, scilimits=(0, 0), axis=&quot;y&quot;)</span>
+<span class="c1">#     finalize_plot(path=path, save=save)</span>
+
+
 <div class="viewcode-block" id="plot_traces">
 <a class="viewcode-back" href="../../../pfd.visualization.html#pfd.visualization.plot_traces.plot_traces">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_traces</span><span class="p">(</span>
@@ -113,23 +152,42 @@
     <span class="n">bookies_traces</span> <span class="o">=</span> <span class="n">mod_trace</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;bookmakers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="n">param_vals</span> <span class="o">=</span> <span class="n">mod_trace</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-        <span class="n">nrows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">bookies_traces</span><span class="p">),</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">28.8</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bookies_traces</span><span class="p">):</span>
+    <span class="n">n_bookies</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bookies_traces</span><span class="p">)</span>
+    <span class="n">mid_point</span> <span class="o">=</span> <span class="n">n_bookies</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="c1"># First half</span>
+    <span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">mid_point</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bookies_traces</span><span class="p">[:</span><span class="n">mid_point</span><span class="p">]):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">param_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span>
-                <span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="n">bookie</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="n">bookie</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
-        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
-        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;Phi&quot;</span><span class="p">:</span>
-            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span>
-                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
+            <span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
+
+    <span class="c1"># Second half</span>
+    <span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">nrows</span><span class="o">=</span><span class="n">n_bookies</span> <span class="o">-</span> <span class="n">mid_point</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bookie</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bookies_traces</span><span class="p">[</span><span class="n">mid_point</span><span class="p">:]):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">param_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span>
+                <span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">mid_point</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">bookie</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">)</span>
-            <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">finalize_plot</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span></div>
+            <span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">param_vals</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">mid_point</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="n">bookie</span>
+            <span class="p">)</span>
+        <span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">bookie</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span></div>
 
 </pre></div>
 

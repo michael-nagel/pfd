@@ -9,11 +9,10 @@ This file runs the estimation procedure.
 
 import json
 import os
-import time
 from collections import defaultdict
 from functools import partial
 from multiprocessing import Pool
-from typing import Any, DefaultDict, Tuple
+from typing import Any, DefaultDict
 
 import arviz as az
 import hydra
@@ -40,7 +39,6 @@ from pfd.helpers import (
     impute_missings,
     save_values,
 )
-from pfd.helpers.base import create_pm_mod
 from pfd.utils import (
     Logger,
     NumFormat,
@@ -49,11 +47,9 @@ from pfd.utils import (
     calc_win_props,
     create_func_dict,
     enc_categ_var,
-    est_pm_mod,
     finalize_plot,
     fit_mixed_lm,
     format_sum,
-    keep_pctls,
     mod_tex_tab,
     pivot_df,
     resample,
@@ -394,7 +390,9 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
         y = row["Intercept"] + row["Slope"] * x
         ax.plot(x, y, label=row["Bookies"])
-    ax.set(xlabel="$\overline{\Delta}(p_T, p_0)$", ylabel="$\overline{\pi}$")
+    ax.set(
+        xlabel="$\\overline{\\Delta}(p_T, p_0)$", ylabel="$\\overline{\\pi}$"
+    )
     # legend = ax.legend(
     #     title="",
     #     bbox_to_anchor=(1.03, 0.5),
@@ -405,7 +403,13 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     # handlelength=2,
     # )
     # plt.setp(legend.get_texts(), fontsize="small")
-    plt.legend(loc="upper left", ncol=3, fontsize=9, columnspacing=0.4, handlelength=1.5)
+    plt.legend(
+        loc="upper left",
+        ncol=3,
+        fontsize=9,
+        columnspacing=0.4,
+        handlelength=1.5,
+    )
     finalize_plot(
         path=f"{cfg.paths.figures}win_props_re.pdf",
         save=cfg.general.save,
@@ -563,21 +567,6 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     mode="w",
     # )
 
-    # def calc_elap_time(df):
-    #     return df.diff().fillna(
-    #         pd.Timedelta(seconds=0)
-    #     ).cumsum() / pd.Timedelta(hours=1)
-
-    # df["ElapTime"] = df.groupby("GroupId")["Update"].transform(calc_elap_time)
-
-    # # Keep every x percentile of variable
-    # df = df.groupby("GroupId").apply(
-    #     keep_pctls,
-    #     np.arange(0, 1.05, 0.05),
-    #     include_groups=False,
-    # )
-    # df = df.reset_index(level=1, drop=True).reset_index(drop=False)
-
     group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
     df = df[group_std > 0]  # remove groups with zero odds variance
 
@@ -665,7 +654,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
     )
     lns = lns_1 + lns_2
-    labs = [l.get_label() for l in lns]
+    labs = [i.get_label() for i in lns]
     ax.legend(lns, labs, loc="best")
     finalize_plot(
         path=f"{cfg.paths.figures}cs_mean_rtrn.pdf",

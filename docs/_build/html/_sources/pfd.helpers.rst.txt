@@ -1,21 +1,29 @@
 pfd.helpers package
 ===================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pfd.helpers.base
+
 Submodules
 ----------
-
-pfd.helpers.create\_pm\_mod module
-----------------------------------
-
-.. automodule:: pfd.helpers.create_pm_mod
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 pfd.helpers.fit\_gmm\_mod module
 --------------------------------
 
 .. automodule:: pfd.helpers.fit_gmm_mod
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pfd.helpers.fit\_gpm\_mod module
+--------------------------------
+
+.. automodule:: pfd.helpers.fit_gpm_mod
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,6 +36,14 @@ pfd.helpers.fit\_rfa\_mod module
    :undoc-members:
    :show-inheritance:
 
+pfd.helpers.gen\_res\_obj module
+--------------------------------
+
+.. automodule:: pfd.helpers.gen_res_obj
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pfd.helpers.impute\_missings module
 -----------------------------------
 
@@ -36,10 +52,10 @@ pfd.helpers.impute\_missings module
    :undoc-members:
    :show-inheritance:
 
-pfd.helpers.save\_tex\_vals module
-----------------------------------
+pfd.helpers.save\_values module
+-------------------------------
 
-.. automodule:: pfd.helpers.save_tex_vals
+.. automodule:: pfd.helpers.save_values
    :members:
    :undoc-members:
    :show-inheritance:

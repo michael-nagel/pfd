@@ -26,7 +26,6 @@ The code files in this replication package construct the output in Nagel (2024) 
 
 ### Oddsportal Data
 
-
 Datafiles:
 
 - `data/raw/crawled_odds.json`
@@ -71,7 +70,7 @@ The random seed is set in the configuration file `conf/config.yaml` where basic 
 
 #### Summary
 
-Approximate time needed to reproduce the analyses on a standard (2023) desktop machine:
+Approximate time needed to reproduce the analyses on a standard (2024) desktop machine:
 
 - [ ] \<10 minutes
 

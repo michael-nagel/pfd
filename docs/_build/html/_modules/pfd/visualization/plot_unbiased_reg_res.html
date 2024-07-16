@@ -84,6 +84,7 @@
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">DictConfig</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 
 <span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">finalize_plot</span>
@@ -94,7 +95,7 @@
 <div class="viewcode-block" id="plot_unbiased_reg_res">
 <a class="viewcode-back" href="../../../pfd.visualization.html#pfd.visualization.plot_unbiased_reg_res.plot_unbiased_reg_res">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_unbiased_reg_res</span><span class="p">(</span>
-    <span class="n">res_ur</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">len_per</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">res_ur</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot unbiasedness regression results.</span>
@@ -103,37 +104,18 @@
 <span class="sd">    ----------</span>
 <span class="sd">    res_ur : list</span>
 <span class="sd">        List that contains the unbiasedness regressions results.</span>
-<span class="sd">    len_per : int</span>
-<span class="sd">        Length of period.</span>
+<span class="sd">    cfg : DictConfig</span>
+<span class="sd">        Dictionary containing config parameters.</span>
 <span class="sd">    path : str</span>
 <span class="sd">        Path for saving.</span>
 <span class="sd">    save : bool</span>
 <span class="sd">        Save figure if True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pctl</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">pctl</span>
 
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">intcp_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
-    <span class="n">slope_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
-    <span class="n">rmse_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
-    <span class="n">intcp_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])),</span> <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])</span>
-    <span class="n">intcp_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])),</span>
-        <span class="n">y1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])</span>
-        <span class="o">+</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.975</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_0&quot;</span><span class="p">]),</span>
-        <span class="n">y2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])</span>
-        <span class="o">-</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.975</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_0&quot;</span><span class="p">]),</span>
-        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">intcp_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
-        <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span>
-    <span class="p">)</span>
-    <span class="n">intcp_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Hours Before Market Close&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Intercept&quot;</span><span class="p">)</span>
-    <span class="n">intcp_ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">]))[::</span><span class="mi">4</span><span class="p">],</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_0&quot;</span><span class="p">])))[::</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">len_per</span> <span class="o">+</span> <span class="n">len_per</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">slope_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])),</span> <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])</span>
-    <span class="n">slope_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])),</span> <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
         <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])),</span>
         <span class="n">y1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])</span>
         <span class="o">+</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.975</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_1&quot;</span><span class="p">]),</span>
@@ -141,22 +123,82 @@
         <span class="o">-</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.975</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;std_beta_1&quot;</span><span class="p">]),</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">slope_ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
         <span class="n">y</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span>
     <span class="p">)</span>
-    <span class="n">slope_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Hours Before Market Close&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Slope&quot;</span><span class="p">)</span>
-    <span class="n">slope_ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">]))[::</span><span class="mi">4</span><span class="p">],</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;beta_1&quot;</span><span class="p">])))[::</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">len_per</span> <span class="o">+</span> <span class="n">len_per</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Slope&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">]))[::</span><span class="mi">6</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pctl</span><span class="p">,</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">pctl</span><span class="p">,</span> <span class="n">pctl</span><span class="p">)[::</span><span class="mi">6</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="n">rmse_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])),</span> <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])</span>
-    <span class="n">rmse_ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Hours Before Market Close&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;RMSE&quot;</span><span class="p">)</span>
-    <span class="n">rmse_ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">]))[::</span><span class="mi">4</span><span class="p">],</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])))[::</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">len_per</span> <span class="o">+</span> <span class="n">len_per</span><span class="p">,</span>
+    <span class="c1"># ax[0].set_ylim(bottom=0)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])),</span> <span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Percentile Time Increments&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;RMSE&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">res_ur</span><span class="p">[</span><span class="s2">&quot;rmse&quot;</span><span class="p">]))[::</span><span class="mi">6</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pctl</span><span class="p">,</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">pctl</span><span class="p">,</span> <span class="n">pctl</span><span class="p">)[::</span><span class="mi">6</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">finalize_plot</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span></div>
 
+
+    <span class="c1"># fig = plt.figure()</span>
+    <span class="c1"># intcp_ax = fig.add_subplot(221)</span>
+    <span class="c1"># rmse_ax = fig.add_subplot(222)</span>
+    <span class="c1"># slope_ax = fig.add_subplot(212)</span>
+    <span class="c1"># intcp_ax.plot(np.arange(0, len(res_ur[&quot;beta_0&quot;])), res_ur[&quot;beta_0&quot;])</span>
+    <span class="c1"># intcp_ax.fill_between(</span>
+    <span class="c1">#     x=np.arange(0, len(res_ur[&quot;beta_0&quot;])),</span>
+    <span class="c1">#     y1=np.array(res_ur[&quot;beta_0&quot;])</span>
+    <span class="c1">#     + norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_0&quot;]),</span>
+    <span class="c1">#     y2=np.array(res_ur[&quot;beta_0&quot;])</span>
+    <span class="c1">#     - norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_0&quot;]),</span>
+    <span class="c1">#     alpha=0.15,</span>
+    <span class="c1"># )</span>
+    <span class="c1"># intcp_ax.hlines(</span>
+    <span class="c1">#     y=0, xmin=0, xmax=len(res_ur[&quot;beta_0&quot;]) - 1, linestyles=&quot;dotted&quot;</span>
+    <span class="c1"># )</span>
+    <span class="c1"># intcp_ax.set(xlabel=&quot;&quot;, ylabel=&quot;Intercept&quot;)</span>
+    <span class="c1"># intcp_ax.set_xticks(</span>
+    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
+    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
+    <span class="c1"># )</span>
+    <span class="c1"># # intcp_ax.set_xticks(</span>
+    <span class="c1"># #     np.arange(0, len(res_ur[&quot;beta_0&quot;]))[::4],</span>
+    <span class="c1"># #     np.flip(np.arange(0, len(res_ur[&quot;beta_0&quot;])))[::4] * len_per + len_per,</span>
+    <span class="c1"># # )</span>
+    <span class="c1"># rmse_ax.plot(np.arange(0, len(res_ur[&quot;rmse&quot;])), res_ur[&quot;rmse&quot;])</span>
+    <span class="c1"># rmse_ax.set(xlabel=&quot;&quot;, ylabel=&quot;RMSE&quot;)</span>
+    <span class="c1"># rmse_ax.set_xticks(</span>
+    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
+    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
+    <span class="c1"># )</span>
+    <span class="c1"># # rmse_ax.set_xticks(</span>
+    <span class="c1"># #     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::4],</span>
+    <span class="c1"># #     np.flip(np.arange(0, len(res_ur[&quot;rmse&quot;])))[::4] * len_per + len_per,</span>
+    <span class="c1"># # )</span>
+    <span class="c1"># slope_ax.plot(np.arange(0, len(res_ur[&quot;beta_1&quot;])), res_ur[&quot;beta_1&quot;])</span>
+    <span class="c1"># slope_ax.fill_between(</span>
+    <span class="c1">#     x=np.arange(0, len(res_ur[&quot;beta_1&quot;])),</span>
+    <span class="c1">#     y1=np.array(res_ur[&quot;beta_1&quot;])</span>
+    <span class="c1">#     + norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_1&quot;]),</span>
+    <span class="c1">#     y2=np.array(res_ur[&quot;beta_1&quot;])</span>
+    <span class="c1">#     - norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_1&quot;]),</span>
+    <span class="c1">#     alpha=0.15,</span>
+    <span class="c1"># )</span>
+    <span class="c1"># slope_ax.hlines(</span>
+    <span class="c1">#     y=1, xmin=0, xmax=len(res_ur[&quot;beta_1&quot;]) - 1, linestyles=&quot;dotted&quot;</span>
+    <span class="c1"># )</span>
+    <span class="c1"># slope_ax.set(xlabel=&quot;Percentile Time Increments&quot;, ylabel=&quot;Slope&quot;)</span>
+    <span class="c1"># slope_ax.set_xticks(</span>
+    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
+    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
+    <span class="c1"># )</span>
+    <span class="c1"># plt.ylim(bottom=0)</span>
+    <span class="c1"># # slope_ax.set_xticks(</span>
+    <span class="c1"># #     np.arange(0, len(res_ur[&quot;beta_1&quot;]))[::4],</span>
+    <span class="c1"># #     np.flip(np.arange(0, len(res_ur[&quot;beta_1&quot;])))[::4] * len_per + len_per,</span>
+    <span class="c1"># # )</span>
+    <span class="c1"># finalize_plot(path=path, save=save)</span>
 </pre></div>
 
            </div>

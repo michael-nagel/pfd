@@ -139,7 +139,7 @@
         <span class="p">)</span>
 
         <span class="n">res_rfa</span> <span class="o">=</span> <span class="n">mod_rfa</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-            <span class="n">reml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;cg&quot;</span>
+            <span class="n">reml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span>
         <span class="p">)</span>  <span class="c1"># [&#39;bfgs&#39;, &#39;lbfgs&#39;, &#39;cg&#39;]</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -161,10 +161,15 @@
                 <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">bookie</span><span class="p">,</span> <span class="s2">&quot;FECls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">)</span>
+
+        <span class="n">exog</span><span class="p">[</span><span class="s2">&quot;Exog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_vars</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">exog</span><span class="p">[</span><span class="s2">&quot;Exog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
         <span class="n">exog</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">exog</span><span class="p">)</span>
 
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Endog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FEOpn&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;FECls&quot;</span><span class="p">]</span>
+
         <span class="n">mod_rfa</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span>
-            <span class="n">endog</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">bookie</span><span class="p">,</span> <span class="s2">&quot;DltOpnCls&quot;</span><span class="p">],</span> <span class="n">exog</span><span class="o">=</span><span class="n">exog</span>
+            <span class="n">endog</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">bookie</span><span class="p">,</span> <span class="s2">&quot;Endog&quot;</span><span class="p">],</span> <span class="n">exog</span><span class="o">=</span><span class="n">exog</span>
         <span class="p">)</span>
         <span class="n">mod_rfa</span><span class="o">.</span><span class="n">exog_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Intercept&quot;</span>
         <span class="n">res_rfa</span> <span class="o">=</span> <span class="n">mod_rfa</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s2">&quot;HC1&quot;</span><span class="p">)</span>

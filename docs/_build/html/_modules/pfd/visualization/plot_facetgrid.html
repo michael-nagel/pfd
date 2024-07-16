@@ -159,9 +159,9 @@
         <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">FacetGrid</span><span class="p">(</span>
             <span class="n">param_vals</span><span class="p">,</span>
             <span class="n">col</span><span class="o">=</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
-            <span class="n">col_wrap</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-            <span class="n">sharex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">col_wrap</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">,</span>
@@ -170,7 +170,7 @@
             <span class="n">hue_order</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Professionals&quot;</span><span class="p">,</span> <span class="s2">&quot;Amateurs&quot;</span><span class="p">],</span>
             <span class="n">split</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">palette</span><span class="o">=</span><span class="n">color_palette</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
-            <span class="n">inner</span><span class="o">=</span><span class="s2">&quot;quart&quot;</span><span class="p">,</span>
+            <span class="n">inner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">gap</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">param_vals</span><span class="p">,</span>
         <span class="p">)</span>
@@ -179,12 +179,9 @@
         <span class="n">g</span><span class="o">.</span><span class="n">add_legend</span><span class="p">(</span>
             <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper center&quot;</span><span class="p">,</span>
-            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.38</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span>
+            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.42</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span>
             <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;Phi&quot;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
                 <span class="n">fname</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
@@ -199,22 +196,19 @@
         <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">FacetGrid</span><span class="p">(</span>
             <span class="n">param_vals</span><span class="p">,</span>
             <span class="n">col</span><span class="o">=</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span>
-            <span class="n">col_wrap</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-            <span class="n">sharex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">col_wrap</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">_i$&quot;</span><span class="p">,</span>
-            <span class="n">inner</span><span class="o">=</span><span class="s2">&quot;quart&quot;</span><span class="p">,</span>
+            <span class="n">inner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">param_vals</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># g.map(sns.kdeplot, f&quot;$\\{param}_i$&quot;)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">set_titles</span><span class="p">(</span><span class="n">col_template</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{col_name}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">g</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;Phi&quot;</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
                 <span class="n">fname</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>

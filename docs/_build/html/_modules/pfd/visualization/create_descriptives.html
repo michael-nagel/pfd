@@ -97,6 +97,7 @@
 <span class="kn">from</span> <span class="nn">hydra</span> <span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">initialize</span>
 <span class="kn">from</span> <span class="nn">hydra.core.config_store</span> <span class="kn">import</span> <span class="n">ConfigStore</span>
 
+<span class="kn">from</span> <span class="nn">pfd.helpers</span> <span class="kn">import</span> <span class="n">save_values</span>
 <span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Logger</span><span class="p">,</span>
     <span class="n">NumFormat</span><span class="p">,</span>
@@ -104,6 +105,7 @@
     <span class="n">PlotParams</span><span class="p">,</span>
     <span class="n">calc_losses</span><span class="p">,</span>
     <span class="n">finalize_plot</span><span class="p">,</span>
+    <span class="n">mod_tex_tab</span><span class="p">,</span>
     <span class="n">write_text_file</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -153,6 +155,7 @@
 
     <span class="c1"># Tables</span>
 
+    <span class="c1"># Descriptives for numerical variables</span>
     <span class="n">desc_num</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
         <span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">,</span> <span class="s2">&quot;OddsMvt&quot;</span><span class="p">,</span> <span class="s2">&quot;OpnOdds&quot;</span><span class="p">,</span> <span class="s2">&quot;ClsOdds&quot;</span><span class="p">,</span> <span class="s2">&quot;TsDur&quot;</span><span class="p">,</span> <span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -162,11 +165,19 @@
         <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
             <span class="nb">zip</span><span class="p">(</span>
                 <span class="n">desc_num</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-                <span class="p">[</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">omega$&quot;</span><span class="p">,</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mathbf</span><span class="si">{Q}</span><span class="s2">$&quot;</span><span class="p">,</span> <span class="s2">&quot;$Q_1$&quot;</span><span class="p">,</span> <span class="s2">&quot;$Q_T$&quot;</span><span class="p">,</span> <span class="s2">&quot;$T$&quot;</span><span class="p">,</span> <span class="s2">&quot;$C$&quot;</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">omega$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">bs</span><span class="si">{p}</span><span class="s2">$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">bs</span><span class="si">{p}</span><span class="s2">_0$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">bs</span><span class="si">{p}</span><span class="s2">_T$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$T$&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;$C$&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
+    <span class="c1"># Descriptives for categorical variables</span>
     <span class="n">desc_cat</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
         <span class="p">[</span><span class="s2">&quot;Bookies&quot;</span><span class="p">,</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Competition&quot;</span><span class="p">,</span> <span class="s2">&quot;Tournament&quot;</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
@@ -174,6 +185,47 @@
 
     <span class="c1"># Plotting</span>
 
+    <span class="c1"># Empirical distribution of implied probabilities</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_s</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">,</span>
+        <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span>
+        <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Implied Probabilities&quot;</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">dist_impl_probs.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">opn_cls</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="n">objs</span><span class="o">=</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">]],</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Opening&quot;</span><span class="p">,</span> <span class="s2">&quot;Closing&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">opn_cls</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="s2">&quot;Odds&quot;</span><span class="p">]</span>
+    <span class="n">opn_cls</span> <span class="o">=</span> <span class="n">opn_cls</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Index&quot;</span><span class="p">])</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">opn_cls</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;Odds&quot;</span><span class="p">,</span>
+        <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span>
+        <span class="n">inner</span><span class="o">=</span><span class="s2">&quot;quart&quot;</span><span class="p">,</span>
+        <span class="n">split</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">gap</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">common_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Price&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">violin_opn_cls.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Brierscore and log loss</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;Bookies&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">calc_losses</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;BrierLoss&quot;</span><span class="p">,</span> <span class="s2">&quot;LogLoss&quot;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">metrics</span><span class="o">.</span><span class="n">index</span>
@@ -191,51 +243,32 @@
         <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">log_brier_loss.pdf&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span>
     <span class="p">)</span>
 
-    <span class="n">timestamps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
     <span class="n">timestamps</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span>
 
     <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rcp_s</span><span class="p">)</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># TODO title: crawling process density</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
     <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Crawling Date&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
     <span class="n">finalize_plot</span><span class="p">(</span>
-        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">crawling_process.pdf&quot;</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">crawling_process.png&quot;</span><span class="p">,</span>
         <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="n">exem_match</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">20</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">24</span><span class="p">)</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">exem_match</span> <span class="o">=</span> <span class="n">exem_match</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">exem_match</span><span class="p">[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">exem_match</span><span class="p">[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="p">:</span>
-    <span class="p">]</span>
-    <span class="n">exem_match</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">exem_match</span><span class="p">[</span><span class="s2">&quot;Update&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
-        <span class="s2">&quot;%H:%M&quot;</span>
-    <span class="p">)</span>
-    <span class="n">exem_match</span> <span class="o">=</span> <span class="n">exem_match</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;Time&quot;</span><span class="p">])</span>
-
-    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exem_match</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">exem_match</span><span class="p">[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">])</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Timestamp&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Implied Probability&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
-    <span class="n">finalize_plot</span><span class="p">(</span>
-        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">ts_exem_match.pdf&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
     <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
         <span class="n">bins</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
-        <span class="n">binrange</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
         <span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of Odds Movements&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Number of Price Movements&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="n">finalize_plot</span><span class="p">(</span>
-        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">hist_odds_mvts.pdf&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">hist_price_mvts.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -248,23 +281,36 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time Series Duration (h)&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TsDur&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">6</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
     <span class="n">finalize_plot</span><span class="p">(</span>
-        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">hist_ts_dur.pdf&quot;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">hist_ts_dur.png&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Saving</span>
 
+    <span class="n">save_values</span><span class="p">(</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;ts_dur_med&quot;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">desc_num</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;50\%&quot;</span><span class="p">,</span> <span class="s2">&quot;$T$&quot;</span><span class="p">],</span>
+        <span class="n">file_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">vals</span><span class="si">}{</span><span class="n">cfg</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">vals</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2f&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">write_text_file</span><span class="p">(</span>
         <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">desc_num.tex&quot;</span><span class="p">,</span>
-        <span class="n">body</span><span class="o">=</span><span class="n">desc_num</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_num</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">to_latex</span><span class="p">(),</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">mod_tex_tab</span><span class="p">(</span>
+            <span class="n">tab</span><span class="o">=</span><span class="n">desc_num</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_num</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_latex</span><span class="p">()</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="n">write_text_file</span><span class="p">(</span>
         <span class="n">file</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">tables</span><span class="si">}</span><span class="s2">desc_cat.tex&quot;</span><span class="p">,</span>
-        <span class="n">body</span><span class="o">=</span><span class="n">desc_cat</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_col</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">to_latex</span><span class="p">(),</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">mod_tex_tab</span><span class="p">(</span>
+            <span class="n">tab</span><span class="o">=</span><span class="n">desc_cat</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">NumFormat</span><span class="o">.</span><span class="n">format_col</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">na_rep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_latex</span><span class="p">()</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="c1"># Execution Time and Log File Finish</span>

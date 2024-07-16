@@ -47,7 +47,8 @@ from pfd.utils import finalize_plot
 #             ax[i, 0].ticklabel_format(
 #                 style="sci", scilimits=(0, 0), axis="both"
 #             )
-#             ax[i, 1].ticklabel_format(style="sci", scilimits=(0, 0), axis="y")
+#             ax[i, 1].ticklabel_format(style="sci", scilimits=(0, 0),
+#                                       axis="y")
 #     finalize_plot(path=path, save=save)
 
 

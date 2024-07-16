@@ -70,7 +70,7 @@ sampling:
   # Normal means problem, multiple regression problem, and real-data example
   hdi: 0.95 # Highest density interval
   n_chains: 4 # Number of chains
-  n_draws: 4000 # Number of draws per chain
+  n_draws: 5000 # Number of draws per chain
   n_tune: 2000 # Number of tuning steps (burn-in) per chain
   n_cores: 4 # Number of cores
   targ_acpt: 0.85 # Acceptance probability

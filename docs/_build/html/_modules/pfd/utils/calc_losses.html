@@ -92,7 +92,7 @@
 <a class="viewcode-back" href="../../../pfd.utils.html#pfd.utils.calc_losses.calc_losses">[docs]</a>
 <span class="k">def</span> <span class="nf">calc_losses</span><span class="p">(</span><span class="n">grouped_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate the brier score loss and the log loss of each group.</span>
+<span class="sd">    Calculate the Brier score loss and the log loss of each group.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -106,9 +106,9 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">b_loss</span> <span class="o">=</span> <span class="n">brier_score_loss</span><span class="p">(</span>
-        <span class="n">y_true</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">],</span> <span class="n">y_prob</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">]</span>
+        <span class="n">y_true</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">],</span> <span class="n">y_prob</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">l_loss</span> <span class="o">=</span> <span class="n">log_loss</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">],</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;ClsOdds&quot;</span><span class="p">])</span>
+    <span class="n">l_loss</span> <span class="o">=</span> <span class="n">log_loss</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;Match&quot;</span><span class="p">],</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">[</span><span class="s2">&quot;OpnOdds&quot;</span><span class="p">])</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">b_loss</span><span class="p">,</span> <span class="n">l_loss</span><span class="p">]</span></div>
 
 </pre></div>
