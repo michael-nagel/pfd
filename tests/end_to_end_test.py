@@ -20,7 +20,7 @@ class EndToEndTest(unittest.TestCase):
             for fig in os.listdir("reports/figures")
             if ".pdf" in fig or ".png" in fig
         ]
-        self.assertEqual(len(figs), 24)
+        self.assertEqual(len(figs), 26)
 
     def test_num_of_gen_tbls(self) -> None:
         """

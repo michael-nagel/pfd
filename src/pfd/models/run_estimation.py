@@ -93,6 +93,26 @@ def run_estimation(cfg: PFDConfig) -> None:
     with open(f"{cfg.paths.acc}{cfg.files.clr_plt}", "r") as f:
         stata_colors = json.load(f)
 
+    additional_colors = [
+        "#4E79A7",
+        "#F28E2B",
+        "#76B7B2",
+        "#59A14F",
+        "#EDC948",
+        "#B07AA1",
+        "#FF9DA7",
+        "#9C755F",
+        "#BAB0AC",
+        "#FFBE7D",
+        "#8CD17D",
+        "#B6992D",
+        "#499894",
+        "#E15759",
+        "#79706E",
+    ]
+
+    stata_colors = stata_colors + additional_colors
+
     df = pd.read_hdf(
         path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
         key=cfg.estimation.spec,
@@ -275,7 +295,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_win_props: DefaultDict[Any, list] = defaultdict(list)
 
     ivals = [
-        [-np.inf, -0.15],
+        [-1, -0.15],
         [-0.15, -0.12],
         [-0.12, -0.09],
         [-0.09, -0.06],
@@ -286,7 +306,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         [0.06, 0.09],
         [0.09, 0.12],
         [0.12, 0.15],
-        [0.15, np.inf],
+        [0.15, 1],
     ]
 
     for bookie in bookies + ["All"]:
@@ -319,7 +339,6 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Tests Based on Proportions
     # TODO: do also individually using weighted least squares?
-    # TODO plot random effects using line plot?
 
     df_res_win_props = pd.concat(res_win_props, ignore_index=True)
 
@@ -328,9 +347,9 @@ def run_estimation(cfg: PFDConfig) -> None:
         repeats=res_win_props[bookies[0]].shape[0],
     )
 
-    df_res_win_props[["AvgChange", "NumMatches"]] = scale_vars(
-        df_res_win_props[["AvgChange", "NumMatches"]]
-    )
+    # df_res_win_props[["AvgChange", "NumMatches"]] = scale_vars(
+    #     df_res_win_props[["AvgChange", "NumMatches"]]
+    # )
 
     mod_win_props = smf.mixedlm(
         formula="Proportions ~ 1 + AvgChange + NumMatches",
@@ -340,7 +359,57 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     res_mod_win_props = mod_win_props.fit(reml=True, method="lbfgs")
-    # ["bfgs", "lbfgs", "cg"]
+
+    fixed_effects = res_mod_win_props.fe_params
+    random_effects = res_mod_win_props.random_effects
+
+    group_params = []
+    for group, re in random_effects.items():
+        intercept = fixed_effects["Intercept"] + re["Bookies"]
+        slope = fixed_effects["AvgChange"] + re["AvgChange"]
+        group_params.append(
+            {"Bookies": group, "Intercept": intercept, "Slope": slope}
+        )
+
+    df_group_params = pd.DataFrame(group_params)
+
+    df_group_params = df_group_params[df_group_params["Bookies"] != "All"]
+    df_res_win_props = df_res_win_props[df_res_win_props["Bookies"] != "All"]
+
+    _, ax = plt.subplots()
+    sns.scatterplot(
+        data=df_res_win_props.loc[df_res_win_props["Bookies"] != "All"],
+        x="AvgChange",
+        y="Proportions",
+        hue="Bookies",
+        palette=stata_colors,
+        legend=False,
+        ax=ax,
+    )
+    for _, row in df_group_params.iterrows():
+        x = np.linspace(
+            df_res_win_props["AvgChange"].min(),
+            df_res_win_props["AvgChange"].max(),
+            100,
+        )
+        y = row["Intercept"] + row["Slope"] * x
+        ax.plot(x, y, label=row["Bookies"])
+    ax.set(xlabel="$\overline{\Delta}(p_T, p_0)$", ylabel="$\overline{\pi}$")
+    # legend = ax.legend(
+    #     title="",
+    #     bbox_to_anchor=(1.03, 0.5),
+    #     loc="center left",
+    #     labelspacing=0.05,
+    #     borderaxespad=0,
+    #     handletextpad=0.5,
+    #     # handlelength=2,
+    # )
+    # plt.setp(legend.get_texts(), fontsize="small")
+    plt.legend(loc="upper left", ncol=3, fontsize=9, columnspacing=0.4, handlelength=1.5)
+    finalize_plot(
+        path=f"{cfg.paths.figures}win_props_re.pdf",
+        save=cfg.general.save,
+    )
 
     tex_res_wp = res_mod_win_props.summary().as_latex().splitlines(True)
     tex_res_wp_p1 = tex_res_wp[6:12]  # export part 1 to latex
@@ -355,11 +424,11 @@ def run_estimation(cfg: PFDConfig) -> None:
                 zip(
                     res_win_props[bookie].columns,
                     [
-                        r"$\Delta(p_T, p_0)$",
-                        r"$\overline{\Delta}(p_T, p_0)$",
-                        r"$\overline{C}$",
+                        "$\Delta(p_T, p_0)$",
+                        "$\overline{\Delta}(p_T, p_0)$",
+                        r"$\\overline{C}$",
                         "$N$",
-                        r"$\overline{pi}$",
+                        "$\overline{\pi}$",
                         "$Z$",
                         "$p$",
                     ],
@@ -667,17 +736,17 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_garch = mod_garch.fit()
 
     # Plot the conditional volatility
-    fig, ax = plt.subplots()
-    ax.plot(res_garch.conditional_volatility)
-    ax.set(xlabel="Percentile Time Increments", ylabel="Volatility")
-    plt.xticks(
-        np.arange(0, n_per, 1)[::5],
-        np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
-    )
-    finalize_plot(
-        path=f"{cfg.paths.figures}egarch_cond_vola.pdf",
-        save=cfg.general.save,
-    )
+    # fig, ax = plt.subplots()
+    # ax.plot(res_garch.conditional_volatility)
+    # ax.set(xlabel="Percentile Time Increments", ylabel="Volatility")
+    # plt.xticks(
+    #     np.arange(0, n_per, 1)[::5],
+    #     np.arange(0, 100 + cfg.estimation.pctl, cfg.estimation.pctl)[::5],
+    # )
+    # finalize_plot(
+    #     path=f"{cfg.paths.figures}egarch_cond_vola.pdf",
+    #     save=cfg.general.save,
+    # )
 
     tex_res_garch = (
         res_garch.summary()
@@ -763,28 +832,18 @@ def run_estimation(cfg: PFDConfig) -> None:
     idxmin_gamma_gmm = df_res_gmm["gamma"].idxmin()
     idxmax_gamma_gmm = df_res_gmm["gamma"].idxmax()
 
-    # df_res_gmm = df_res_gmm.rename(
-    #     columns=dict(
-    #         zip(
-    #             df_res_gmm.columns,
-    #             [
-    #                 "$\hat{\gamma}$",
-    #                 "$s.e.(\hat{\gamma})$",
-    #                 "$\hat{\Phi}$",
-    #                 "$s.e.(\hat{\Phi})$",
-    #                 "$\J$",
-    #                 "$p$",
-    #             ],
-    #         )
-    #     )
-    # )
+    # First-stage GMM
+    part_fit_gmm_mod_first_stage = partial(
+        fit_gmm_mod,
+        df,
+        n_per,
+        cfg.estimation.incr,
+        start_params,
+        1,
+    )
 
-    # print(gmm_mod.momcond(start_params).shape)
-    # optim_method="nm", inv_weights=np.eye(N=14))
-    # gmm_res.model.exog_names[:] = "Gamma K".split()
-    # print(gmm_res_cue.summary(xname=[r"$\hat{\gamma}$", r"$\hat{K}$"]))
-    # print(gmm_mod.momcond_mean(gmm_res_cue.params))
-    # print(df_res_gmm["gamma"].mean())
+    with Pool() as pool:
+        res_gmm_first_stage = pool.map(part_fit_gmm_mod_first_stage, bookies)
 
     pylab.rcParams.update(rcp_m)
 
@@ -799,36 +858,24 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    plot_gmm_res(
+        res_gmm=res_gmm_first_stage,
+        bookies=bookies,
+        edgecolor=stata_colors[0],
+        paths=[
+            f"{cfg.paths.figures}first_stage_gmm_params.pdf",
+            f"{cfg.paths.figures}first_stage_gmm_jstat.pdf",
+        ],
+        save=cfg.general.save,
+    )
+
     # PyMC probabilistic modeling
 
     # trace = az.from_netcdf(
     #     filename=f"{cfg.paths.models}trace_{est_method}.nc"
     # )
 
-    # def dd():
-    #     return defaultdict()
-
-    # res_pm: DefaultDict[str, Any] = defaultdict(dd)
-
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
-
-    # res_pm["vi"]["trace"] = az.from_netcdf(
-    #     filename=f"{cfg.paths.models}trace_advi_tot.nc"
-    # )
-    # res_pm["nuts_tot"]["trace"] = az.from_netcdf(
-    #     filename=f"{cfg.paths.models}trace_nuts_tot.nc"
-    # )
-    # res_pm["nuts_pro"]["trace"] = az.from_netcdf(
-    #     filename=f"{cfg.paths.models}trace_nuts_pro.nc"
-    # )
-    # res_pm["nuts_amat"]["trace"] = az.from_netcdf(
-    #     filename=f"{cfg.paths.models}trace_nuts_amat.nc"
-    # )
-    # res_pm["vi"]["tracker"] = {
-    #     "mean": np.load(file=f"{cfg.paths.models}tracker_mean.npy"),
-    #     "std": np.load(file=f"{cfg.paths.models}tracker_std.npy")
-    # }
-    # res_pm["vi"]["advi"] = np.load(file=f"{cfg.paths.models}advi_hist.npy")
 
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
         gen_res_obj(

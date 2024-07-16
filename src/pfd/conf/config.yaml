@@ -14,33 +14,7 @@ estimation:
   resample_freq: 1min # Frequency (min) to which the series is resampled
   pctl: 2  # Percentile time increments
   incr: 5 # Incremental step for periods for GMM estimation
-  max_iter: 100 # Maximum number of iterations for GMM
-
-filenames:
-  exam_sls: fig1.pdf 
-  exam_cues: fig2.pdf
-  post_main: fig3.pdf
-  gru_n_obs_ts: onl_appx_fig1.pdf
-  gru_metrics: onl_appx_fig2.pdf
-  ffnn_n_obs_ts: onl_appx_fig3.pdf
-  ffnn_metrics: onl_appx_fig4.pdf
-  state_dist: onl_appx_fig5.pdf
-  forest_plot: onl_appx_fig6.pdf
-  post_reg_horse: onl_appx_fig7.pdf 
-  post_norm: onl_appx_fig8.pdf 
-  post_seasons: onl_appx_fig9.pdf 
-  post_shock: onl_appx_fig10.pdf 
-  post_fans: onl_appx_fig11.pdf 
-  post_shandy: onl_appx_fig12.pdf 
-  post_softdrinks: onl_appx_fig13.pdf 
-  desc_sls: tab1.tex
-  gru_config: onl_appx_tab1.tex
-  ffnn_config: onl_appx_tab2.tex
-  var_comments: onl_appx_tab3.tex
-  state_desc: onl_appx_tab5.tex
-  var_desc_s0: onl_appx_tab6.tex
-  var_desc_s1: onl_appx_tab7.tex
-  res_est: onl_appx_tab8.tex
+  max_iter: "cue" # Maximum number of iterations for GMM
 
 files:
   clr_plt: stata_colors.json # Color palette
