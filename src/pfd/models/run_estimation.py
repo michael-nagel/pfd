@@ -274,7 +274,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                 [
                     "$N$",
                     "RMSE$(e_0)$",
-                    "RMSE$(e_1)$",
+                    "RMSE$(e_T)$",
                     r"$\beta_0$",
                     r"$\beta_1$",
                     r"$p(\beta_0)$",

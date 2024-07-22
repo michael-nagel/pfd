@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code files in this replication package construct the output in Nagel (2024) using Python. The `__main__.py` file runs all the code to generate the 5 figures and 4 tables. A replicator should expect the code to run for approximately 5 days. See the [documentation](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/docs/_build/html/index.html) for detailed information on the underlying code.
+The code files in this replication package construct the output in Nagel (2024) using Python. The `__main__.py` file runs all the code to generate the 26 figures and 10 tables. A replicator should expect the code to run for approximately 3 hours. See the [documentation](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/docs/_build/html/index.html) for detailed information on the underlying code.
 
 ## Data Availability and Provenance Statements
 
@@ -10,7 +10,7 @@ The code files in this replication package construct the output in Nagel (2024) 
 
 - [x] I certify that the author(s) of the manuscript have legitimate access to and permission to use the data used in this manuscript.
 
-- [ ] I certify that the author(s) of the manuscript have documented permission to redistribute/publish the data contained within this replication package. Appropriate permission are documented in the [LICENSE](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/LICENSE) file.
+- [x] I certify that the author(s) of the manuscript have documented permission to redistribute/publish the data contained within this replication package. Appropriate permission are documented in the [LICENSE](https://htmlpreview.github.io/?https://github.com/michael-nagel/pfd/blob/main/LICENSE) file.
 
 ### Summary of Availability
 
@@ -20,13 +20,18 @@ The code files in this replication package construct the output in Nagel (2024) 
 
 - [ ] **No data can be made** publicly available.
 
-  | Data.Name      | Data.Files   | Location | Provided | Citation |
-  | -------------- | ------------ | -------- | -------- | -------- |
-  | "Alcohol Data" | alc_data.pkl | Data/    | TRUE     |          |
+### Details on each Data Source
+
+  | Data.Name    | Data.Files       | Location     | Provided | Citation |
+  | ------------ | ---------------- | ------------ | -------- | -------- |
+  | "Oddsportal" | crawled_odds.txt | data/raw/    | TRUE     |          |
+  |              | crawled_urls.txt | data/raw/    | TRUE     |          |
 
 ### Oddsportal Data
 
 Datafiles:
+
+We continuously scraped data from Oddsportal over the period from March 2023 to November 2023. The corresponding code file is `_crawl_data`. This file cannot be executed anymore because we do not include the credentials to log in to our Oddsportal account in the repository. Additionally, the webpage may have changed, rendering the provided code non-functional.
 
 - `data/raw/crawled_odds.json`
 - `data/raw/crawled_urls.json`
@@ -76,9 +81,9 @@ Approximate time needed to reproduce the analyses on a standard (2024) desktop m
 
 - [ ] 10-60 minutes
 
-- [x] 1-2 hours
+- [ ] 1-2 hours
 
-- [ ] 2-8 hours
+- [x] 2-8 hours
 
 - [ ] 8-24 hours
 
@@ -92,12 +97,12 @@ Approximate time needed to reproduce the analyses on a standard (2024) desktop m
 
 #### Details
 
-The code was last executed on a machine with the following features
+The code was last executed on a machine with the following features:
 
-- Linux distribution: Debian GNU/Linux 12 (bookworm)
+- Linux distribution: WSL2 (Ubuntu)
 
 - Architecture: x86/64
 
-- CPU: Intel Broadwell 24 vCPU 12 cores
+- CPU: Intel Broadwell 32 vCPU 16 cores
 
-- RAM: 32 GB
+- RAM: 64 GB
