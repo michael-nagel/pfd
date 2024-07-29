@@ -28,6 +28,7 @@ from arch.unitroot import ADF
 from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 from matplotlib.ticker import MaxNLocator
+from scipy.stats import norm
 from statsmodels.graphics.tsaplots import plot_pacf
 from statsmodels.tsa.stattools import pacf
 
@@ -89,25 +90,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     with open(f"{cfg.paths.acc}{cfg.files.clr_plt}", "r") as f:
         stata_colors = json.load(f)
 
-    additional_colors = [
-        "#4E79A7",
-        "#F28E2B",
-        "#76B7B2",
-        "#59A14F",
-        "#EDC948",
-        "#B07AA1",
-        "#FF9DA7",
-        "#9C755F",
-        "#BAB0AC",
-        "#FFBE7D",
-        "#8CD17D",
-        "#B6992D",
-        "#499894",
-        "#E15759",
-        "#79706E",
-    ]
+    with open(f"{cfg.paths.acc}{cfg.files.clr_plt_ext}", "r") as f:
+        stata_colors_ext = json.load(f)
 
-    stata_colors = stata_colors + additional_colors
+    stata_colors = stata_colors + stata_colors_ext
 
     df = pd.read_hdf(
         path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
@@ -235,15 +221,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_gpm_re = fit_gpm_mod(df=df_oc, exog_cols=exog_cols)
 
     tex_res_gpm = res_gpm_re.summary().as_latex().splitlines(True)
-    tex_res_gpm_p1 = tex_res_gpm[6:12]  # export part 1 to latex
-    tex_res_gpm_p1.append("\\bottomrule\n")
-    tex_res_gpm_p2 = tex_res_gpm[19:-5]  # export part 2 to latex
-    tex_res_gpm_p2.append("\\bottomrule\n")
-    tex_res_gpm_p2[1] = "\\midrule\n"
-
-    # group_var = res_gpm_re.cov_re.iat[0, 0]
-    # resid_var = res_gpm_re.scale
-    # icc = group_var / (group_var + resid_var)  # calculate ICC
+    tex_res_gpm = tex_res_gpm[19:-5]
+    tex_res_gpm.append("\\bottomrule\n")
+    tex_res_gpm[1] = "\\midrule\n"
 
     # Relative Forecast Accuracy of Opening and Closing Lines
 
@@ -258,11 +238,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_rfa_re = res_rfa[-1]["fitted_model"]
 
     tex_res_rfa = res_rfa_re.summary().as_latex().splitlines(True)
-    tex_res_rfa_p1 = tex_res_rfa[6:12]  # export part 1 to latex
-    tex_res_rfa_p1.append("\\bottomrule\n")
-    tex_res_rfa_p2 = tex_res_rfa[19:-5]  # export part 2 to latex
-    tex_res_rfa_p2.append("\\bottomrule\n")
-    tex_res_rfa_p2[1] = "\\midrule\n"
+    tex_res_rfa = tex_res_rfa[19:-5]
+    tex_res_rfa.append("\\bottomrule\n")
+    tex_res_rfa[1] = "\\midrule\n"
 
     df_res_rfa = pd.DataFrame(data=res_rfa, index=bookies + ["All"])
     df_res_rfa = df_res_rfa.loc[:, df_res_rfa.columns != "fitted_model"]
@@ -378,7 +356,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         x="AvgChange",
         y="Proportions",
         hue="Bookies",
-        palette=stata_colors,
+        palette=stata_colors[0 : len(bookies)],
         legend=False,
         ax=ax,
     )
@@ -393,6 +371,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     ax.set(
         xlabel="$\\overline{\\Delta}(p_T, p_0)$", ylabel="$\\overline{\\pi}$"
     )
+    finalize_plot(
+        path=f"{cfg.paths.figures}win_props_re.pdf",
+        save=cfg.general.save,
+    )
+
     # legend = ax.legend(
     #     title="",
     #     bbox_to_anchor=(1.03, 0.5),
@@ -403,24 +386,35 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     # handlelength=2,
     # )
     # plt.setp(legend.get_texts(), fontsize="small")
-    plt.legend(
-        loc="upper left",
-        ncol=3,
-        fontsize=9,
+
+    # Create a separate legend figure
+    fig_legend, ax_legend = plt.subplots(figsize=(4, 4.5))
+    ax_legend.legend(
+        *ax.get_legend_handles_labels(),
+        loc="center",
+        ncol=2,
+        # fontsize=9,
         columnspacing=0.4,
         handlelength=1.5,
     )
+    ax_legend.axis("off")
     finalize_plot(
-        path=f"{cfg.paths.figures}win_props_re.pdf",
+        path=f"{cfg.paths.figures}legend.pdf",
         save=cfg.general.save,
     )
 
-    tex_res_wp = res_mod_win_props.summary().as_latex().splitlines(True)
-    tex_res_wp_p1 = tex_res_wp[6:12]  # export part 1 to latex
-    tex_res_wp_p1.append("\\bottomrule\n")
-    tex_res_wp_p2 = tex_res_wp[19:-5]  # export part 2 to latex
-    tex_res_wp_p2.append("\\bottomrule\n")
-    tex_res_wp_p2[1] = "\\midrule\n"
+    # plt.legend(
+    #     loc="upper left",
+    #     ncol=3,
+    #     fontsize=9,
+    #     columnspacing=0.4,
+    #     handlelength=1.5,
+    # )
+
+    tex_res_wp_re = res_mod_win_props.summary().as_latex().splitlines(True)
+    tex_res_wp_re = tex_res_wp_re[19:-5]
+    tex_res_wp_re.append("\\bottomrule\n")
+    tex_res_wp_re[1] = "\\midrule\n"
 
     for bookie in bookies + ["All"]:
         res_win_props[bookie].rename(
@@ -430,7 +424,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                     [
                         "$\Delta(p_T, p_0)$",
                         "$\overline{\Delta}(p_T, p_0)$",
-                        r"$\\overline{C}$",
+                        "$\overline{C}$",
                         "$N$",
                         "$\overline{\pi}$",
                         "$Z$",
@@ -623,26 +617,22 @@ def run_estimation(cfg: PFDConfig) -> None:
     df_garch = df_garch.sort_values(by=["GroupId", "CumCount"])
 
     def calc_returns(df):
-        return df - df.shift()
+        return df / df.shift() - 1
 
     df_garch["Return"] = df_garch.groupby("GroupId")["OddsMvt"].transform(
         calc_returns
     )
 
     cs_mean_rtrn = df_garch.groupby("CumCount")["Return"].mean().dropna()
+    cs_mean_rtrn_sq = cs_mean_rtrn**2
 
     _, ax = plt.subplots()
-    # for i, ele in enumerate(df_garch["GroupId"].unique()):
-    #     ax.plot(
-    #         np.arange(0, n_per, 1),
-    #         df_garch.loc[df_garch["GroupId"] == ele, "OddsMvt"],
-    #     )
     lns_1 = ax.plot(np.arange(1, n_per, 1), cs_mean_rtrn, label="Returns")
     plt.ticklabel_format(axis="y", style="sci", scilimits=(-4, -4))
     ax_2 = ax.twinx()
     lns_2 = ax_2.plot(
         np.arange(1, n_per, 1),
-        cs_mean_rtrn**2,
+        cs_mean_rtrn_sq,
         color=stata_colors[1],
         label="Sq. Returns",
     )
@@ -655,7 +645,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
     lns = lns_1 + lns_2
     labs = [i.get_label() for i in lns]
-    ax.legend(lns, labs, loc="best")
+    ax.legend(lns, labs, loc="center right")
     finalize_plot(
         path=f"{cfg.paths.figures}cs_mean_rtrn.pdf",
         save=cfg.general.save,
@@ -663,23 +653,23 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # ADF Test for Stationarity
     adf = ADF(
-        y=cs_mean_rtrn, lags=None, trend="ct", max_lags=None, method="bic"
+        y=cs_mean_rtrn, lags=None, trend="ctt", max_lags=None, method="bic"
     )
     adf_stat, adf_p = adf.stat, adf.pvalue
 
-    tex_res_adf = (
-        adf.regression.summary()
-        .as_latex()
-        .replace("\\textbf{", "")
-        .replace("}", "")
-        .splitlines(True)
-    )
-    indices = [i for i, x in enumerate(tex_res_adf) if x == "\\bottomrule\n"]
-    tex_res_adf_p1 = tex_res_adf[3 : indices[0] + 1]
-    tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
+    # tex_res_adf = (
+    #     adf.regression.summary()
+    #     .as_latex()
+    #     .replace("\\textbf{", "")
+    #     .replace("}", "")
+    #     .splitlines(True)
+    # )
+    # indices = [i for i, x in enumerate(tex_res_adf) if x == "\\bottomrule\n"]
+    # tex_res_adf_p1 = tex_res_adf[3 : indices[0] + 1]
+    # tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
 
     pacf_values, confint = pacf(
-        x=cs_mean_rtrn,
+        x=cs_mean_rtrn**2,
         alpha=0.05,
         # nlags=len(cs_mean_rtrn),
         # qstat=True,
@@ -694,39 +684,65 @@ def run_estimation(cfg: PFDConfig) -> None:
     garch_lags = signific_idxs[0].max()
     garch_lags = int(max(garch_lags, 1))
 
-    _, ax = plt.subplots()
-    plot_pacf(
-        x=cs_mean_rtrn,
-        ax=ax,
-        alpha=0.05,
-    )
-    ax.set(title="", xlabel="Lags", ylabel="Autocorrelation")
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    pylab.rcParams.update(rcp_l)
+
+    _, ax = plt.subplots(nrows=1, ncols=2, sharey="all")
+    plot_pacf(x=cs_mean_rtrn, ax=ax[0], alpha=0.05, markersize=3)
+    plot_pacf(x=cs_mean_rtrn_sq, ax=ax[1], alpha=0.05, markersize=3)
+    ax[0].set(title="Returns", xlabel="Lags", ylabel="Autocorrelation")
+    ax[1].set(title="Sq. Returns", xlabel="Lags", ylabel="")
+    ax[0].xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax[1].xaxis.set_major_locator(MaxNLocator(integer=True))
     finalize_plot(
         path=f"{cfg.paths.figures}pacf.pdf",
         save=cfg.general.save,
     )
 
     # Detrend time series
-    trend = np.arange(len(cs_mean_rtrn))
-    trend = sm.add_constant(trend)
-    mod_trend = sm.OLS(cs_mean_rtrn, trend).fit()
-    cs_mean_rtrn = cs_mean_rtrn - mod_trend.predict(trend)
+    # trend = np.arange(len(cs_mean_rtrn))
+    # trend = sm.add_constant(trend)
+    # mod_trend = sm.OLS(cs_mean_rtrn, trend).fit()
+    # cs_mean_rtrn = cs_mean_rtrn - mod_trend.predict(trend)
 
     # Test GARCH Model
     mod_garch = arch_model(
-        y=cs_mean_rtrn * 1e04,
-        mean="Constant",
+        y=cs_mean_rtrn_sq,
+        mean="AR",
+        lags=garch_lags,
         vol="EGARCH",
         p=garch_lags,
         o=garch_lags,
         q=garch_lags,
+        rescale=True,
     )
     res_garch = mod_garch.fit()
 
+    params = res_garch.params
+    omega = params["omega"]
+    alpha = params["alpha[1]"]
+    beta = params["beta[1]"]
+    gamma = params["gamma[1]"]
+
+    shock = np.linspace(-3, 3, 1000)
+    cond_vola = np.exp(
+        omega + alpha * (np.abs(shock) - np.sqrt(2 / np.pi)) + gamma * shock
+    )
+
+    # Plot the asymmetry shock response
+    pylab.rcParams.update(rcp_s)
+
+    _, ax = plt.subplots()
+    ax.plot(shock, cond_vola, label="Conditional Volatility")
+    # plt.title('Asymmetric Shock Response in EGARCH(1, 1) Model')
+    ax.set(xlabel="Shock", ylabel="Conditional Volatility")
+    finalize_plot(
+        path=f"{cfg.paths.figures}asym_shock_resp.pdf",
+        save=cfg.general.save,
+    )
     # Plot the conditional volatility
     # fig, ax = plt.subplots()
     # ax.plot(res_garch.conditional_volatility)
+    # ax.plot(cs_mean_rtrn_sq * 1e07)
     # ax.set(xlabel="Percentile Time Increments", ylabel="Volatility")
     # plt.xticks(
     #     np.arange(0, n_per, 1)[::5],
@@ -745,9 +761,10 @@ def run_estimation(cfg: PFDConfig) -> None:
         .splitlines(True)
     )
     indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
-    tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
-    tex_res_garch_p2 = tex_res_garch[indices[0] + 3 : indices[0] + 6]
-    tex_res_garch_p3 = tex_res_garch[indices[0] + 6 : indices[1] + 1]
+    # tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
+    tex_res_garch_p1 = tex_res_garch[indices[0] + 3 : indices[0] + 7]
+    tex_res_garch_p2 = tex_res_garch[indices[0] + 9 : indices[1] + 1]
+    tex_res_garch = tex_res_garch_p1 + tex_res_garch_p2
 
     # Unbiasedness Regressions
 
@@ -765,6 +782,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     with Pool() as pool:
         res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols[1:])
 
+    # for ele in bookies:
+    #     print(res_pool_ur[1]["res"].random_effects[ele]["Exog"])
+
     for ele in res_pool_ur:
         res_ur["beta_1"].append(ele["beta_1"])
         res_ur["std_beta_1"].append(ele["std_beta_1"])
@@ -773,10 +793,12 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_ur["rmse"].append(ele["rmse"])
 
     signific_time_idx = (
-        pd.Series(res_ur["beta_1"]) + 1.96 * pd.Series(res_ur["std_beta_1"])
+        pd.Series(res_ur["beta_1"])
+        + norm.ppf(0.975) * pd.Series(res_ur["std_beta_1"])
         > 1
     ) & (
-        pd.Series(res_ur["beta_1"]) - 1.96 * pd.Series(res_ur["std_beta_1"])
+        pd.Series(res_ur["beta_1"])
+        - norm.ppf(0.975) * pd.Series(res_ur["std_beta_1"])
         < 1
     )
     signific_time_idx = (
@@ -827,7 +849,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         df,
         n_per,
         cfg.estimation.incr,
-        start_params,
+        start_params[0],
         1,
     )
 
@@ -837,23 +859,13 @@ def run_estimation(cfg: PFDConfig) -> None:
     pylab.rcParams.update(rcp_m)
 
     plot_gmm_res(
-        res_gmm=res_gmm,
+        res_gmm={"first_stage": res_gmm_first_stage, "cue": res_gmm},
         bookies=bookies,
         edgecolor=stata_colors[0],
         paths=[
             f"{cfg.paths.figures}gmm_params.pdf",
             f"{cfg.paths.figures}gmm_jstat.pdf",
-        ],
-        save=cfg.general.save,
-    )
-
-    plot_gmm_res(
-        res_gmm=res_gmm_first_stage,
-        bookies=bookies,
-        edgecolor=stata_colors[0],
-        paths=[
-            f"{cfg.paths.figures}first_stage_gmm_params.pdf",
-            f"{cfg.paths.figures}first_stage_gmm_jstat.pdf",
+            f"{cfg.paths.figures}gmm_pvalue.pdf",
         ],
         save=cfg.general.save,
     )
@@ -1075,17 +1087,10 @@ def run_estimation(cfg: PFDConfig) -> None:
             )
 
         file_configs = [
-            (f"{cfg.paths.tables}res_gpm_p1.tex", "".join(tex_res_gpm_p1)),
-            (f"{cfg.paths.tables}res_gpm_p2.tex", "".join(tex_res_gpm_p2)),
-            (f"{cfg.paths.tables}res_rfa_p1.tex", "".join(tex_res_rfa_p1)),
-            (f"{cfg.paths.tables}res_rfa_p2.tex", "".join(tex_res_rfa_p2)),
-            (f"{cfg.paths.tables}res_wp_p1.tex", "".join(tex_res_wp_p1)),
-            (f"{cfg.paths.tables}res_wp_p2.tex", "".join(tex_res_wp_p2)),
-            (f"{cfg.paths.tables}res_adf_p1.tex", "".join(tex_res_adf_p1)),
-            (f"{cfg.paths.tables}res_adf_p2.tex", "".join(tex_res_adf_p2)),
-            (f"{cfg.paths.tables}res_garch_p1.tex", "".join(tex_res_garch_p1)),
-            (f"{cfg.paths.tables}res_garch_p2.tex", "".join(tex_res_garch_p2)),
-            (f"{cfg.paths.tables}res_garch_p3.tex", "".join(tex_res_garch_p3)),
+            (f"{cfg.paths.tables}res_gpm.tex", "".join(tex_res_gpm)),
+            (f"{cfg.paths.tables}res_rfa.tex", "".join(tex_res_rfa)),
+            (f"{cfg.paths.tables}res_wp_re.tex", "".join(tex_res_wp_re)),
+            (f"{cfg.paths.tables}res_garch.tex", "".join(tex_res_garch)),
         ]
 
         for file, body in file_configs:

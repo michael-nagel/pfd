@@ -79,28 +79,51 @@ def create_descriptives(cfg: PFDConfig) -> None:
         ["Match", "OddsMvt", "OpnOdds", "ClsOdds", "TsDur", "NumOddsMvt"]
     ].describe()
 
+    desc_num.loc["count", :] = desc_num.loc["count", :] / 1000000
+    desc_num = desc_num.rename(index={"count": "count (in mil.)"})
+
     desc_num.index = desc_num.index.str.replace("%", "\\%", regex=False)
+
     desc_num = desc_num.rename(
         columns=dict(
             zip(
                 desc_num.columns,
                 [
-                    "$\\omega$",
-                    "$\\bs{p}$",
-                    "$\\bs{p}_0$",
-                    "$\\bs{p}_T$",
-                    "$T$",
-                    "$C$",
+                    "Match Outcome",
+                    "Price",
+                    "Op. Price",
+                    "Cl. Price",
+                    "Time",
+                    "No. Price Changes",
                 ],
             )
         )
     )
+
+    # desc_num = desc_num.rename(
+    #     columns=dict(
+    #         zip(
+    #             desc_num.columns,
+    #             [
+    #                 "$\\omega$",
+    #                 "$\\bs{p}$",
+    #                 "$\\bs{p}_0$",
+    #                 "$\\bs{p}_T$",
+    #                 "$T$",
+    #                 "$C$",
+    #             ],
+    #         )
+    #     )
+    # )
 
     # Descriptives for categorical variables
     desc_cat = df[
         ["Bookies", "Country", "Competition", "Tournament"]
     ].describe()
     desc_cat = desc_cat.rename(columns={"Bookies": "Bookmaker"})
+
+    desc_cat.loc["count", :] = desc_cat.loc["count", :] / 1000000
+    desc_cat = desc_cat.rename(index={"count": "count (in mil.)"})
 
     # Plotting
 
@@ -214,19 +237,29 @@ def create_descriptives(cfg: PFDConfig) -> None:
         fmt=".2f",
     )
 
+    # fmt_cols = [
+    #     col for col in desc_num if col not in ["Time", "Num. Price Changes"]
+    # ]
+    # desc_num[fmt_cols] = desc_num.loc[:, fmt_cols].apply(NumFormat.format_col)
+
+    fmt_dict = {
+        col: NumFormat(my_format="{:.3f}").format_post for col in desc_num
+    }
+
     write_text_file(
         file=f"{cfg.paths.tables}desc_num.tex",
         body=mod_tex_tab(
-            tab=desc_num.map(NumFormat.format_num)
-            .style.format(na_rep="")
-            .to_latex()
+            tab=desc_num.style.format(
+                formatter=fmt_dict,
+                na_rep="",
+            ).to_latex()
         ),
     )
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_cat.tex",
         body=mod_tex_tab(
-            tab=desc_cat.apply(NumFormat.format_col)
+            tab=desc_cat.map(NumFormat.format_num)
             .style.format(na_rep="")
             .to_latex()
         ),

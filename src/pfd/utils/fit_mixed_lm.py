@@ -28,7 +28,7 @@ def fit_mixed_lm(df: pd.DataFrame, exog_var: str) -> dict:
     """
     # optimizers = ["lbfgs", "nm", "cg", "bfgs"]
 
-    df["Exog"] = df[exog_var]
+    df["Exog"] = df[exog_var].copy()
 
     re_mod = smf.mixedlm(
         formula="Endog ~ 1 + Exog + TsDur + Compet_Challenger_Men +\
@@ -50,6 +50,7 @@ def fit_mixed_lm(df: pd.DataFrame, exog_var: str) -> dict:
     return {
         # "converged": re_mod_res.converged,
         # "optimizer": optimizers[counter - 1],
+        # "res": re_mod_res,
         "beta_1": re_mod_res.fe_params["Exog"],
         "std_beta_1": re_mod_res.bse_fe["Exog"],
         "beta_0": re_mod_res.fe_params["Intercept"],

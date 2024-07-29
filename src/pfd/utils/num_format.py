@@ -50,10 +50,10 @@ class NumFormat:
             if out_val == "-0":
                 out_val = "0"
         elif (abs(in_val) > 100) | (
-            (abs(in_val) > 10) & (round(in_val, 1) == round(in_val))
+            (abs(in_val) > 10) & (round(in_val, 1) == int(in_val))
         ):
             out_val = "{:,.{}{}}".format(in_val, 0, "f")
-        elif (abs(in_val) > 10) & (round(in_val, 1) != round(in_val)):
+        elif (abs(in_val) > 10) & (round(in_val, 1) != int(in_val)):
             out_val = "{:.{}{}}".format(in_val, 1, "f")
         elif abs(in_val) > 1:
             out_val = "{:.{}{}}".format(in_val, 2, "f")
