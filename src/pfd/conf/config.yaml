@@ -18,6 +18,7 @@ estimation:
 
 files:
   clr_plt: stata_colors.json # Color palette
+  clr_plt_ext: stata_colors_ext.json # Color palette extension
   chrm_driv: chromedriver.exe  # Chrome driver
   acpt_cookies: I-don-t-care-about-cookies.crx # Accept cookies
   cred: credentials.json  # Credentials

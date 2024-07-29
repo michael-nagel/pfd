@@ -52,21 +52,9 @@ class Estimation:
 
 
 @dataclass
-class Filenames:
-    clr_plt: str
-    chrm_driv: str
-    acpt_cookies: str
-    cred: str
-    vals: str
-
-    def __post_init__(self):
-        if not isinstance(self.clr_plt, str):
-            raise TypeError("clr_plt must be a string")
-
-
-@dataclass
 class Files:
     clr_plt: str
+    clr_plt_ext: str
     chrm_driv: str
     acpt_cookies: str
     cred: str
@@ -217,7 +205,6 @@ class Scraping:
 @dataclass
 class PFDConfig:
     estimation: Estimation
-    filenames: Filenames
     files: Files
     general: General
     paths: Paths
