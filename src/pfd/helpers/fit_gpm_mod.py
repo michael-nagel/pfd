@@ -32,10 +32,6 @@ def fit_gpm_mod(
     statsmodels.regression.mixed_linear_model.MixedLMResultsWrapper
         Regression output.
     """
-    df["RtrnClsEnd"] = df["Match"] / df["ClsOdds"] - 1
-    df["RtrnOpnCls"] = df["ClsOdds"] / df["OpnOdds"] - 1
-    df["RtrnOpnCls"] = scale_vars(X=df["RtrnOpnCls"].to_numpy().reshape(-1, 1))
-
     mod_gpm = smf.mixedlm(
         formula="RtrnClsEnd ~ 1 + RtrnOpnCls + TsDur + Compet_Challenger_Men +\
             Compet_ITF_Men + Compet_Misc + Compet_WTA",
@@ -44,6 +40,6 @@ def fit_gpm_mod(
         re_formula="1 + RtrnOpnCls",
     )
 
-    res_gpm = mod_gpm.fit(reml=False, method="nm")
+    res_gpm = mod_gpm.fit(reml=False, method="lbfgs")
 
     return res_gpm

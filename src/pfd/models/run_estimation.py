@@ -201,7 +201,9 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_oc = df.groupby("GroupId", as_index=False).first()
 
+    df_oc["RtrnClsEnd"] = df_oc["Match"] / df_oc["ClsOdds"] - 1
     df_oc["RtrnOpnCls"] = df_oc["ClsOdds"] / df_oc["OpnOdds"] - 1
+
     df_oc = df_oc[df_oc["RtrnOpnCls"].abs() > 0]
     iqr_rtrns = df_oc["RtrnOpnCls"].quantile(0.75) - df_oc[
         "RtrnOpnCls"
