@@ -671,7 +671,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
 
     pacf_values, confint = pacf(
-        x=cs_mean_rtrn**2,
+        x=cs_mean_rtrn_sq,
         alpha=0.05,
         # nlags=len(cs_mean_rtrn),
         # qstat=True,
