@@ -722,7 +722,6 @@ def run_estimation(cfg: PFDConfig) -> None:
     params = res_garch.params
     omega = params["omega"]
     alpha = params["alpha[1]"]
-    beta = params["beta[1]"]
     gamma = params["gamma[1]"]
 
     shock = np.linspace(-3, 3, 1000)
