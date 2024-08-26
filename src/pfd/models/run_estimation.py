@@ -566,8 +566,8 @@ def run_estimation(cfg: PFDConfig) -> None:
     group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
     df = df[group_std > 0]  # remove groups with zero odds variance
 
-    n_missings = df["OddsMvt"].isna().sum()
-    frac_missings = n_missings / df["OddsMvt"].shape[0]
+    # n_missings = df["OddsMvt"].isna().sum()
+    # frac_missings = n_missings / df["OddsMvt"].shape[0]
 
     df.to_hdf(
         path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
@@ -717,16 +717,40 @@ def run_estimation(cfg: PFDConfig) -> None:
         q=garch_lags,
         rescale=True,
     )
-    res_garch = mod_garch.fit()
+    res_garch = mod_garch.fit(cov_type="robust")
+
+    param_rename = {
+        "Const": "$\\mu$",
+        "Return[1]": "$\\phi$",
+        "omega": "$\\nu$",
+        "alpha[1]": "$\\rho$",
+        "gamma[1]": "$\\theta$",
+        "beta[1]": "$\\psi$",
+    }
+
+    tex_res_garch = res_garch.summary().as_latex()
+    for original, new in param_rename.items():
+        tex_res_garch = tex_res_garch.replace(original, new)
+    tex_res_garch = (
+        tex_res_garch.replace("\\textbf{", "")
+        .replace("}", "")
+        .splitlines(True)
+    )
+
+    indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
+    # tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
+    tex_res_garch_p1 = tex_res_garch[indices[0] + 3 : indices[0] + 7]
+    tex_res_garch_p2 = tex_res_garch[indices[0] + 9 : indices[1] + 1]
+    tex_res_garch = tex_res_garch_p1 + tex_res_garch_p2
+
+    res_garch.params.rename(index=param_rename, inplace=True)
 
     params = res_garch.params
-    omega = params["omega"]
-    alpha = params["alpha[1]"]
-    gamma = params["gamma[1]"]
-
     shock = np.linspace(-3, 3, 1000)
     cond_vola = np.exp(
-        omega + alpha * (np.abs(shock) - np.sqrt(2 / np.pi)) + gamma * shock
+        params["$\\nu$"]
+        + params["$\\rho$"] * (np.abs(shock) - np.sqrt(2 / np.pi))
+        + params["$\\theta$"] * shock
     )
 
     # Plot the asymmetry shock response
@@ -753,19 +777,6 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     path=f"{cfg.paths.figures}egarch_cond_vola.pdf",
     #     save=cfg.general.save,
     # )
-
-    tex_res_garch = (
-        res_garch.summary()
-        .as_latex()
-        .replace("\\textbf{", "")
-        .replace("}", "")
-        .splitlines(True)
-    )
-    indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
-    # tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
-    tex_res_garch_p1 = tex_res_garch[indices[0] + 3 : indices[0] + 7]
-    tex_res_garch_p2 = tex_res_garch[indices[0] + 9 : indices[1] + 1]
-    tex_res_garch = tex_res_garch_p1 + tex_res_garch_p2
 
     # Unbiasedness Regressions
 
@@ -877,6 +888,22 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     filename=f"{cfg.paths.models}trace_{est_method}.nc"
     # )
 
+    # Determine favorites and underdogs
+    df["IsFav"] = 0
+    df.loc[df["OddsMvt0"] > df["OddsMvt0"].mean(), "IsFav"] = 1
+
+    # Calculate the split points for the intervals
+    split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
+
+    masks = [
+        (df["OddsMvt0"] >= split_points[i])
+        & (df["OddsMvt0"] < split_points[i + 1])
+        for i in range(len(split_points) - 1)
+    ]
+
+    for i in range(0, 10):
+        df.loc[masks[i], "Quantile"] = (i + 1) * 10
+
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
@@ -887,6 +914,19 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     res_pm["nuts_tot"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="tot", n_per=n_per, cfg=cfg
+    )
+
+    for i in range(1, 11):
+        res_pm[f"nuts_q{i * 10}"]["trace"] = gen_res_obj(
+            df=df, est_method="nuts", subset=f"q{i * 10}", n_per=n_per, cfg=cfg
+        )
+
+    res_pm["nuts_fav"]["trace"] = gen_res_obj(
+        df=df, est_method="nuts", subset="fav", n_per=n_per, cfg=cfg
+    )
+
+    res_pm["nuts_udd"]["trace"] = gen_res_obj(
+        df=df, est_method="nuts", subset="udd", n_per=n_per, cfg=cfg
     )
 
     res_pm["nuts_pro"]["trace"] = gen_res_obj(
@@ -1058,8 +1098,8 @@ def run_estimation(cfg: PFDConfig) -> None:
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
             # "icc": (icc, ".4f"),
-            "n_missings": (n_missings, None),
-            "frac_missings": (frac_missings, ".4f"),
+            # "n_missings": (n_missings, None),
+            # "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
             # "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (gamma_stats_gmm["mean"], ".4f"),

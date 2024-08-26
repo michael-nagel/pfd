@@ -30,7 +30,7 @@ def gen_res_obj(
         Estimation method ("advi" or "nuts").
     subset : str
         Which subset of the data should be used for estimation.
-        Possible arguments are [tot, pro, amat].
+        Possible arguments are [tot, fav, udd, pro, amat].
     n_per : int
         Number of periods
     cfg : DictConfig
@@ -41,13 +41,19 @@ def gen_res_obj(
     Tuple[Any, Any, Any] | az.InferenceData
         Results for either ADVI or NUTS.
     """
-    if subset not in ["tot", "pro", "amat"]:
-        raise ValueError("subset must be 'tot', 'pro' or 'amat'")
+    # if subset not in ["tot", "fav", "udd", "pro", "amat"]:
+    #     raise ValueError("subset must be 'tot', 'pro' or 'amat'")
 
     if subset == "pro":
         df = df.loc[df["IsPro"] == 1]
     elif subset == "amat":
         df = df.loc[df["IsPro"] == 0]
+    elif subset == "fav":
+        df = df.loc[df["IsFav"] == 1]
+    elif subset == "udd":
+        df = df.loc[df["IsFav"] == 0]
+    elif subset.startswith("q"):
+        df = df.loc[df["Quantile"] == int(subset[1:])]
     else:
         pass
 
