@@ -370,9 +370,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
         y = row["Intercept"] + row["Slope"] * x
         ax.plot(x, y, label=row["Bookies"])
-    ax.set(
-        xlabel="$\\overline{\\Delta}(p_T, p_0)$", ylabel="$\\overline{\\pi}$"
-    )
+    ax.set(xlabel="Average Price Change Magnitude", ylabel="Winning Rate")
     finalize_plot(
         path=f"{cfg.paths.figures}win_props_re.pdf",
         save=cfg.general.save,
@@ -894,8 +892,8 @@ def run_estimation(cfg: PFDConfig) -> None:
     df.loc[df["OddsMvt0"] > median_price, "IsFav"] = 1
 
     # Calculate the split points for the intervals
-    # split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
-    split_points = np.arange(0, 1.1, 0.1)
+    split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
+    # split_points = np.arange(0, 1.1, 0.1)
     masks = [
         (df["OddsMvt0"] > split_points[i])
         & (df["OddsMvt0"] <= split_points[i + 1])
@@ -1012,7 +1010,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    pylab.rcParams.update(rcp_s)
+    pylab.rcParams.update(rcp_l)
 
     plot_posteriors(
         mod_trace=[
@@ -1022,7 +1020,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             .flatten()
             for i in range(0, 10)
         ],
-        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        ref_vals=None,
         path=f"{cfg.paths.figures}post_gamma_nuts_ivals.pdf",
         save=cfg.general.save,
     )

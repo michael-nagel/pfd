@@ -49,7 +49,7 @@ def plot_posteriors(
         )
         ax[0].set(
             title=list(mod_trace.keys())[0],
-            xlabel="$\\mu_{\\gamma}$",
+            xlabel="Average Learning Rate",
             # ylabel="Density",
         )
         az.plot_posterior(
@@ -74,22 +74,24 @@ def plot_posteriors(
             index=[f"{i * 10}-{(i + 1) * 10}" for i in range(0, 10)],
         ).T
         mod_trace = mod_trace.melt(
-            var_name="Price Interval", value_name="Average Learning Rate"
+            var_name="Price Quantile", value_name="Average Learning Rate"
         )
 
         _, ax = plt.subplots()
         sns.violinplot(
             data=mod_trace,
-            x="Price Interval",
+            x="Price Quantile",
             y="Average Learning Rate",
             inner="quartile",
             ax=ax,
-            linewidth=0.8,
-            # density_norm="count",
+            # linewidth=0.8,
+            density_norm="count",
+            width=0.6,
             split=True,
+            cut=0,
         )
-        ax.set(ylabel="$\\mu_{\\gamma}$")
-        ax.axhline(y=ref_vals, color="black", linestyle="dotted")
+        if ref_vals:
+            ax.axhline(y=ref_vals, color="black", linestyle="dotted")
         finalize_plot(path=path, save=save)
 
     else:
@@ -103,5 +105,5 @@ def plot_posteriors(
             # rope=[0, 0.5],
             ax=ax,
         )
-        ax.set(title="", xlabel="$\\mu_{\\gamma}$", ylabel="")
+        ax.set(title="", xlabel="Average Learning Rate", ylabel="")
         finalize_plot(path=path, save=save)

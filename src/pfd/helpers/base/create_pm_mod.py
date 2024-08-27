@@ -73,7 +73,7 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
             dist=pm.Normal.dist(mu=0, sigma=1),
             lower=0,
         )
-        sd_gamma = pm.Exponential(name="sd_gamma", lam=1)
+        sd_gamma = pm.Exponential(name="sd_gamma", lam=2.5)
         gamma = pm.Truncated(
             name="gamma",
             dist=pm.Normal.dist(mu=mean_gamma, sigma=sd_gamma),

@@ -58,7 +58,7 @@ def plot_gmm_res(
         lw=1,
     )
     ax[0].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
-    ax[0].set(title="First-Stage GMM", ylabel=r"$\hat{\gamma}$")
+    ax[0].set(title="First-Stage GMM", ylabel="Learning Rate")
     ax[1].errorbar(
         x=np.arange(0, len(bookies)),
         y=df_res_gmm_cue["gamma"],
@@ -71,7 +71,7 @@ def plot_gmm_res(
     ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
     ax[1].set(
         title="Continuous-Updating Method",
-        ylabel=r"$\hat{\gamma}$",
+        ylabel="Learning Rate",
         xlabel="Bookmaker",
     )
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
@@ -84,7 +84,7 @@ def plot_gmm_res(
         facecolor="none",
         edgecolor=edgecolor,
     )
-    ax[0].set(title="First-Stage GMM", ylabel="$J$-statistic")
+    ax[0].set(title="First-Stage GMM", ylabel="J-statistic")
     ax[1].scatter(
         x=np.arange(0, len(bookies)),
         y=df_res_gmm_cue["J_stat"],
@@ -94,7 +94,7 @@ def plot_gmm_res(
     ax[1].set(
         title="Continuous-Updating Method",
         xlabel="Bookmaker",
-        ylabel="$J$-statistic",
+        ylabel="J-statistic",
     )
     ax[1].set_xticks(np.arange(0, len(bookies)), bookies, rotation=90)
     finalize_plot(path=paths[1], save=save)
