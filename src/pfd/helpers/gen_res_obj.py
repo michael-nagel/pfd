@@ -52,8 +52,8 @@ def gen_res_obj(
         df = df.loc[df["IsFav"] == 1]
     elif subset == "udd":
         df = df.loc[df["IsFav"] == 0]
-    elif subset.startswith("q"):
-        df = df.loc[df["Quantile"] == int(subset[1:])]
+    elif subset.startswith("quantile"):
+        df = df.loc[df["Quantile"] == int(subset.split("quantile")[1])]
     else:
         pass
 

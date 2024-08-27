@@ -889,20 +889,21 @@ def run_estimation(cfg: PFDConfig) -> None:
     # )
 
     # Determine favorites and underdogs
+    median_price = df["OddsMvt0"].median()
     df["IsFav"] = 0
-    df.loc[df["OddsMvt0"] > df["OddsMvt0"].mean(), "IsFav"] = 1
+    df.loc[df["OddsMvt0"] > median_price, "IsFav"] = 1
 
     # Calculate the split points for the intervals
-    split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
-
+    # split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
+    split_points = np.arange(0, 1.1, 0.1)
     masks = [
-        (df["OddsMvt0"] >= split_points[i])
-        & (df["OddsMvt0"] < split_points[i + 1])
+        (df["OddsMvt0"] > split_points[i])
+        & (df["OddsMvt0"] <= split_points[i + 1])
         for i in range(len(split_points) - 1)
     ]
 
     for i in range(0, 10):
-        df.loc[masks[i], "Quantile"] = (i + 1) * 10
+        df.loc[masks[i], "Quantile"] = i + 1
 
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 
@@ -916,11 +917,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         df=df, est_method="nuts", subset="tot", n_per=n_per, cfg=cfg
     )
 
-    for i in range(1, 11):
-        res_pm[f"nuts_q{i * 10}"]["trace"] = gen_res_obj(
-            df=df, est_method="nuts", subset=f"q{i * 10}", n_per=n_per, cfg=cfg
-        )
-
     res_pm["nuts_fav"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="fav", n_per=n_per, cfg=cfg
     )
@@ -928,6 +924,15 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_pm["nuts_udd"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="udd", n_per=n_per, cfg=cfg
     )
+
+    for i in range(0, 10):
+        res_pm[f"nuts_q{i + 1}"]["trace"] = gen_res_obj(
+            df=df,
+            est_method="nuts",
+            subset=f"quantile{i + 1}",
+            n_per=n_per,
+            cfg=cfg,
+        )
 
     res_pm["nuts_pro"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="pro", n_per=n_per, cfg=cfg
@@ -989,6 +994,16 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     plot_posteriors(
         mod_trace={
+            "Favorites": res_pm["nuts_fav"]["trace"],
+            "Underdogs": res_pm["nuts_udd"]["trace"],
+        },
+        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        path=f"{cfg.paths.figures}post_gamma_nuts_fav_udd.pdf",
+        save=cfg.general.save,
+    )
+
+    plot_posteriors(
+        mod_trace={
             "Professionals": res_pm["nuts_pro"]["trace"],
             "Amateurs": res_pm["nuts_amat"]["trace"],
         },
@@ -998,6 +1013,19 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     pylab.rcParams.update(rcp_s)
+
+    plot_posteriors(
+        mod_trace=[
+            res_pm[f"nuts_q{i + 1}"]["trace"]
+            .posterior["mean_gamma"]
+            .to_numpy()
+            .flatten()
+            for i in range(0, 10)
+        ],
+        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        path=f"{cfg.paths.figures}post_gamma_nuts_ivals.pdf",
+        save=cfg.general.save,
+    )
 
     plot_facetgrid(
         mod_trace=res_pm["vi"]["trace"],
@@ -1086,6 +1114,14 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
+        import pickle
+
+        with open(f"{cfg.paths.models}res_pm.pkl", "wb") as f:
+            pickle.dump(res_pm, f)
+
+        # with open("filename.pkl", "rb") as f:
+        #     dictname = pickle.load(f)
+
         values_to_save = {
             "iqr_rtrns": (iqr_rtrns, ".4f"),
             "n_obs": (n_obs, ","),
@@ -1110,6 +1146,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             # "avg_phi_gmm": (avg_phi_gmm, ".4f"),
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
+            "median_price": (median_price, ".4f"),
         }
 
         for key, (value, fmt) in values_to_save.items():

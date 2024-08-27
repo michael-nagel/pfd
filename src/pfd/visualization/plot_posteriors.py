@@ -7,6 +7,9 @@ from typing import Dict
 
 import arviz as az
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 from pfd.utils import finalize_plot
 
@@ -14,7 +17,7 @@ from pfd.utils import finalize_plot
 
 
 def plot_posteriors(
-    mod_trace: az.InferenceData | Dict[str, az.InferenceData],
+    mod_trace: az.InferenceData | Dict[str, az.InferenceData] | list,
     ref_vals: float | list | None,
     path: str,
     save: bool,
@@ -24,9 +27,9 @@ def plot_posteriors(
 
     Parameters
     ----------
-    mod_trace : az.InferenceData | Dict[str, az.InferenceData]
+    mod_trace : az.InferenceData | Dict[str, az.InferenceData] | list
         Record of the sampling process.
-    ref_vas: float| list | None
+    ref_vals: float| list | None
         Reference values to be plotted.
     path : str
         Path for saving.
@@ -46,7 +49,7 @@ def plot_posteriors(
         )
         ax[0].set(
             title=list(mod_trace.keys())[0],
-            xlabel="$\\widebar{\\,\\gamma}$",
+            xlabel="$\\mu_{\\gamma}$",
             # ylabel="Density",
         )
         az.plot_posterior(
@@ -59,9 +62,34 @@ def plot_posteriors(
         )
         ax[1].set(
             title=list(mod_trace.keys())[1],
-            xlabel="$\\widebar{\\,\\gamma}$",
+            xlabel="$\\mu_{\\gamma}$",
             # ylabel="Density",
         )
+        finalize_plot(path=path, save=save)
+
+    elif isinstance(mod_trace, list):
+
+        mod_trace = pd.DataFrame(
+            data=mod_trace,
+            index=[f"{i * 10}-{(i + 1) * 10}" for i in range(0, 10)],
+        ).T
+        mod_trace = mod_trace.melt(
+            var_name="Price Interval", value_name="Average Learning Rate"
+        )
+
+        _, ax = plt.subplots()
+        sns.violinplot(
+            data=mod_trace,
+            x="Price Interval",
+            y="Average Learning Rate",
+            inner="quartile",
+            ax=ax,
+            linewidth=0.8,
+            # density_norm="count",
+            split=True,
+        )
+        ax.set(ylabel="$\\mu_{\\gamma}$")
+        ax.axhline(y=ref_vals, color="black", linestyle="dotted")
         finalize_plot(path=path, save=save)
 
     else:
@@ -75,5 +103,5 @@ def plot_posteriors(
             # rope=[0, 0.5],
             ax=ax,
         )
-        ax.set(title="", xlabel="$\\widebar{\\gamma}$", ylabel="")
+        ax.set(title="", xlabel="$\\mu_{\\gamma}$", ylabel="")
         finalize_plot(path=path, save=save)

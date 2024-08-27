@@ -48,12 +48,12 @@ Clone the replication package that is available on GitHub using
 
     git clone https://github.com/michael-nagel/pfd.git
 
-Setup the replication package by navigating to the repository directory and executing setup_pfd.txt
+Setup the replication package by navigating to the repository directory and executing setup_pkg.txt
 
     cd pfd
-    . setup_pfd.txt
+    . setup_pkg.txt
 
-The setup_pfd.txt file implements the following steps
+The setup_pkg.txt file implements the following steps
 
 - Create a virtual environment (venv)
 - Activate the venv
