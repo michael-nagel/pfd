@@ -120,9 +120,10 @@ def plot_facetgrid(
             sharey=True,
         )
         g.map(
-            sns.violinplot,
+            sns.kdeplot,
             f"$\\{param}_i$",
-            inner=None,
+            fill=True,
+            # inner=None,
             data=param_vals,
         )
         # g.map(sns.kdeplot, f"$\\{param}_i$")

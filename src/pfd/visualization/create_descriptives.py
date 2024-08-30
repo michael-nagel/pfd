@@ -232,7 +232,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     save_values(
         key="ts_dur_med",
-        value=desc_num.loc["50\\%", "$T$"],
+        value=desc_num.loc["50\\%", "Time"],
         file_name=f"{cfg.paths.vals}{cfg.files.vals}",
         fmt=".2f",
     )

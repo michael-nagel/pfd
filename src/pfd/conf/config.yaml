@@ -8,7 +8,6 @@ estimation:
   spec: BmHome # Which odds to use for analysis
   compets: null # Which competitions ["ATP", "WTA"] or null
   bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
-  odds_mvmnts: [2, 20] # Minimum and maximum of odds movements
   ts_dur: [12, 72] # Min and max time series duration in hours
   period: Null  # Subperiod in hours of the time series to keep (e.g., last 12)
   resample_freq: 1min # Frequency (min) to which the series is resampled

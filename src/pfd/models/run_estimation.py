@@ -422,44 +422,33 @@ def run_estimation(cfg: PFDConfig) -> None:
                 zip(
                     res_win_props[bookie].columns,
                     [
-                        "$\Delta(p_T, p_0)$",
-                        "$\overline{\Delta}(p_T, p_0)$",
-                        "$\overline{C}$",
-                        "$N$",
-                        "$\overline{\pi}$",
-                        "$Z$",
-                        "$p$",
+                        "Interval",
+                        "Avg. Change",
+                        "Avg. Moves",
+                        "No. Matches",
+                        "Winning Rate",
+                        "Z-statistic",
+                        "p-value",
                     ],
                 )
             ),
             inplace=True,
         )
 
-        res_win_props[bookie][r"$\Delta(p_T, p_0)$"] = res_win_props[bookie][
-            r"$\Delta(p_T, p_0)$"
+        res_win_props[bookie]["Interval"] = res_win_props[bookie][
+            "Interval"
         ].map(lambda x: "$" + str(x) + "$")
-        res_win_props[bookie].loc[0:6, r"$\Delta(p_T, p_0)$"] = (
+        res_win_props[bookie].loc[0:6, "Interval"] = (
             res_win_props[bookie]
-            .loc[0:6, r"$\Delta(p_T, p_0)$"]
+            .loc[0:6, "Interval"]
             .str.replace("$[", "$]", regex=False)
         )
-        res_win_props[bookie].loc[5::, r"$\Delta(p_T, p_0)$"] = (
+        res_win_props[bookie].loc[5::, "Interval"] = (
             res_win_props[bookie]
-            .loc[5::, r"$\Delta(p_T, p_0)$"]
+            .loc[5::, "Interval"]
             .str.replace("]$", "[$", regex=False)
         )
 
-    # for bookies in PfdConf.BOOKIES:
-    # endog = res_win_props[bookies]["Proportions"].copy()
-    # exog = res_win_props[bookies]["AvgChange"].copy()
-    # exog = sm.add_constant(exog)
-    #
-    # # Fit and summarize OLS model
-    # mod = sm.OLS(endog=endog, exog=exog)
-    # res = mod.fit(cov_type="HC1")
-    # print(res.summary())
-    # # res.resid.var()
-    #
     # mod_wls = sm.WLS(endog, exog, weights=endog.var() /
     # res_win_props[bookies]["NumOddsMvt"])
     # res_wls = mod_wls.fit(cov_type="HC1")
@@ -722,7 +711,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         "Return[1]": "$\\phi$",
         "omega": "$\\nu$",
         "alpha[1]": "$\\rho$",
-        "gamma[1]": "$\\theta$",
+        "gamma[1]": "$\\eta$",
         "beta[1]": "$\\psi$",
     }
 
@@ -748,7 +737,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     cond_vola = np.exp(
         params["$\\nu$"]
         + params["$\\rho$"] * (np.abs(shock) - np.sqrt(2 / np.pi))
-        + params["$\\theta$"] * shock
+        + params["$\\eta$"] * shock
     )
 
     # Plot the asymmetry shock response
@@ -1001,6 +990,19 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     plot_posteriors(
+        mod_trace=[
+            res_pm[f"nuts_q{i + 1}"]["trace"]
+            .posterior["mean_gamma"]
+            .to_numpy()
+            .flatten()
+            for i in range(0, 10)
+        ],
+        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        path=f"{cfg.paths.figures}post_gamma_nuts_ivals.pdf",
+        save=cfg.general.save,
+    )
+
+    plot_posteriors(
         mod_trace={
             "Professionals": res_pm["nuts_pro"]["trace"],
             "Amateurs": res_pm["nuts_amat"]["trace"],
@@ -1010,20 +1012,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    pylab.rcParams.update(rcp_l)
-
-    plot_posteriors(
-        mod_trace=[
-            res_pm[f"nuts_q{i + 1}"]["trace"]
-            .posterior["mean_gamma"]
-            .to_numpy()
-            .flatten()
-            for i in range(0, 10)
-        ],
-        ref_vals=None,
-        path=f"{cfg.paths.figures}post_gamma_nuts_ivals.pdf",
-        save=cfg.general.save,
-    )
+    pylab.rcParams.update(rcp_s)
 
     plot_facetgrid(
         mod_trace=res_pm["vi"]["trace"],
@@ -1041,16 +1030,16 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    plot_facetgrid(
-        mod_trace={
-            "Professionals": res_pm["nuts_pro"]["trace"],
-            "Amateurs": res_pm["nuts_amat"]["trace"],
-        },
-        param="gamma",
-        color_palette=stata_colors,
-        path=f"{cfg.paths.figures}facetgrid_gamma_nuts_pro_amat.pdf",
-        save=cfg.general.save,
-    )
+    # plot_facetgrid(
+    #     mod_trace={
+    #         "Professionals": res_pm["nuts_pro"]["trace"],
+    #         "Amateurs": res_pm["nuts_amat"]["trace"],
+    #     },
+    #     param="gamma",
+    #     color_palette=stata_colors,
+    #     path=f"{cfg.paths.figures}facetgrid_gamma_nuts_pro_amat.pdf",
+    #     save=cfg.general.save,
+    # )
 
     gamma_med_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "median"]
     gamma_lower_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_2.5%"]
@@ -1112,15 +1101,18 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
-        import pickle
+        # import pickle
 
-        with open(f"{cfg.paths.models}res_pm.pkl", "wb") as f:
-            pickle.dump(res_pm, f)
+        # with open(f"{cfg.paths.models}res_pm.pkl", "wb") as f:
+        #     pickle.dump(res_pm, f)
 
         # with open("filename.pkl", "rb") as f:
         #     dictname = pickle.load(f)
 
         values_to_save = {
+            "bm_quantile": (cfg.estimation.bm_quantile * 100, ".0f"),
+            "ts_dur_from": (cfg.estimation.ts_dur[0], None),
+            "ts_dur_till": (cfg.estimation.ts_dur[1], None),
             "iqr_rtrns": (iqr_rtrns, ".4f"),
             "n_obs": (n_obs, ","),
             "n_groups": (n_groups, None),
@@ -1131,7 +1123,6 @@ def run_estimation(cfg: PFDConfig) -> None:
             "gamma_upper_nuts": (gamma_upper_nuts, ".4f"),
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
-            # "icc": (icc, ".4f"),
             # "n_missings": (n_missings, None),
             # "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),

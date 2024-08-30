@@ -62,7 +62,7 @@ def plot_posteriors(
         )
         ax[1].set(
             title=list(mod_trace.keys())[1],
-            xlabel="$\\mu_{\\gamma}$",
+            xlabel="Average Learning Rate",
             # ylabel="Density",
         )
         finalize_plot(path=path, save=save)
@@ -78,17 +78,18 @@ def plot_posteriors(
         )
 
         _, ax = plt.subplots()
-        sns.violinplot(
+        sns.boxplot(
             data=mod_trace,
             x="Price Quantile",
             y="Average Learning Rate",
-            inner="quartile",
+            # inner="quartile",
             ax=ax,
+            showfliers=False,
             # linewidth=0.8,
-            density_norm="count",
-            width=0.6,
-            split=True,
-            cut=0,
+            # density_norm="count",
+            # width=0.5,
+            # split=True,
+            # cut=0,
         )
         if ref_vals:
             ax.axhline(y=ref_vals, color="black", linestyle="dotted")

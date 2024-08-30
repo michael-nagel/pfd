@@ -62,6 +62,9 @@ def shape_data(cfg: PFDConfig) -> None:
         1, "W"
     )
 
+    crawl_start = timestamps.dt.strftime("%B %Y").iat[0]
+    crawl_end = timestamps.dt.strftime("%B %Y").iat[-1]
+
     df = df.dropna(
         subset=[
             "Encounter",
@@ -315,6 +318,10 @@ def shape_data(cfg: PFDConfig) -> None:
         save_values(
             key="crawl_dur", value=crawl_dur, file_name=values_path, fmt=".0f"
         )
+        save_values(
+            key="crawl_start", value=crawl_start, file_name=values_path
+        )
+        save_values(key="crawl_end", value=crawl_end, file_name=values_path)
 
         timestamps.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}timestamps.h5",

@@ -15,7 +15,6 @@ class Estimation:
     spec: str
     compets: None | list
     bm_quantile: float
-    odds_mvmnts: list
     ts_dur: list
     period: float | None
     resample_freq: str
@@ -31,8 +30,6 @@ class Estimation:
             raise TypeError("compets must be a string or NoneType")
         if not isinstance(self.bm_quantile, float):
             raise TypeError("bm_quantile must be a float")
-        if not isinstance(self.odds_mvmnts, list):
-            raise TypeError("odds_mvmnts must be a list")
         if not isinstance(self.ts_dur, list):
             raise TypeError("ts_dur must be a list")
         if not isinstance(self.period, (float, None)):
