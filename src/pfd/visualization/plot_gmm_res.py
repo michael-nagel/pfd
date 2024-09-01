@@ -70,7 +70,7 @@ def plot_gmm_res(
     )
     ax[1].hlines(y=0, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
     ax[1].set(
-        title="Continuous-Updating Method",
+        title="CUE",
         ylabel="Learning Rate",
         xlabel="Bookmaker",
     )
@@ -92,7 +92,7 @@ def plot_gmm_res(
         edgecolor=edgecolor,
     )
     ax[1].set(
-        title="Continuous-Updating Method",
+        title="CUE",
         xlabel="Bookmaker",
         ylabel="J-statistic",
     )
@@ -121,7 +121,7 @@ def plot_gmm_res(
     ax[1].hlines(y=0.05, xmin=0, xmax=len(bookies) - 1, linestyles="dotted")
     ax[1].set_ylim(bottom=0)
     ax[1].set(
-        title="Continuous-Updating Method",
+        title="CUE",
         xlabel="Bookmaker",
         ylabel="p-value",
     )
