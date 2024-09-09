@@ -314,7 +314,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
     # Tests Based on Proportions
-    # TODO: do also individually using weighted least squares?
 
     df_res_win_props = pd.concat(res_win_props, ignore_index=True)
 
@@ -707,11 +706,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     res_garch = mod_garch.fit(cov_type="robust")
 
     param_rename = {
-        "Const": "$\\mu$",
+        "Const": "$\\alpha$",
         "Return[1]": "$\\phi$",
-        "omega": "$\\nu$",
+        "omega": "$\\mu$",
         "alpha[1]": "$\\rho$",
-        "gamma[1]": "$\\eta$",
+        "gamma[1]": "$\\tau$",
         "beta[1]": "$\\psi$",
     }
 
@@ -730,27 +729,27 @@ def run_estimation(cfg: PFDConfig) -> None:
     tex_res_garch_p2 = tex_res_garch[indices[0] + 9 : indices[1] + 1]
     tex_res_garch = tex_res_garch_p1 + tex_res_garch_p2
 
-    res_garch.params.rename(index=param_rename, inplace=True)
+    # res_garch.params.rename(index=param_rename, inplace=True)
 
-    params = res_garch.params
-    shock = np.linspace(-3, 3, 1000)
-    cond_vola = np.exp(
-        params["$\\nu$"]
-        + params["$\\rho$"] * (np.abs(shock) - np.sqrt(2 / np.pi))
-        + params["$\\eta$"] * shock
-    )
+    # params = res_garch.params
+    # shock = np.linspace(-3, 3, 1000)
+    # cond_vola = np.exp(
+    #     params["$\\mu$"]
+    #     + params["$\\rho$"] * (np.abs(shock) - np.sqrt(2 / np.pi))
+    #     + params["$\\tau$"] * shock
+    # )
 
-    # Plot the asymmetry shock response
-    pylab.rcParams.update(rcp_s)
+    # # Plot the asymmetry shock response
+    # pylab.rcParams.update(rcp_s)
 
-    _, ax = plt.subplots()
-    ax.plot(shock, cond_vola, label="Conditional Volatility")
-    # plt.title('Asymmetric Shock Response in EGARCH(1, 1) Model')
-    ax.set(xlabel="Shock", ylabel="Conditional Volatility")
-    finalize_plot(
-        path=f"{cfg.paths.figures}asym_shock_resp.pdf",
-        save=cfg.general.save,
-    )
+    # _, ax = plt.subplots()
+    # ax.plot(shock, cond_vola, label="Conditional Volatility")
+    # # plt.title('Asymmetric Shock Response in EGARCH(1, 1) Model')
+    # ax.set(xlabel="Shock", ylabel="Conditional Volatility")
+    # finalize_plot(
+    #     path=f"{cfg.paths.figures}asym_shock_resp.pdf",
+    #     save=cfg.general.save,
+    # )
     # Plot the conditional volatility
     # fig, ax = plt.subplots()
     # ax.plot(res_garch.conditional_volatility)
