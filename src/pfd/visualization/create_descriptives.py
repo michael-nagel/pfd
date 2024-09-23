@@ -100,6 +100,8 @@ def create_descriptives(cfg: PFDConfig) -> None:
         )
     )
 
+    desc_num = desc_num.T
+
     # desc_num = desc_num.rename(
     #     columns=dict(
     #         zip(
@@ -124,6 +126,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     desc_cat.loc["count", :] = desc_cat.loc["count", :] / 1000000
     desc_cat = desc_cat.rename(index={"count": "count (in mil.)"})
+    desc_cat = desc_cat.T
 
     # Plotting
 
@@ -177,9 +180,9 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     _, ax = plt.subplots(nrows=2, ncols=1, sharex="all", sharey="none")
     sns.barplot(data=metrics, x=metrics.index, y="BrierLoss", ax=ax[0])
-    ax[0].set(xlabel="", ylabel="Brier Score Loss")
+    ax[0].set(xlabel="", ylabel="Brier Score Loss", ylim=[0.17, 0.23])
     sns.barplot(data=metrics, x=metrics.index, y="LogLoss", ax=ax[1])
-    ax[1].set(xlabel="Bookmaker", ylabel="Log Loss")
+    ax[1].set(xlabel="Bookmaker", ylabel="Log Loss", ylim=[0.55, 0.65])
     plt.xticks(np.arange(0, len(metrics.index)), metrics.index, rotation=90)
     finalize_plot(
         path=f"{cfg.paths.figures}log_brier_loss.pdf", save=cfg.general.save
@@ -237,6 +240,12 @@ def create_descriptives(cfg: PFDConfig) -> None:
         fmt=".2f",
     )
 
+    metrics.to_hdf(
+        path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
+        key="metrics",
+        mode="w",
+    )
+
     # fmt_cols = [
     #     col for col in desc_num if col not in ["Time", "Num. Price Changes"]
     # ]
@@ -246,20 +255,31 @@ def create_descriptives(cfg: PFDConfig) -> None:
         col: NumFormat(my_format="{:.3f}").format_post for col in desc_num
     }
 
+    # write_text_file(
+    #     file=f"{cfg.paths.tables}desc_num.tex",
+    #     body=mod_tex_tab(
+    #         tab=desc_num.style.format(
+    #             formatter=fmt_dict,
+    #             na_rep="",
+    #         ).to_latex()
+    #     ),
+    # )
+
     write_text_file(
         file=f"{cfg.paths.tables}desc_num.tex",
         body=mod_tex_tab(
-            tab=desc_num.style.format(
-                formatter=fmt_dict,
+            tab=desc_num.apply(NumFormat.format_col)
+            .style.format(
                 na_rep="",
-            ).to_latex()
+            )
+            .to_latex()
         ),
     )
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_cat.tex",
         body=mod_tex_tab(
-            tab=desc_cat.map(NumFormat.format_num)
+            tab=desc_cat.apply(NumFormat.format_col)
             .style.format(na_rep="")
             .to_latex()
         ),

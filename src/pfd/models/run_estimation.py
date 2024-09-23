@@ -837,6 +837,22 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df_res_gmm = pd.DataFrame(data=[ele[0] for ele in res_gmm], index=bookies)
 
+    ###
+    # metrics = pd.read_hdf(
+    #     path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
+    #     key="metrics",
+    #     mode="r",
+    # )
+    # metrics = pd.merge(
+    #     left=metrics, right=df_res_gmm, how="left", left_index=True, right_index=True
+    # )
+    # print(metrics.corr())
+
+    # _, ax = plt.subplots()
+    # sns.regplot(data=metrics, x="gamma", y="BrierLoss", scatter=True)
+    # plt.show()
+    ###
+
     gamma_stats_gmm = df_res_gmm["gamma"].agg(["mean", "min", "max"])
     idxmin_gamma_gmm = df_res_gmm["gamma"].idxmin()
     idxmax_gamma_gmm = df_res_gmm["gamma"].idxmax()
@@ -928,6 +944,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         df=df, est_method="nuts", subset="amat", n_per=n_per, cfg=cfg
     )
 
+    # Create summary statistics
     for key in list(res_pm.keys()):
         res_pm[key]["sum"] = az.summary(
             data=res_pm[key]["trace"],
@@ -938,6 +955,32 @@ def run_estimation(cfg: PFDConfig) -> None:
         res_pm[key]["sum"] = res_pm[key]["sum"][
             ~res_pm[key]["sum"].index.str.contains("interval__|log__")
         ].copy()
+
+    # Correlate log loss with bookmaker-specific learning rate
+    metrics = pd.read_hdf(
+        path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
+        key="metrics",
+        mode="r",
+    )
+    gamma = res_pm["nuts_tot"]["sum"]["median"].iloc[3:]
+    gamma.index = gamma.index.str.replace("gamma[", "").str.replace("]", "")
+    metrics = pd.merge(
+        left=metrics,
+        right=gamma,
+        how="left",
+        left_index=True,
+        right_index=True,
+    )
+
+    pylab.rcParams.update(rcp_s)
+
+    _, ax = plt.subplots()
+    sns.regplot(data=metrics, x="LogLoss", y="median")
+    ax.set(xlabel="Log Loss", ylabel="Learning Rate")
+    finalize_plot(
+        path=f"{cfg.paths.figures}scatter_gamma_loss.pdf",
+        save=cfg.general.save,
+    )
 
     pylab.rcParams.update(rcp_m)
 
@@ -1135,6 +1178,10 @@ def run_estimation(cfg: PFDConfig) -> None:
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
             "median_price": (median_price, ".4f"),
+            "corr_gamma_loss": (
+                metrics["LogLoss"].corr(metrics["median"]),
+                ".4f",
+            ),
         }
 
         for key, (value, fmt) in values_to_save.items():
