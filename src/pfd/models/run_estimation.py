@@ -45,6 +45,7 @@ from pfd.utils import (
     NumFormat,
     PFDConfig,
     PlotParams,
+    calc_losses,
     calc_win_props,
     create_func_dict,
     enc_categ_var,
@@ -117,55 +118,68 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Shaping
 
-    # df.Bookies.value_counts()
-
+    # Store number of observations before filtering
     n_obs = df.shape[0]
 
+    # Filter competitions
     if cfg.estimation.compets:
         df = df.loc[df["Competition"].isin(cfg.estimation.compets)]
 
+    # Create unique group IDs
     df["GroupId"] = df.groupby(["Matchup", "Bookies"]).ngroup()
 
+    # Calculate number of groups
     n_groups = df["GroupId"].nunique()
 
+    # Discard small bookmakers contributing few obs. to the sample
     df = df[
         df.groupby("Bookies")["Bookies"].transform("size")
         > df["Bookies"].value_counts().quantile(cfg.estimation.bm_quantile)
     ]
 
+    # Take home/away perspective
     if cfg.estimation.spec == "BmHome":
         df["Match"] = df["Match"] + 1
         df.loc[df["Match"] == 2, "Match"] = 0
 
+    # Calculate the time series duration from open to close
     df["TsDur"] = (
         df.groupby("GroupId")["Update"].transform("last")
         - df.groupby("GroupId")["Update"].transform("first")
     ) / np.timedelta64(1, "h")
 
+    # Keep time series with specific time series lengths
     df = df[
         (df["TsDur"] >= cfg.estimation.ts_dur[0])
         & (df["TsDur"] <= cfg.estimation.ts_dur[1])
     ]
 
+    # Calculate number of odds movements
     df["NumOddsMvt"] = df.groupby("GroupId")["GroupId"].transform("size")
     df["NumOddsMvt"] = df["NumOddsMvt"] - 1
 
+    # Calculate implied probabilities
     df["OddsMvt"] = 1 / df["OddsMvt"]
 
+    # Determine opening and closing odds
     df = df.assign(
         OpnOdds=df.groupby("GroupId")["OddsMvt"].transform("first"),
         ClsOdds=df.groupby("GroupId")["OddsMvt"].transform("last"),
     )
 
+    # Create list of bookmakers
     bookies = sorted(list(df["Bookies"].unique()))
 
+    # Assign competitions to pro and amateur and calculate their share
     df["IsPro"] = 0
     df.loc[df["Competition"].isin(["ATP", "WTA"]), "IsPro"] = 1
 
     is_amateur, is_pro = df["IsPro"].value_counts(True).tolist()
 
+    # Store DataFrame for creating descriptive statistics
     df_desc = df.copy()
 
+    # Filter columns
     df = df[
         [
             "Matchup",
@@ -183,6 +197,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         ]
     ]
 
+    # Encode categorical variables
     df = enc_categ_var(
         df=df,
         col="Competition",
@@ -191,20 +206,48 @@ def run_estimation(cfg: PFDConfig) -> None:
         rm_categ_var=True,
     )
 
+    # Standardization
     df["TsDur"] = scale_vars(df["TsDur"].to_numpy().reshape(-1, 1))
 
+    # Create list of exogenous variables
     exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
         "TsDur"
     ]
 
+    # Accuracy of Opening Odds Across Bookmakers
+
+    # Brierscore and log loss
+    metrics = df.groupby("Bookies").apply(calc_losses, include_groups=False)
+    metrics = pd.DataFrame(
+        metrics.tolist(), columns=["BrierLoss", "LogLoss"], index=metrics.index
+    )
+
+    # Plot metrics using bar plots
+    pylab.rcParams.update(rcp_m)
+
+    _, ax = plt.subplots(nrows=2, ncols=1, sharex="all", sharey="none")
+    sns.barplot(data=metrics, x=metrics.index, y="BrierLoss", ax=ax[0])
+    ax[0].set(xlabel="", ylabel="Brier Score Loss", ylim=[0.17, 0.23])
+    sns.barplot(data=metrics, x=metrics.index, y="LogLoss", ax=ax[1])
+    ax[1].set(xlabel="Bookmaker", ylabel="Log Loss", ylim=[0.55, 0.65])
+    plt.xticks(np.arange(0, len(metrics.index)), metrics.index, rotation=90)
+    finalize_plot(
+        path=f"{cfg.paths.figures}log_brier_loss.pdf", save=cfg.general.save
+    )
+
     # General Price Movements
 
+    # Keep first observation of each group
     df_oc = df.groupby("GroupId", as_index=False).first()
 
+    # Caluclate close to end and open to close returns
     df_oc["RtrnClsEnd"] = df_oc["Match"] / df_oc["ClsOdds"] - 1
     df_oc["RtrnOpnCls"] = df_oc["ClsOdds"] / df_oc["OpnOdds"] - 1
 
+    # Keep groups with non-zero open to close returns
     df_oc = df_oc[df_oc["RtrnOpnCls"].abs() > 0]
+
+    # Calculate and plot the inter-quartile range of the open to close returns
     iqr_rtrns = df_oc["RtrnOpnCls"].quantile(0.75) - df_oc[
         "RtrnOpnCls"
     ].quantile(0.25)
@@ -220,6 +263,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         fmt="png",
     )
 
+    # Fit random effects model for general price movements and store as tex
     res_gpm_re = fit_gpm_mod(df=df_oc, exog_cols=exog_cols)
 
     tex_res_gpm = res_gpm_re.summary().as_latex().splitlines(True)
@@ -229,9 +273,11 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Relative Forecast Accuracy of Opening and Closing Lines
 
+    # Calcualte the forecast error implied by opening and closing odds
     df_oc["FEOpn"] = (df_oc["Match"] - df_oc["OpnOdds"]).abs()
     df_oc["FECls"] = (df_oc["Match"] - df_oc["ClsOdds"]).abs()
 
+    # Fit random effects model and store as tex and DataFrame
     part_fit_rfa_mod = partial(fit_rfa_mod, df_oc, exog_cols)
 
     with Pool() as pool:
@@ -266,8 +312,10 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Magnitude and Direction of Odds Movements
 
+    # Calculate the difference in opening and closing odds
     df_oc["DltOpnCls"] = df_oc["ClsOdds"] - df_oc["OpnOdds"]
 
+    # Calculate the winning proportions within different intervals
     res_win_props: DefaultDict[Any, list] = defaultdict(list)
 
     ivals = [
@@ -315,16 +363,14 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Tests Based on Proportions
 
+    # Estimate the relation between winning rates and the average odds
+    # movements within the intervals defined above
     df_res_win_props = pd.concat(res_win_props, ignore_index=True)
 
     df_res_win_props["Bookies"] = np.repeat(
         a=list(res_win_props.keys()),
         repeats=res_win_props[bookies[0]].shape[0],
     )
-
-    # df_res_win_props[["AvgChange", "NumMatches"]] = scale_vars(
-    #     df_res_win_props[["AvgChange", "NumMatches"]]
-    # )
 
     mod_win_props = smf.mixedlm(
         formula="Proportions ~ 1 + AvgChange + NumMatches",
@@ -335,6 +381,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     res_mod_win_props = mod_win_props.fit(reml=True, method="lbfgs")
 
+    # Plot the estimated random intercepts and slopes
     fixed_effects = res_mod_win_props.fe_params
     random_effects = res_mod_win_props.random_effects
 
@@ -375,17 +422,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # legend = ax.legend(
-    #     title="",
-    #     bbox_to_anchor=(1.03, 0.5),
-    #     loc="center left",
-    #     labelspacing=0.05,
-    #     borderaxespad=0,
-    #     handletextpad=0.5,
-    #     # handlelength=2,
-    # )
-    # plt.setp(legend.get_texts(), fontsize="small")
-
     # Create a separate legend figure
     fig_legend, ax_legend = plt.subplots(figsize=(4, 4.5))
     ax_legend.legend(
@@ -402,14 +438,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # plt.legend(
-    #     loc="upper left",
-    #     ncol=3,
-    #     fontsize=9,
-    #     columnspacing=0.4,
-    #     handlelength=1.5,
-    # )
-
+    # Store results as tex
     tex_res_wp_re = res_mod_win_props.summary().as_latex().splitlines(True)
     tex_res_wp_re = tex_res_wp_re[19:-5]
     tex_res_wp_re.append("\\bottomrule\n")
@@ -454,21 +483,25 @@ def run_estimation(cfg: PFDConfig) -> None:
     # print(res_wls.summary())
     # print(res_wls.summary().as_latex())
 
-    # Odds Series
+    # Time Series
 
     # df = df.drop_duplicates(subset=["GroupId", "Update"])
 
     # df = df[df["NumOddsMvt"] > 1]
     # df = df.reset_index(drop=True)
 
+    # Determine the first and the last time stamps of odds updates for each
+    # match across bookmakers
     df["TsStart"] = df.groupby("Matchup")["Update"].transform("min")
     df["TsEnd"] = df.groupby("Matchup")["Update"].transform("max")
 
     df = df.set_index("Update")
 
+    # Remove time series with zero variance in odds
     group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
-    df = df[group_std > 0]  # remove groups with zero odds variance
+    df = df[group_std > 0]
 
+    # Resample each time series using multiprocessing
     def partition_list(lst, n_parts):
         # Calculate the size of each partition
         avg = len(lst) / float(n_parts)
@@ -537,57 +570,93 @@ def run_estimation(cfg: PFDConfig) -> None:
     #     resample,
     #     period=cfg.estimation.period,
     #     freq=cfg.estimation.resample_freq,
-    #     pctls=np.arange(0, 1.02, 0.02),
+    #     pctls=np.arange(
+    #            0, 1 + cfg.estimation.pctl / 100, cfg.estimation.pctl / 100
+    #        ),
     #     include_groups=False,
     # )
 
     df = df.reset_index(level=1, drop=True).reset_index(drop=False)
 
-    # df.to_hdf(
-    #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
-    #     key="data_resampled",
-    #     mode="w",
-    # )
-
+    # Remove groups with zero odds variance
     group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
-    df = df[group_std > 0]  # remove groups with zero odds variance
+    df = df[group_std > 0]
 
-    # n_missings = df["OddsMvt"].isna().sum()
-    # frac_missings = n_missings / df["OddsMvt"].shape[0]
+    n_missings = df["OddsMvt"].isna().sum()
+    frac_missings = n_missings / df["OddsMvt"].shape[0]
 
+    # Store DataFrame
     df.to_hdf(
         path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
         key="data_resampled",
         mode="w",
     )
 
+    # Load DataFrame
     # df = pd.read_hdf(
     #     path_or_buf=f"{cfg.paths.data_intrm}data_resampled.h5",
     #     key="data_resampled",
     #     mode="r",
     # )
 
-    # bookies = sorted(list(df["Bookies"].unique()))
-    # exog_cols = [col for col in df.columns if col.startswith("Compet")] + [
-    #     "TsDur"
-    # ]
-
+    # Enumerate observations per group
     df["CumCount"] = df.groupby("GroupId").cumcount()
 
+    # Calculate the number of periods of the time series
     n_per = int(df.shape[0] / df.groupby("GroupId").ngroups)
-    # len_per = float(cfg.estimation.resample_freq.strip("min")) / 60
+
+    # Create a list of variables enumerating the odds movements
     odds_mvt_cols = [f"OddsMvt{i}" for i in range(0, n_per)]
 
+    # Reshape DataFrame long to wide
     df = pivot_df(
         df=df,
         exog_cols=exog_cols + ["NumOddsMvt", "IsPro", "Match"],
         n_per=n_per,
     )
 
+    df_imp = df.dropna()
+    n_nan = round(frac_missings * n_per)
+    nan_cols = [f"OddsMvt{i}" for i in range(0, n_nan)]
+    df_imp_2 = df_imp.copy()
+    df_imp_2.loc[:, nan_cols] = np.nan
+    df_imp_2 = df_imp_2.loc[:, odds_mvt_cols]
+    median_imp = df_imp_2.copy()
+    median_imp.loc[:, nan_cols] = np.tile(
+        median_imp.median(axis=1).values, (len(nan_cols), 1)
+    ).T
+    back_imp = df_imp_2.copy()
+    back_imp = back_imp.T.bfill().T
+    back_imp.loc[:, nan_cols] = np.tile(
+        back_imp.median(axis=1).values, (len(nan_cols), 1)
+    ).T
+    iter_imp = df_imp.copy()
+    iter_imp.loc[0:30000, nan_cols] = np.nan
+    iter_imp = impute_missings(df=iter_imp, seed=cfg.general.seed)
+    iter_imp = iter_imp.loc[0:30000, odds_mvt_cols]
+
+    from sklearn.metrics import mean_squared_error
+
+    logloss_median_imp = mean_squared_error(
+        df_imp.loc[:, nan_cols], median_imp.loc[:, nan_cols], squared=False
+    )
+    logloss_back_imp = mean_squared_error(
+        df_imp.loc[:, nan_cols], back_imp.loc[:, nan_cols], squared=False
+    )
+    logloss_iter_imp = mean_squared_error(
+        df_imp.loc[0:30000, nan_cols],
+        iter_imp.loc[0:30000, nan_cols],
+        squared=False,
+    )
+
+    # Imputation of Initial Prices
+
+    # Impute missing values induced through different opening timestamps
     df = impute_missings(df=df, seed=cfg.general.seed)
 
-    # GARCH Model
+    # Statistical Properties of Time Series Data
 
+    # Reshape DataFrame back from wide to long
     df_garch = df.melt(
         id_vars=["Matchup", "Bookies", "NumOddsMvt"] + exog_cols,
         value_name="OddsMvt",
@@ -595,7 +664,12 @@ def run_estimation(cfg: PFDConfig) -> None:
         value_vars=odds_mvt_cols,
     )
 
+    # Keep time series with <20 odds updates (Oddsportal provides 20 updates
+    # at most such that we cannot be sure whether time series with 20 updates
+    # contain all updates)
     df_garch = df_garch.loc[df_garch["NumOddsMvt"] < 20, :]
+
+    # Format data and calculate returns
     df_garch["CumCount"] = df_garch["CumCount"].str.replace(
         pat="OddsMvt", repl=""
     )
@@ -611,6 +685,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         calc_returns
     )
 
+    # Calculate (squared) cross-sectional returns and plot
     cs_mean_rtrn = df_garch.groupby("CumCount")["Return"].mean().dropna()
     cs_mean_rtrn_sq = cs_mean_rtrn**2
 
@@ -656,6 +731,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # tex_res_adf_p1 = tex_res_adf[3 : indices[0] + 1]
     # tex_res_adf_p2 = tex_res_adf[indices[0] + 3 : indices[1] + 1]
 
+    # Generate partial autocorrelation function and plot
     pacf_values, confint = pacf(
         x=cs_mean_rtrn_sq,
         alpha=0.05,
@@ -686,13 +762,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # Detrend time series
-    # trend = np.arange(len(cs_mean_rtrn))
-    # trend = sm.add_constant(trend)
-    # mod_trend = sm.OLS(cs_mean_rtrn, trend).fit()
-    # cs_mean_rtrn = cs_mean_rtrn - mod_trend.predict(trend)
-
-    # Test GARCH Model
+    # Estimate GARCH model using the significant lags from above
     mod_garch = arch_model(
         y=cs_mean_rtrn_sq,
         mean="AR",
@@ -724,11 +794,11 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     indices = [i for i, x in enumerate(tex_res_garch) if x == "\\bottomrule\n"]
-    # tex_res_garch_p1 = tex_res_garch[3 : indices[0] + 1]
     tex_res_garch_p1 = tex_res_garch[indices[0] + 3 : indices[0] + 7]
     tex_res_garch_p2 = tex_res_garch[indices[0] + 9 : indices[1] + 1]
     tex_res_garch = tex_res_garch_p1 + tex_res_garch_p2
 
+    # Asymmetric shock response function
     # res_garch.params.rename(index=param_rename, inplace=True)
 
     # params = res_garch.params
@@ -766,22 +836,25 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Unbiasedness Regressions
 
+    # Only keep time series with <20 updates
     df_ur = df.loc[df["NumOddsMvt"] < 20, :].copy()
+
+    # Calculate the difference between the odds in all t and the opening odds
     df_ur[odds_mvt_cols[1:]] = df_ur[odds_mvt_cols[1:]].subtract(
         df_ur["OddsMvt0"], axis=0
     )
-    df_ur["Endog"] = df_ur["Match"] - df_ur["OddsMvt0"]
-    # df_ur["Endog"] = df_ur[f"OddsMvt{n_per - 1}"] - df_ur["OddsMvt0"]
 
+    # Endogenous variables is defined as the difference between the terminal
+    # value and the initial value
+    df_ur["Endog"] = df_ur["Match"] - df_ur["OddsMvt0"]
+
+    # Estimate unbiasedness regressions for all t using multiprocessing & plot
     res_ur: DefaultDict[Any, list] = defaultdict(list)
 
     part_fit_mixed_lm = partial(fit_mixed_lm, df_ur)
 
     with Pool() as pool:
         res_pool_ur = pool.map(part_fit_mixed_lm, odds_mvt_cols[1:])
-
-    # for ele in bookies:
-    #     print(res_pool_ur[1]["res"].random_effects[ele]["Exog"])
 
     for ele in res_pool_ur:
         res_ur["beta_1"].append(ele["beta_1"])
@@ -812,8 +885,9 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # Speed of Learning
+    # Estimation of Learning Rate using GMM
 
+    # Randomly draw 10 starting values for GMM from uniform dist. and fix first
     start_params = list(
         np.array(
             [
@@ -823,6 +897,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
     start_params[0] = np.array([0.01])
 
+    # Estimate the learning rate using GMM (CUE) and multiprocessing
     part_fit_gmm_mod = partial(
         fit_gmm_mod,
         df,
@@ -853,11 +928,12 @@ def run_estimation(cfg: PFDConfig) -> None:
     # plt.show()
     ###
 
+    # Store some estimated values
     gamma_stats_gmm = df_res_gmm["gamma"].agg(["mean", "min", "max"])
     idxmin_gamma_gmm = df_res_gmm["gamma"].idxmin()
     idxmax_gamma_gmm = df_res_gmm["gamma"].idxmax()
 
-    # First-stage GMM
+    # Estimate the learning rate using first-stage GMM and multiprocessing
     part_fit_gmm_mod_first_stage = partial(
         fit_gmm_mod,
         df,
@@ -884,7 +960,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # PyMC probabilistic modeling
+    # Estimation of Learning Rate using Bayesian Methods
 
     # trace = az.from_netcdf(
     #     filename=f"{cfg.paths.models}trace_{est_method}.nc"
@@ -895,9 +971,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     df["IsFav"] = 0
     df.loc[df["OddsMvt0"] > median_price, "IsFav"] = 1
 
-    # Calculate the split points for the intervals
+    # Partition observations according to 10 equally spaced intervals according
+    # to the size of the opening odds
     split_points = np.quantile(np.sort(df["OddsMvt0"]), np.linspace(0, 1, 11))
-    # split_points = np.arange(0, 1.1, 0.1)
+
     masks = [
         (df["OddsMvt0"] > split_points[i])
         & (df["OddsMvt0"] <= split_points[i + 1])
@@ -907,26 +984,32 @@ def run_estimation(cfg: PFDConfig) -> None:
     for i in range(0, 10):
         df.loc[masks[i], "Quantile"] = i + 1
 
+    # Container for estimation output
     res_pm: DefaultDict[str, Any] = defaultdict(lambda: defaultdict())
 
+    # Estimation using ADVI & total sample
     res_pm["vi"]["trace"], res_pm["vi"]["tracker"], res_pm["vi"]["advi"] = (
         gen_res_obj(
             df=df, est_method="advi", subset="tot", n_per=n_per, cfg=cfg
         )
     )
 
+    # Estimation using NUTS & total sample
     res_pm["nuts_tot"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="tot", n_per=n_per, cfg=cfg
     )
 
+    # Estimation using NUTS & favorites
     res_pm["nuts_fav"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="fav", n_per=n_per, cfg=cfg
     )
 
+    # Estimation using NUTS & underdogs
     res_pm["nuts_udd"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="udd", n_per=n_per, cfg=cfg
     )
 
+    # Estimation using NUTS & 10x partitioned sample
     for i in range(0, 10):
         res_pm[f"nuts_q{i + 1}"]["trace"] = gen_res_obj(
             df=df,
@@ -936,10 +1019,12 @@ def run_estimation(cfg: PFDConfig) -> None:
             cfg=cfg,
         )
 
+    # Estimation using NUTS & professionals
     res_pm["nuts_pro"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="pro", n_per=n_per, cfg=cfg
     )
 
+    # Estimation using NUTS & amateurs
     res_pm["nuts_amat"]["trace"] = gen_res_obj(
         df=df, est_method="nuts", subset="amat", n_per=n_per, cfg=cfg
     )
@@ -956,7 +1041,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             ~res_pm[key]["sum"].index.str.contains("interval__|log__")
         ].copy()
 
-    # Correlate log loss with bookmaker-specific learning rate
+    # Correlate log loss with bookmaker-specific median learning rate and plot
     metrics = pd.read_hdf(
         path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
         key="metrics",
@@ -982,6 +1067,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the tracker of ADVI
     pylab.rcParams.update(rcp_m)
 
     fig = plt.figure()
@@ -999,6 +1085,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the traces (NUTS for total sample)
     plot_traces(
         mod_trace=res_pm["nuts_tot"]["trace"],
         param="gamma",
@@ -1009,6 +1096,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the posteriors (NUTS and ADVI for total sample)
     pylab.rcParams.update(rcp_l)
 
     plot_posteriors(
@@ -1021,6 +1109,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the posteriors for favorites and underdogs (NUTS)
     plot_posteriors(
         mod_trace={
             "Favorites": res_pm["nuts_fav"]["trace"],
@@ -1031,6 +1120,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the posteriors for the 10x partitioned sample (NUTS)
     plot_posteriors(
         mod_trace=[
             res_pm[f"nuts_q{i + 1}"]["trace"]
@@ -1044,6 +1134,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the posteriors for professionals and amateurs (NUTS)
     plot_posteriors(
         mod_trace={
             "Professionals": res_pm["nuts_pro"]["trace"],
@@ -1054,6 +1145,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
+    # Plot the bookmaker specific posteriors (ADVI and NUTS)
     pylab.rcParams.update(rcp_s)
 
     plot_facetgrid(
@@ -1072,85 +1164,26 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # plot_facetgrid(
-    #     mod_trace={
-    #         "Professionals": res_pm["nuts_pro"]["trace"],
-    #         "Amateurs": res_pm["nuts_amat"]["trace"],
-    #     },
-    #     param="gamma",
-    #     color_palette=stata_colors,
-    #     path=f"{cfg.paths.figures}facetgrid_gamma_nuts_pro_amat.pdf",
-    #     save=cfg.general.save,
-    # )
-
+    # Store some values
     gamma_med_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "median"]
     gamma_lower_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_2.5%"]
     gamma_upper_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_97.5%"]
 
+    # Format summary statistics
     for key in list(res_pm.keys()):
         res_pm[key]["sum"] = format_sum(df=res_pm[key]["sum"], cfg=cfg)
-
-    # test = pd.merge(
-    #     left=sum_nuts_pro["mean"],
-    #     right=sum_nuts_ama["mean"],
-    #     how="left",
-    #     on=sum_nuts_pro.index)
-
-    # sns.violinplot(
-    #     data=gamma_samples,
-    #     x="Bookies",
-    #     y="Samples",
-    #     split=True,
-    #     inner="quart"
-    # )
-    # plt.show()
-
-    # fig, ax = plt.subplots()
-    # az.plot_forest(
-    #     trace_nuts,
-    #     var_names=["gamma"],
-    #     kind="forestplot",
-    #     combined=True,
-    #     ax=ax,
-    #     # hdi_prob=hdi,
-    #     # ridgeplot_overlap=10,
-    #     # ridgeplot_alpha=0.5,
-    # )
-    # ax.set(xlabel=r"$\hat{\nu}_1$")
-    # [tick.set_visible(False) for tick in ax.yaxis.get_ticklabels()]
-    # for spine in ax.spines.values():
-    #     spine.set_visible(True)
-    #     spine.set_edgecolor("black")
-    # plt.show()
-
-    # sns.violinplot(data=df, x="class", y="age", split=True, inner="quart")
-
-    # az.plot_trace(
-    #     data=trace_advi,
-    #     var_names=["sig_eps"],
-    #     divergences=False,
-    #     combined=False,
-    #     compact=True,
-    # )
-    # plt.show(block=False)
 
     # Saving
 
     if cfg.general.save:
+        # DataFrames
         df_desc.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}data_desc.h5",
             key="data_desc",
             mode="w",
         )
 
-        # import pickle
-
-        # with open(f"{cfg.paths.models}res_pm.pkl", "wb") as f:
-        #     pickle.dump(res_pm, f)
-
-        # with open("filename.pkl", "rb") as f:
-        #     dictname = pickle.load(f)
-
+        # Values
         values_to_save = {
             "bm_quantile": (cfg.estimation.bm_quantile * 100, ".0f"),
             "ts_dur_from": (cfg.estimation.ts_dur[0], None),
@@ -1166,15 +1199,13 @@ def run_estimation(cfg: PFDConfig) -> None:
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
             # "n_missings": (n_missings, None),
-            # "frac_missings": (frac_missings, ".4f"),
+            "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
-            # "len_per": (len_per, ".4g"),
             "avg_gamma_gmm": (gamma_stats_gmm["mean"], ".4f"),
             "min_gamma_gmm": (gamma_stats_gmm["min"], ".4f"),
             "max_gamma_gmm": (gamma_stats_gmm["max"], ".4f"),
             "idxmax_gamma_gmm": (idxmax_gamma_gmm, None),
             "idxmin_gamma_gmm": (idxmin_gamma_gmm, None),
-            # "avg_phi_gmm": (avg_phi_gmm, ".4f"),
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
             "median_price": (median_price, ".4f"),
@@ -1192,6 +1223,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                 fmt=fmt,
             )
 
+        # Sampling parameters from config.yaml
         for key, value in cfg.sampling.items():
             save_values(
                 key=key,
@@ -1199,6 +1231,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                 file_name=f"{cfg.paths.vals}{cfg.files.vals}",
             )
 
+        # Tables
         file_configs = [
             (f"{cfg.paths.tables}res_gpm.tex", "".join(tex_res_gpm)),
             (f"{cfg.paths.tables}res_rfa.tex", "".join(tex_res_rfa)),
@@ -1211,6 +1244,7 @@ def run_estimation(cfg: PFDConfig) -> None:
                 file=file, body=body, first_line=None, last_line=None
             )
 
+        # Further tables
         write_text_file(
             file=f"{cfg.paths.tables}res_rfa_tot.tex",
             body=mod_tex_tab(

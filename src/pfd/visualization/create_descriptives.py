@@ -24,7 +24,6 @@ from pfd.utils import (
     NumFormat,
     PFDConfig,
     PlotParams,
-    calc_losses,
     finalize_plot,
     mod_tex_tab,
     write_text_file,
@@ -170,24 +169,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # Brierscore and log loss
-    metrics = df.groupby("Bookies").apply(calc_losses, include_groups=False)
-    metrics = pd.DataFrame(
-        metrics.tolist(), columns=["BrierLoss", "LogLoss"], index=metrics.index
-    )
-
-    pylab.rcParams.update(rcp_m)
-
-    _, ax = plt.subplots(nrows=2, ncols=1, sharex="all", sharey="none")
-    sns.barplot(data=metrics, x=metrics.index, y="BrierLoss", ax=ax[0])
-    ax[0].set(xlabel="", ylabel="Brier Score Loss", ylim=[0.17, 0.23])
-    sns.barplot(data=metrics, x=metrics.index, y="LogLoss", ax=ax[1])
-    ax[1].set(xlabel="Bookmaker", ylabel="Log Loss", ylim=[0.55, 0.65])
-    plt.xticks(np.arange(0, len(metrics.index)), metrics.index, rotation=90)
-    finalize_plot(
-        path=f"{cfg.paths.figures}log_brier_loss.pdf", save=cfg.general.save
-    )
-
     timestamps = timestamps.dt.date
 
     pylab.rcParams.update(rcp_s)
@@ -238,12 +219,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
         value=desc_num.loc["50\\%", "Time"],
         file_name=f"{cfg.paths.vals}{cfg.files.vals}",
         fmt=".2f",
-    )
-
-    metrics.to_hdf(
-        path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
-        key="metrics",
-        mode="w",
     )
 
     # fmt_cols = [

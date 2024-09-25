@@ -31,17 +31,16 @@ def impute_missings(df: pd.DataFrame, seed: int) -> pd.DataFrame:
     pd.DataFrame
         Imputed DataFrame.
     """
-
-    imputer = IterativeImputer(
-        initial_strategy="median", min_value=0, max_value=1, random_state=seed
-    )
-
     df = enc_categ_var(
         df=df,
         col="Bookies",
         prefix="Bookie",
         rm_first=True,
         rm_categ_var=False,
+    )
+
+    imputer = IterativeImputer(
+        initial_strategy="median", min_value=0, max_value=1, random_state=seed
     )
 
     df.loc[:, df.columns != "Bookies"] = imputer.fit_transform(
