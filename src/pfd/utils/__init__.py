@@ -10,6 +10,7 @@ __all__ = [
 
 from ._create_gmm_data import _create_gmm_data
 from ._gen_meth_mom import _GenMethMom
+from .calc_imput_loss import calc_imput_loss
 from .calc_losses import calc_losses
 from .calc_win_props import calc_win_props
 from .config import PFDConfig

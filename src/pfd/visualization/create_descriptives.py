@@ -68,8 +68,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
     plot_params = PlotParams(cfg=cfg)
     # 50%, single plots
     rcp_s = plot_params.set_rc_params(kind="fig_small", fig_size=(6.4, 4.8))
-    # 75%, 2x1 and 2x2 plots
-    rcp_m = plot_params.set_rc_params(kind="fig_medium", fig_size=(6.4, 4.8))
 
     # Tables
 
@@ -170,8 +168,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
     )
 
     timestamps = timestamps.dt.date
-
-    pylab.rcParams.update(rcp_s)
 
     _, ax = plt.subplots()
     sns.histplot(data=timestamps, discrete=True, stat="density")

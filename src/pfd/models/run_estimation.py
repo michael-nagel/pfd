@@ -45,6 +45,7 @@ from pfd.utils import (
     NumFormat,
     PFDConfig,
     PlotParams,
+    calc_imput_loss,
     calc_losses,
     calc_win_props,
     create_func_dict,
@@ -109,12 +110,14 @@ def run_estimation(cfg: PFDConfig) -> None:
     sns.set_theme(palette=stata_colors, style="ticks")
 
     plot_params = PlotParams(cfg=cfg)
-    # 50%, single plots
+    # Small - 50%, single plots
     rcp_s = plot_params.set_rc_params(kind="fig_small", fig_size=(6.4, 4.8))
-    # 75%, 2x1 and 2x2 plots
+    # Medium - 75%, 2x2 plots
     rcp_m = plot_params.set_rc_params(kind="fig_medium", fig_size=(6.4, 4.8))
-    # 100%, 1x2 plots
-    rcp_l = plot_params.set_rc_params(kind="fig_big", fig_size=(6.4, 2.8))
+    # Large - 100%, 2x1 plots
+    rcp_l = plot_params.set_rc_params(kind="fig_big", fig_size=(6.4, 4.8))
+    # Large flat - 100%, 1x2 plots
+    rcp_lf = plot_params.set_rc_params(kind="fig_big", fig_size=(6.4, 2.8))
 
     # Shaping
 
@@ -223,7 +226,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     # Plot metrics using bar plots
-    pylab.rcParams.update(rcp_m)
+    pylab.rcParams.update(rcp_l)
 
     _, ax = plt.subplots(nrows=2, ncols=1, sharex="all", sharey="none")
     sns.barplot(data=metrics, x=metrics.index, y="BrierLoss", ax=ax[0])
@@ -615,41 +618,54 @@ def run_estimation(cfg: PFDConfig) -> None:
         n_per=n_per,
     )
 
-    df_imp = df.dropna()
-    n_nan = round(frac_missings * n_per)
-    nan_cols = [f"OddsMvt{i}" for i in range(0, n_nan)]
-    df_imp_2 = df_imp.copy()
-    df_imp_2.loc[:, nan_cols] = np.nan
-    df_imp_2 = df_imp_2.loc[:, odds_mvt_cols]
-    median_imp = df_imp_2.copy()
-    median_imp.loc[:, nan_cols] = np.tile(
-        median_imp.median(axis=1).values, (len(nan_cols), 1)
-    ).T
-    back_imp = df_imp_2.copy()
-    back_imp = back_imp.T.bfill().T
-    back_imp.loc[:, nan_cols] = np.tile(
-        back_imp.median(axis=1).values, (len(nan_cols), 1)
-    ).T
-    iter_imp = df_imp.copy()
-    iter_imp.loc[0:30000, nan_cols] = np.nan
-    iter_imp = impute_missings(df=iter_imp, seed=cfg.general.seed)
-    iter_imp = iter_imp.loc[0:30000, odds_mvt_cols]
+    # Imputation of Missing Initial Prices
+    perc = [25, 50, 75]
+    loss = []
+    for ele in perc:
+        loss.append(
+            calc_imput_loss(
+                df=df,
+                odds_mvt_cols=odds_mvt_cols,
+                n_mvt=round(frac_missings * len(odds_mvt_cols)),
+                pctl=ele,
+                seed=cfg.general.seed,
+                imp_func=impute_missings,
+            )
+        )
 
-    from sklearn.metrics import mean_squared_error
+    losses = list(map(list, zip(*loss)))
+    loss_dict = {
+        "median": losses[0],
+        "linear": losses[1],
+        "multiple": losses[2],
+    }
 
-    logloss_median_imp = mean_squared_error(
-        df_imp.loc[:, nan_cols], median_imp.loc[:, nan_cols], squared=False
-    )
-    logloss_back_imp = mean_squared_error(
-        df_imp.loc[:, nan_cols], back_imp.loc[:, nan_cols], squared=False
-    )
-    logloss_iter_imp = mean_squared_error(
-        df_imp.loc[0:30000, nan_cols],
-        iter_imp.loc[0:30000, nan_cols],
-        squared=False,
-    )
+    # Plot metrics
+    x = np.arange(len(loss_dict))
+    width = 0.25
+    multiplier = 0
 
-    # Imputation of Initial Prices
+    _, ax = plt.subplots()
+    for i, (key, val) in enumerate(loss_dict.items()):
+        offset = width * multiplier
+        ax.bar(x + offset, val, width, label=key)
+        multiplier += 1
+    ax.set(
+        xlabel="Percentile Price Movements",
+        ylabel="RMSE",
+        ylim=[0, max(max(losses)) * 1.25],
+    )
+    ax.set_xticks(x + width, perc)
+    ax.legend(
+        loc="upper center",
+        ncol=len(loss_dict),
+        columnspacing=0.5,
+        handletextpad=0.25,
+    )
+    finalize_plot(
+        path=f"{cfg.paths.figures}imput_loss.pdf",
+        save=cfg.general.save,
+    )
 
     # Impute missing values induced through different opening timestamps
     df = impute_missings(df=df, seed=cfg.general.seed)
@@ -748,7 +764,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     garch_lags = signific_idxs[0].max()
     garch_lags = int(max(garch_lags, 1))
 
-    pylab.rcParams.update(rcp_l)
+    pylab.rcParams.update(rcp_lf)
 
     _, ax = plt.subplots(nrows=1, ncols=2, sharey="all")
     plot_pacf(x=cs_mean_rtrn, ax=ax[0], alpha=0.05, markersize=3)
@@ -876,7 +892,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         1 + signific_time_idx[signific_time_idx].index
     ) * cfg.estimation.pctl
 
-    pylab.rcParams.update(rcp_m)
+    pylab.rcParams.update(rcp_l)
 
     plot_unbiased_reg_res(
         res_ur=res_ur,
@@ -946,7 +962,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     with Pool() as pool:
         res_gmm_first_stage = pool.map(part_fit_gmm_mod_first_stage, bookies)
 
-    pylab.rcParams.update(rcp_m)
+    pylab.rcParams.update(rcp_l)
 
     plot_gmm_res(
         res_gmm={"first_stage": res_gmm_first_stage, "cue": res_gmm},
@@ -1042,11 +1058,7 @@ def run_estimation(cfg: PFDConfig) -> None:
         ].copy()
 
     # Correlate log loss with bookmaker-specific median learning rate and plot
-    metrics = pd.read_hdf(
-        path_or_buf=f"{cfg.paths.data_intrm}metrics.h5",
-        key="metrics",
-        mode="r",
-    )
+
     gamma = res_pm["nuts_tot"]["sum"]["median"].iloc[3:]
     gamma.index = gamma.index.str.replace("gamma[", "").str.replace("]", "")
     metrics = pd.merge(
@@ -1068,7 +1080,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     # Plot the tracker of ADVI
-    pylab.rcParams.update(rcp_m)
+    pylab.rcParams.update(rcp_l)
 
     fig = plt.figure()
     mu_ax = fig.add_subplot(221)
@@ -1097,7 +1109,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     )
 
     # Plot the posteriors (NUTS and ADVI for total sample)
-    pylab.rcParams.update(rcp_l)
+    pylab.rcParams.update(rcp_lf)
 
     plot_posteriors(
         mod_trace={
@@ -1180,6 +1192,13 @@ def run_estimation(cfg: PFDConfig) -> None:
         df_desc.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}data_desc.h5",
             key="data_desc",
+            mode="w",
+        )
+
+        # DataFrames
+        metrics.to_hdf(
+            path_or_buf=f"{cfg.paths.data_proc}metrics.h5",
+            key="metrics",
             mode="w",
         )
 
