@@ -5,7 +5,7 @@ defaults: # Entries below _self_ override the config in this file
   - override hydra/job_logging: custom
 
 estimation:
-  spec: BmHome # Which odds to use for analysis
+  spec: BmHome # Which odds to use for analysis ["BmHome", "BmAway"]
   compets: null # Which competitions ["ATP", "WTA"] or null
   bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
   ts_dur: [12, 72] # Min and max time series duration in hours

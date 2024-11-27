@@ -45,6 +45,7 @@ from pfd.utils import (
     NumFormat,
     PFDConfig,
     PlotParams,
+    bootstrap_std_error,
     calc_imput_loss,
     calc_losses,
     calc_win_props,
@@ -74,6 +75,7 @@ cs.store(name="pfd_config", node=PFDConfig)
 
 # Function
 
+# TODO
 with initialize(
     version_base=None, config_path="../conf", job_name="run_estimation"
 ):
@@ -99,7 +101,7 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     df = pd.read_hdf(
         path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
-        key=cfg.estimation.spec,
+        key="df",
     )
 
     # Cockpit
@@ -128,6 +130,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     if cfg.estimation.compets:
         df = df.loc[df["Competition"].isin(cfg.estimation.compets)]
 
+    # Calculate margin and remove observations with inplausible margins
+    df["Margin"] = 1 / df["OddsMvtHome"] + 1 / df["OddsMvtAway"] - 1
+    df = df.loc[(df["Margin"] >= 0) & (df["Margin"] <= 0.15)]
+
     # Create unique group IDs
     df["GroupId"] = df.groupby(["Matchup", "Bookies"]).ngroup()
 
@@ -140,10 +146,32 @@ def run_estimation(cfg: PFDConfig) -> None:
         > df["Bookies"].value_counts().quantile(cfg.estimation.bm_quantile)
     ]
 
+    # Determine favorite and longshot
+    condition = (
+        df.groupby("GroupId")["OddsMvtHome"].first()
+        < df.groupby("GroupId")["OddsMvtAway"].first()
+    ) | (
+        (
+            df.groupby("GroupId")["OddsMvtHome"].first()
+            == df.groupby("GroupId")["OddsMvtAway"].first()
+        )
+        & (
+            df.groupby("GroupId")["OddsMvtHome"].last()
+            < df.groupby("GroupId")["OddsMvtAway"].last()
+        )
+    )
+
+    df["IsFav"] = df["GroupId"].map(condition).astype(int)
+
     # Take home/away perspective
     if cfg.estimation.spec == "BmHome":
+        df = df.drop("OddsMvtAway", axis=1)
+        df = df.rename(columns={"OddsMvtHome": "OddsMvt"})
         df["Match"] = df["Match"] + 1
         df.loc[df["Match"] == 2, "Match"] = 0
+    else:
+        df = df.drop("OddsMvtHome", axis=1)
+        df = df.rename(columns={"OddsMvtAway": "OddsMvt"})
 
     # Calculate the time series duration from open to close
     df["TsDur"] = (
@@ -189,6 +217,7 @@ def run_estimation(cfg: PFDConfig) -> None:
             "GroupId",
             "Competition",
             "IsPro",
+            "IsFav",
             "Bookies",
             "NumOddsMvt",
             "TsDur",
@@ -382,11 +411,17 @@ def run_estimation(cfg: PFDConfig) -> None:
         re_formula="1 + AvgChange",
     )
 
-    res_mod_win_props = mod_win_props.fit(reml=True, method="lbfgs")
+    res_mod_win_props = mod_win_props.fit(reml=False, method="lbfgs")
 
     # Plot the estimated random intercepts and slopes
     fixed_effects = res_mod_win_props.fe_params
     random_effects = res_mod_win_props.random_effects
+
+    # Bootstap to obtain correct standard error
+    bootstr_coefs = bootstrap_std_error(df=df_res_win_props, n_bootstraps=1000)
+    bootstr_std = bootstr_coefs.std()
+    bootstr_low = fixed_effects["AvgChange"] - norm.ppf(0.975) * bootstr_std
+    bootstr_up = fixed_effects["AvgChange"] + norm.ppf(0.975) * bootstr_std
 
     group_params = []
     for group, re in random_effects.items():
@@ -441,11 +476,28 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # Store results as tex
+    # Replace wrong std. error with bootstrap std. error and store as tex
     tex_res_wp_re = res_mod_win_props.summary().as_latex().splitlines(True)
     tex_res_wp_re = tex_res_wp_re[19:-5]
     tex_res_wp_re.append("\\bottomrule\n")
     tex_res_wp_re[1] = "\\midrule\n"
+    tex_res_wp_re[3] = (
+        tex_res_wp_re[3][:38]
+        + str(bootstr_std[0].round(3))
+        + tex_res_wp_re[3][43:-19]
+        + str(bootstr_low[0].round(3))
+        + tex_res_wp_re[3][-14:-10]
+        + str(bootstr_up[0].round(3))
+        + tex_res_wp_re[3][-5:]
+    )
+
+    # tex_res_wp_re[3] = (
+    #     tex_res_wp_re[3][:38]  # Keep everything before index 38
+    #     + str(bootstr_std[0].round(3))  # Insert the new value
+    #     + tex_res_wp_re[3][43:]  # Keep everything after index 43
+    # )
+    # tex_res_wp_re[3][-19:-14] = str(bootstr_low[0].round(3))
+    # tex_res_wp_re[3][-10:-5] = str(bootstr_up[0].round(3))
 
     for bookie in bookies + ["All"]:
         res_win_props[bookie].rename(
@@ -614,7 +666,7 @@ def run_estimation(cfg: PFDConfig) -> None:
     # Reshape DataFrame long to wide
     df = pivot_df(
         df=df,
-        exog_cols=exog_cols + ["NumOddsMvt", "IsPro", "Match"],
+        exog_cols=exog_cols + ["NumOddsMvt", "IsPro", "IsFav", "Match"],
         n_per=n_per,
     )
 
@@ -892,6 +944,8 @@ def run_estimation(cfg: PFDConfig) -> None:
         1 + signific_time_idx[signific_time_idx].index
     ) * cfg.estimation.pctl
 
+    signific_time_idx = pd.DataFrame({"SignTimePerc": signific_time_idx})
+
     pylab.rcParams.update(rcp_l)
 
     plot_unbiased_reg_res(
@@ -983,9 +1037,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     # )
 
     # Determine favorites and underdogs
-    median_price = df["OddsMvt0"].median()
-    df["IsFav"] = 0
-    df.loc[df["OddsMvt0"] > median_price, "IsFav"] = 1
+    # median_price = df["OddsMvt0"].median()
+    # df["IsFav"] = 0
+    # df.loc[df["OddsMvt0"] > median_price, "IsFav"] = 1
 
     # Partition observations according to 10 equally spaced intervals according
     # to the size of the opening odds
@@ -1180,6 +1234,12 @@ def run_estimation(cfg: PFDConfig) -> None:
     gamma_med_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "median"]
     gamma_lower_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_2.5%"]
     gamma_upper_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_97.5%"]
+    gamma_fav = res_pm["nuts_fav"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
+    gamma_udd = res_pm["nuts_udd"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
+    gamma_pro = res_pm["nuts_pro"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
+    gamma_amat = res_pm["nuts_amat"]["sum"].loc[
+        "$\hat{\mu}_{\gamma}$", "median"
+    ]
 
     # Format summary statistics
     for key in list(res_pm.keys()):
@@ -1196,6 +1256,12 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
 
         # DataFrames
+        signific_time_idx.to_hdf(
+            path_or_buf=f"{cfg.paths.data_proc}signific_time_idx.h5",
+            key="signific_time_idx",
+            mode="w",
+        )
+
         metrics.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}metrics.h5",
             key="metrics",
@@ -1210,9 +1276,11 @@ def run_estimation(cfg: PFDConfig) -> None:
             "iqr_rtrns": (iqr_rtrns, ".4f"),
             "n_obs": (n_obs, ","),
             "n_groups": (n_groups, None),
-            "first_time_idx": (signific_time_idx[0], None),
-            "last_time_idx": (signific_time_idx[-1], None),
             "gamma_med_nuts": (gamma_med_nuts, ".4f"),
+            "gamma_fav": (gamma_fav, ".4f"),
+            "gamma_udd": (gamma_udd, ".4f"),
+            "gamma_pro": (gamma_pro, ".4f"),
+            "gamma_amat": (gamma_amat, ".4f"),
             "gamma_lower_nuts": (gamma_lower_nuts, ".4f"),
             "gamma_upper_nuts": (gamma_upper_nuts, ".4f"),
             "is_amateur": (is_amateur, ".4f"),
@@ -1227,11 +1295,14 @@ def run_estimation(cfg: PFDConfig) -> None:
             "idxmin_gamma_gmm": (idxmin_gamma_gmm, None),
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
-            "median_price": (median_price, ".4f"),
+            # "median_price": (median_price, ".4f"),
             "corr_gamma_loss": (
                 metrics["LogLoss"].corr(metrics["median"]),
                 ".4f",
             ),
+            "bootstr_std": (bootstr_std[0], ".4f"),
+            "bootstr_up": (bootstr_up[0], ".4f"),
+            "bootstr_low": (bootstr_low[0], ".4f"),
         }
 
         for key, (value, fmt) in values_to_save.items():

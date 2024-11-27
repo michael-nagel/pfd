@@ -301,6 +301,23 @@ def shape_data(cfg: PFDConfig) -> None:
     df_bm_home = shape_odds(df=df, cols_base=cols_base, side="Home")
     df_bm_away = shape_odds(df=df, cols_base=cols_base, side="Away")
 
+    df = pd.merge(
+        left=df_bm_home,
+        right=df_bm_away[
+            ["Date", "Encounter", "Bookies", "Update", "OddsMvt"]
+        ],
+        how="inner",
+        on=["Date", "Encounter", "Bookies", "Update"],
+    )
+
+    df = df.rename(
+        columns={"OddsMvt_x": "OddsMvtHome", "OddsMvt_y": "OddsMvtAway"}
+    )
+
+    df = df.drop_duplicates()
+
+    df = df.drop("Payout", axis=1)
+
     # Call the function shape_prices
     # df_exng_back_home = shape_prices(df=df, price="PriceBackHome")
     # df_exng_back_away = shape_prices(df=df, price="PriceBackAway")
@@ -329,15 +346,20 @@ def shape_data(cfg: PFDConfig) -> None:
             mode="w",
         )
 
-        for i, (key, val) in enumerate(
-            {"BmHome": df_bm_home, "BmAway": df_bm_away}.items()
-        ):
-            mode = "a" if i > 0 else "w"
-            val.to_hdf(
-                path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
-                key=f"{key}",
-                mode=mode,
-            )
+        # for i, (key, val) in enumerate(
+        #     {"BmHome": df_bm_home, "BmAway": df_bm_away}.items()
+        # ):
+        #     mode = "a" if i > 0 else "w"
+        #     val.to_hdf(
+        #         path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
+        #         key=f"{key}",
+        #         mode=mode,
+        #     )
+        df.to_hdf(
+            path_or_buf=f"{cfg.paths.data_proc}shaped_data.h5",
+            key="df",
+            mode="w",
+        )
 
     # Execution Time and Log File Finish
 

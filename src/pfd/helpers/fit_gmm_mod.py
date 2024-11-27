@@ -7,6 +7,7 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+from scipy.stats import chi2
 
 from pfd.utils import _create_gmm_data, _GenMethMom
 
@@ -60,19 +61,46 @@ def fit_gmm_mod(
     res_tot: List[Dict[str, float]] = []
 
     for start_params_vals in start_params:
-        res_gmm = mod_gmm.fit(
-            start_params=start_params_vals,
-            maxiter=max_iter,
-            optim_method="nm",
-        )  # "nm", "bfgs"
+        if max_iter == 1:
+            res_gmm = mod_gmm.fit(
+                start_params=start_params_vals,
+                maxiter=max_iter,
+                optim_method="nm",
+                has_optimal_weights=False,
+                inv_weights=np.eye(N=14),
+            )  # "nm", "bfgs"
+            moment_conditions = mod_gmm.momcond(res_gmm.params)
+            moment_mean = moment_conditions.mean(axis=0)
+            weight_matrix = np.eye(N=14)
+            j_stat = (
+                endog.shape[0] * moment_mean.T @ weight_matrix @ moment_mean
+            )
+            # Degrees of freedom: #moment conditions - #parameters
+            degr = inst.shape[1] - exog.shape[1]
 
-        res_tot.append(
-            {
-                "gamma": res_gmm.params[0],
-                "std_gamma": res_gmm.bse[0],
-                "J_stat": res_gmm.jtest()[0],
-                "p_value": res_gmm.jtest()[1],
-            }
-        )
+            # Chi-squared test
+            p_value = 1 - chi2.cdf(j_stat, degr)
+            res_tot.append(
+                {
+                    "gamma": res_gmm.params[0],
+                    "std_gamma": res_gmm.bse[0],
+                    "J_stat": j_stat,
+                    "p_value": p_value,
+                }
+            )
+        else:
+            res_gmm = mod_gmm.fit(
+                start_params=start_params_vals,
+                maxiter=max_iter,
+                optim_method="nm",
+            )  # "nm", "bfgs"
+            res_tot.append(
+                {
+                    "gamma": res_gmm.params[0],
+                    "std_gamma": res_gmm.bse[0],
+                    "J_stat": res_gmm.jtest()[0],
+                    "p_value": res_gmm.jtest()[1],
+                }
+            )
 
     return res_tot

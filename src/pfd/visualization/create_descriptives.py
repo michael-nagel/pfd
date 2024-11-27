@@ -68,6 +68,8 @@ def create_descriptives(cfg: PFDConfig) -> None:
     plot_params = PlotParams(cfg=cfg)
     # 50%, single plots
     rcp_s = plot_params.set_rc_params(kind="fig_small", fig_size=(6.4, 4.8))
+    # Large flat - 100%, 1x2 plots
+    rcp_lf = plot_params.set_rc_params(kind="fig_big", fig_size=(6.4, 2.8))
 
     # Tables
 
@@ -127,9 +129,20 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     # Plotting
 
-    # Empirical distribution of implied probabilities
+    pylab.rcParams.update(rcp_lf)
+
+    # Empirical distribution of bookmakers
+    _, ax = plt.subplots()
+    sns.barplot(df.groupby("GroupId")["Bookies"].first().value_counts())
+    ax.set(xlabel="Bookmaker", ylabel="Count")
+    plt.xticks(rotation=90)
+    finalize_plot(
+        path=f"{cfg.paths.figures}dist_bookies.pdf", save=cfg.general.save
+    )
+
     pylab.rcParams.update(rcp_s)
 
+    # Empirical distribution of implied probabilities
     _, ax = plt.subplots()
     sns.histplot(
         data=df,
@@ -212,7 +225,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     save_values(
         key="ts_dur_med",
-        value=desc_num.loc["50\\%", "Time"],
+        value=desc_num.loc["Time", "50\\%"],
         file_name=f"{cfg.paths.vals}{cfg.files.vals}",
         fmt=".2f",
     )
