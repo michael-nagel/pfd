@@ -45,7 +45,7 @@ def fit_mixed_lm(df: pd.DataFrame, exog_var: str) -> dict:
     re_mod_res = re_mod.fit(
         reml=False,
         method="lbfgs",
-    )  # TODO reml=False, methods=nm works
+    )
 
     # converged = re_mod_res.converged
     # counter += 1
