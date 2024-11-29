@@ -183,13 +183,19 @@ def create_descriptives(cfg: PFDConfig) -> None:
     timestamps = timestamps.dt.date
 
     _, ax = plt.subplots()
-    sns.histplot(data=timestamps, discrete=True, stat="density")
+    sns.histplot(
+        data=timestamps,
+        discrete=True,
+        stat="density",
+        fill=True,
+        edgecolor=stata_colors[0],
+        alpha=1,
+    )
     ax.set(xlabel="Crawling Date")
     plt.xticks(rotation=45)
     finalize_plot(
-        path=f"{cfg.paths.figures}crawling_process.png",
+        path=f"{cfg.paths.figures}crawling_process.pdf",
         save=cfg.general.save,
-        fmt="png",
     )
 
     _, ax = plt.subplots()
@@ -198,9 +204,10 @@ def create_descriptives(cfg: PFDConfig) -> None:
         bins=df["NumOddsMvt"].nunique(),
         discrete=True,
         stat="density",
+        alpha=1,
     )
     ax.set(xlabel="Number of Price Movements")
-    plt.xticks(np.arange(1, 21, 1))
+    plt.xticks(np.arange(1, 21, 2))
     finalize_plot(
         path=f"{cfg.paths.figures}hist_price_mvts.pdf",
         save=cfg.general.save,
@@ -212,13 +219,15 @@ def create_descriptives(cfg: PFDConfig) -> None:
         bins=int((df["TsDur"].max() - df["TsDur"].min()) * 3),
         binrange=[int(df["TsDur"].min()), int(df["TsDur"].max())],
         stat="density",
+        fill=True,
+        edgecolor=stata_colors[0],
+        alpha=1,
     )
     ax.set(xlabel="Time Series Duration (h)")
     plt.xticks(np.linspace(df["TsDur"].min(), df["TsDur"].max(), 6, dtype=int))
     finalize_plot(
-        path=f"{cfg.paths.figures}hist_ts_dur.png",
+        path=f"{cfg.paths.figures}hist_ts_dur.pdf",
         save=cfg.general.save,
-        fmt="png",
     )
 
     # Saving

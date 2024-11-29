@@ -47,7 +47,7 @@ from pfd.utils import (
     PlotParams,
     bootstrap_std_error,
     calc_imput_loss,
-    calc_losses,
+    calc_rmse,
     calc_win_props,
     create_func_dict,
     enc_categ_var,
@@ -248,24 +248,26 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Accuracy of Opening Odds Across Bookmakers
 
-    # Brierscore and log loss
-    metrics = df.groupby("Bookies").apply(calc_losses, include_groups=False)
-    metrics = pd.DataFrame(
-        metrics.tolist(), columns=["BrierLoss", "LogLoss"], index=metrics.index
+    # Calculate RMSE for each bookmaker
+    rmse = df.groupby("Bookies").apply(
+        lambda group: calc_rmse(group["Match"], group["OpnOdds"]),
+        include_groups=False,
     )
+
+    # Brierscore and log loss
+    # metrics = df.groupby("Bookies").apply(calc_losses, include_groups=False)
+    # metrics = pd.DataFrame(
+    #     metrics.tolist(), columns=["BrierLoss", "LogLoss"], index=metrics.index
+    # )
 
     # Plot metrics using bar plots
-    pylab.rcParams.update(rcp_l)
+    pylab.rcParams.update(rcp_lf)
 
-    _, ax = plt.subplots(nrows=2, ncols=1, sharex="all", sharey="none")
-    sns.barplot(data=metrics, x=metrics.index, y="BrierLoss", ax=ax[0])
-    ax[0].set(xlabel="", ylabel="Brier Score Loss", ylim=[0.17, 0.23])
-    sns.barplot(data=metrics, x=metrics.index, y="LogLoss", ax=ax[1])
-    ax[1].set(xlabel="Bookmaker", ylabel="Log Loss", ylim=[0.55, 0.65])
-    plt.xticks(np.arange(0, len(metrics.index)), metrics.index, rotation=90)
-    finalize_plot(
-        path=f"{cfg.paths.figures}log_brier_loss.pdf", save=cfg.general.save
-    )
+    _, ax = plt.subplots()
+    sns.barplot(data=rmse, ax=ax)
+    ax.set(xlabel="", ylabel="Root Mean Squared Error", ylim=[0.39, 0.49])
+    plt.xticks(np.arange(0, len(rmse.index)), rmse.index, rotation=90)
+    finalize_plot(path=f"{cfg.paths.figures}rmse.pdf", save=cfg.general.save)
 
     # General Price Movements
 
@@ -287,12 +289,18 @@ def run_estimation(cfg: PFDConfig) -> None:
     pylab.rcParams.update(rcp_s)
 
     _, ax = plt.subplots()
-    sns.histplot(data=df_oc, x="RtrnOpnCls", stat="density")
+    sns.histplot(
+        data=df_oc,
+        x="RtrnOpnCls",
+        stat="density",
+        fill=True,
+        edgecolor=stata_colors[0],
+        alpha=1,
+    )
     ax.set(xlabel="Return")
     finalize_plot(
-        path=f"{cfg.paths.figures}rtrn_opn_cls.png",
+        path=f"{cfg.paths.figures}rtrn_opn_cls.pdf",
         save=cfg.general.save,
-        fmt="png",
     )
 
     # Fit random effects model for general price movements and store as tex
@@ -944,8 +952,6 @@ def run_estimation(cfg: PFDConfig) -> None:
         1 + signific_time_idx[signific_time_idx].index
     ) * cfg.estimation.pctl
 
-    signific_time_idx = pd.DataFrame({"SignTimePerc": signific_time_idx})
-
     pylab.rcParams.update(rcp_l)
 
     plot_unbiased_reg_res(
@@ -1116,9 +1122,9 @@ def run_estimation(cfg: PFDConfig) -> None:
     gamma = res_pm["nuts_tot"]["sum"]["median"].iloc[3:]
     gamma.index = gamma.index.str.replace("gamma[", "").str.replace("]", "")
     metrics = pd.merge(
-        left=metrics,
-        right=gamma,
-        how="left",
+        left=pd.DataFrame({"RMSE": rmse}),
+        right=pd.DataFrame({"Learning Rate": gamma}),
+        how="inner",
         left_index=True,
         right_index=True,
     )
@@ -1126,8 +1132,14 @@ def run_estimation(cfg: PFDConfig) -> None:
     pylab.rcParams.update(rcp_s)
 
     _, ax = plt.subplots()
-    sns.regplot(data=metrics, x="LogLoss", y="median")
-    ax.set(xlabel="Log Loss", ylabel="Learning Rate")
+    plt.tight_layout()
+    sns.regplot(data=metrics, x="RMSE", y="Learning Rate", ax=ax)
+    # Make every second tick invisible
+    [
+        tick.set_visible(False)
+        for i, tick in enumerate(ax.xaxis.get_major_ticks())
+        if i % 2 != 0
+    ]
     finalize_plot(
         path=f"{cfg.paths.figures}scatter_gamma_loss.pdf",
         save=cfg.general.save,
@@ -1255,12 +1267,14 @@ def run_estimation(cfg: PFDConfig) -> None:
             mode="w",
         )
 
-        # DataFrames
-        signific_time_idx.to_hdf(
-            path_or_buf=f"{cfg.paths.data_proc}signific_time_idx.h5",
-            key="signific_time_idx",
-            mode="w",
-        )
+        with open(
+            f"{cfg.paths.data_proc}signific_time_idx.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(
+                signific_time_idx.tolist(), f, ensure_ascii=False, indent=4
+            )
 
         metrics.to_hdf(
             path_or_buf=f"{cfg.paths.data_proc}metrics.h5",
@@ -1295,9 +1309,8 @@ def run_estimation(cfg: PFDConfig) -> None:
             "idxmin_gamma_gmm": (idxmin_gamma_gmm, None),
             "adf_stat": (adf_stat, ".2f"),
             "adf_p": (adf_p, ".4f"),
-            # "median_price": (median_price, ".4f"),
             "corr_gamma_loss": (
-                metrics["LogLoss"].corr(metrics["median"]),
+                metrics["RMSE"].corr(metrics["Learning Rate"]),
                 ".4f",
             ),
             "bootstr_std": (bootstr_std[0], ".4f"),
