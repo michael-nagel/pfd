@@ -74,13 +74,14 @@ def plot_posteriors(
             index=[f"{i * 10}-{(i + 1) * 10}" for i in range(0, 10)],
         ).T
         mod_trace = mod_trace.melt(
-            var_name="Price Quantile", value_name="Average Learning Rate"
+            var_name="Price Percentile Interval",
+            value_name="Average Learning Rate",
         )
 
         _, ax = plt.subplots()
         sns.boxplot(
             data=mod_trace,
-            x="Price Quantile",
+            x="Price Percentile Interval",
             y="Average Learning Rate",
             # inner="quartile",
             ax=ax,

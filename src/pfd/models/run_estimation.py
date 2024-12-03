@@ -1187,13 +1187,15 @@ def run_estimation(cfg: PFDConfig) -> None:
         save=cfg.general.save,
     )
 
-    # Plot the posteriors for favorites and underdogs (NUTS)
+    # Plot the posteriors for favorites and longshots (NUTS)
     plot_posteriors(
         mod_trace={
             "Favorites": res_pm["nuts_fav"]["trace"],
-            "Underdogs": res_pm["nuts_udd"]["trace"],
+            "Longshots": res_pm["nuts_udd"]["trace"],
         },
-        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        ref_vals=round(
+            res_pm["nuts_tot"]["sum"].at["mean_gamma", "median"], 2
+        ),
         path=f"{cfg.paths.figures}post_gamma_nuts_fav_udd.pdf",
         save=cfg.general.save,
     )
@@ -1207,7 +1209,9 @@ def run_estimation(cfg: PFDConfig) -> None:
             .flatten()
             for i in range(0, 10)
         ],
-        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        ref_vals=round(
+            res_pm["nuts_tot"]["sum"].at["mean_gamma", "median"], 2
+        ),
         path=f"{cfg.paths.figures}post_gamma_nuts_ivals.pdf",
         save=cfg.general.save,
     )
@@ -1218,7 +1222,9 @@ def run_estimation(cfg: PFDConfig) -> None:
             "Professionals": res_pm["nuts_pro"]["trace"],
             "Amateurs": res_pm["nuts_amat"]["trace"],
         },
-        ref_vals=round(res_pm["nuts_tot"]["sum"].at["mean_gamma", "mean"], 2),
+        ref_vals=round(
+            res_pm["nuts_tot"]["sum"].at["mean_gamma", "median"], 2
+        ),
         path=f"{cfg.paths.figures}post_gamma_nuts_pro_amat.pdf",
         save=cfg.general.save,
     )
@@ -1246,12 +1252,10 @@ def run_estimation(cfg: PFDConfig) -> None:
     gamma_med_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "median"]
     gamma_lower_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_2.5%"]
     gamma_upper_nuts = res_pm["nuts_tot"]["sum"].loc["mean_gamma", "hdi_97.5%"]
-    gamma_fav = res_pm["nuts_fav"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
-    gamma_udd = res_pm["nuts_udd"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
-    gamma_pro = res_pm["nuts_pro"]["sum"].loc["$\hat{\mu}_{\gamma}$", "median"]
-    gamma_amat = res_pm["nuts_amat"]["sum"].loc[
-        "$\hat{\mu}_{\gamma}$", "median"
-    ]
+    gamma_fav = res_pm["nuts_fav"]["sum"].loc["mean_gamma", "median"]
+    gamma_udd = res_pm["nuts_udd"]["sum"].loc["mean_gamma", "median"]
+    gamma_pro = res_pm["nuts_pro"]["sum"].loc["mean_gamma", "median"]
+    gamma_amat = res_pm["nuts_amat"]["sum"].loc["mean_gamma", "median"]
 
     # Format summary statistics
     for key in list(res_pm.keys()):
@@ -1266,6 +1270,14 @@ def run_estimation(cfg: PFDConfig) -> None:
             key="data_desc",
             mode="w",
         )
+
+        # TODO
+        with open(
+            f"{cfg.paths.data_proc}rmse.json", "w", encoding="utf-8"
+        ) as f:
+            json.dump(
+                rmse.sort_values().to_dict(), f, ensure_ascii=False, indent=4
+            )
 
         with open(
             f"{cfg.paths.data_proc}signific_time_idx.json",

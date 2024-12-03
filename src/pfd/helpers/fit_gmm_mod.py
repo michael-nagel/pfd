@@ -54,7 +54,7 @@ def fit_gmm_mod(
         exog=exog,
         instrument=inst,
         k_moms=14,
-        k_params=2,
+        k_params=1,
         n_per=n_per,
     )
 
@@ -71,15 +71,20 @@ def fit_gmm_mod(
             )  # "nm", "bfgs"
             moment_conditions = mod_gmm.momcond(res_gmm.params)
             moment_mean = moment_conditions.mean(axis=0)
-            weight_matrix = np.eye(N=14)
+            moment_avar = (
+                moment_conditions.T @ moment_conditions / endog.shape[0]
+            )
             j_stat = (
-                endog.shape[0] * moment_mean.T @ weight_matrix @ moment_mean
+                endog.shape[0]
+                * moment_mean.T
+                @ np.linalg.pinv(moment_avar)
+                @ moment_mean
             )
             # Degrees of freedom: #moment conditions - #parameters
-            degr = inst.shape[1] - exog.shape[1]
-
+            degr = 14 - 1
             # Chi-squared test
             p_value = 1 - chi2.cdf(j_stat, degr)
+
             res_tot.append(
                 {
                     "gamma": res_gmm.params[0],
