@@ -1,0 +1,17 @@
+﻿Variable,Data Type,Description
+Encounter,string,Match encounter including involved players
+Timestamp,string,Timestamp of when the data was crawled
+Date,string,Date
+Country,string,Country where the match took place
+Tournament,string,Tournament name
+Result,string,Final result
+Bookies,List[string],List of bookmakers that offered odds for a given match
+Payout,List[string],Payout (%) implied by odds
+OddsHome,List[string],Odds for player 1
+OddsAway,List[string],Odds for player 2
+Exng,List[string],Exchanges
+PayoutExng,List[string],Payout (%) implied by prices
+PriceBackHome,List[string],Price for backing player 1
+PriceBackAway,List[string],Price for backing player 2
+PriceLayHome,List[string],Price for laying player 1
+PriceLayAway,List[string],Price for laying player 2

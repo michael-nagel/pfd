@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pfd.utils package &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pfd.visualization package" href="pfd.visualization.html" />
+    <link rel="prev" title="pfd.models package" href="pfd.models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Nagel 2024 Replication Package
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main_modules.html">Main Moduls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="list_objects.html">List of Tables, Figures, and Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logic_subpackages.html">Logic of Subpackages</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pfd</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pfd.html">pfd package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pfd.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pfd.conf.html">pfd.conf package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.data.html">pfd.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.features.html">pfd.features package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.helpers.html">pfd.helpers package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.models.html">pfd.models package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pfd.utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pfd.visualization.html">pfd.visualization package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pfd.html#module-pfd">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Nagel 2024 Replication Package</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pfd</a></li>
+          <li class="breadcrumb-item"><a href="pfd.html">pfd package</a></li>
+      <li class="breadcrumb-item active">pfd.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pfd.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pfd-utils-package">
+<h1>pfd.utils package<a class="headerlink" href="#pfd-utils-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pfd.utils.calc_losses">
+<span id="pfd-utils-calc-losses-module"></span><h2>pfd.utils.calc_losses module<a class="headerlink" href="#module-pfd.utils.calc_losses" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.calc_losses.calc_losses">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.calc_losses.</span></span><span class="sig-name descname"><span class="pre">calc_losses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pfd/utils/calc_losses.html#calc_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.calc_losses.calc_losses" title="Link to this definition"></a></dt>
+<dd><p>Calculate the Brier score loss and the log loss of each group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – Grouped DataFrame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List containing the brier score loss and the log loss.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.calc_win_props">
+<span id="pfd-utils-calc-win-props-module"></span><h2>pfd.utils.calc_win_props module<a class="headerlink" href="#module-pfd.utils.calc_win_props" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.calc_win_props.calc_win_props">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.calc_win_props.</span></span><span class="sig-name descname"><span class="pre">calc_win_props</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ival</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pfd/utils/calc_win_props.html#calc_win_props"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.calc_win_props.calc_win_props" title="Link to this definition"></a></dt>
+<dd><p>Calculate the elapsed time of a time-series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Input DataFrame.</p></li>
+<li><p><strong>ival</strong> (<em>list</em>) – List indicating the interval.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List containing various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.config">
+<span id="pfd-utils-config-module"></span><h2>pfd.utils.config module<a class="headerlink" href="#module-pfd.utils.config" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bm_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odds_mvmnts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_dur</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pctl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Estimation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Estimation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.bm_quantile">
+<span class="sig-name descname"><span class="pre">bm_quantile</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.bm_quantile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.compets">
+<span class="sig-name descname"><span class="pre">compets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.compets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.incr">
+<span class="sig-name descname"><span class="pre">incr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.incr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.max_iter">
+<span class="sig-name descname"><span class="pre">max_iter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.max_iter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.odds_mvmnts">
+<span class="sig-name descname"><span class="pre">odds_mvmnts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.odds_mvmnts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.pctl">
+<span class="sig-name descname"><span class="pre">pctl</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.pctl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.period">
+<span class="sig-name descname"><span class="pre">period</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.period" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.resample_freq">
+<span class="sig-name descname"><span class="pre">resample_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.resample_freq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.spec">
+<span class="sig-name descname"><span class="pre">spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.spec" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.start_params">
+<span class="sig-name descname"><span class="pre">start_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.start_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Estimation.ts_dur">
+<span class="sig-name descname"><span class="pre">ts_dur</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pfd.utils.config.Estimation.ts_dur" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Filenames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clr_plt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrm_driv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acpt_cookies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Filenames" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames.acpt_cookies">
+<span class="sig-name descname"><span class="pre">acpt_cookies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Filenames.acpt_cookies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames.chrm_driv">
+<span class="sig-name descname"><span class="pre">chrm_driv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Filenames.chrm_driv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames.clr_plt">
+<span class="sig-name descname"><span class="pre">clr_plt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Filenames.clr_plt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames.cred">
+<span class="sig-name descname"><span class="pre">cred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Filenames.cred" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Filenames.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Filenames.vals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Files">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clr_plt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrm_driv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acpt_cookies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Files" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Files.acpt_cookies">
+<span class="sig-name descname"><span class="pre">acpt_cookies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Files.acpt_cookies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Files.chrm_driv">
+<span class="sig-name descname"><span class="pre">chrm_driv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Files.chrm_driv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Files.clr_plt">
+<span class="sig-name descname"><span class="pre">clr_plt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Files.clr_plt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Files.cred">
+<span class="sig-name descname"><span class="pre">cred</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Files.cred" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Files.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Files.vals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.General">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">General</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_scripts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#General"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.General" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.General.main_scripts">
+<span class="sig-name descname"><span class="pre">main_scripts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pfd.utils.config.General.main_scripts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.General.save">
+<span class="sig-name descname"><span class="pre">save</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pfd.utils.config.General.save" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.General.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.General.seed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">PFDConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Estimation" title="pfd.utils.config.Estimation"><span class="pre">pfd.utils.config.Estimation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Filenames" title="pfd.utils.config.Filenames"><span class="pre">pfd.utils.config.Filenames</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Files" title="pfd.utils.config.Files"><span class="pre">pfd.utils.config.Files</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">general</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.General" title="pfd.utils.config.General"><span class="pre">pfd.utils.config.General</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Paths" title="pfd.utils.config.Paths"><span class="pre">pfd.utils.config.Paths</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Plotting" title="pfd.utils.config.Plotting"><span class="pre">pfd.utils.config.Plotting</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Sampling" title="pfd.utils.config.Sampling"><span class="pre">pfd.utils.config.Sampling</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scraping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Scraping" title="pfd.utils.config.Scraping"><span class="pre">pfd.utils.config.Scraping</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#PFDConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.PFDConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.estimation">
+<span class="sig-name descname"><span class="pre">estimation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Estimation" title="pfd.utils.config.Estimation"><span class="pre">Estimation</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.estimation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.filenames">
+<span class="sig-name descname"><span class="pre">filenames</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Filenames" title="pfd.utils.config.Filenames"><span class="pre">Filenames</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.filenames" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.files">
+<span class="sig-name descname"><span class="pre">files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Files" title="pfd.utils.config.Files"><span class="pre">Files</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.general">
+<span class="sig-name descname"><span class="pre">general</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.General" title="pfd.utils.config.General"><span class="pre">General</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.general" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Paths" title="pfd.utils.config.Paths"><span class="pre">Paths</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.paths" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.plotting">
+<span class="sig-name descname"><span class="pre">plotting</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Plotting" title="pfd.utils.config.Plotting"><span class="pre">Plotting</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.plotting" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.sampling">
+<span class="sig-name descname"><span class="pre">sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Sampling" title="pfd.utils.config.Sampling"><span class="pre">Sampling</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.sampling" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.PFDConfig.scraping">
+<span class="sig-name descname"><span class="pre">scraping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Scraping" title="pfd.utils.config.Scraping"><span class="pre">Scraping</span></a></em><a class="headerlink" href="#pfd.utils.config.PFDConfig.scraping" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_intrm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_proc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Paths" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.acc">
+<span class="sig-name descname"><span class="pre">acc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.acc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.create_directories">
+<span class="sig-name descname"><span class="pre">create_directories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/config.html#Paths.create_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Paths.create_directories" title="Link to this definition"></a></dt>
+<dd><p>Create the directories if they do not exist.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.data_ext">
+<span class="sig-name descname"><span class="pre">data_ext</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.data_ext" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.data_intrm">
+<span class="sig-name descname"><span class="pre">data_intrm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.data_intrm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.data_proc">
+<span class="sig-name descname"><span class="pre">data_proc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.data_proc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.data_raw">
+<span class="sig-name descname"><span class="pre">data_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.data_raw" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.figures">
+<span class="sig-name descname"><span class="pre">figures</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.figures" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.models">
+<span class="sig-name descname"><span class="pre">models</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.models" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.tables">
+<span class="sig-name descname"><span class="pre">tables</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.tables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Paths.vals">
+<span class="sig-name descname"><span class="pre">vals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Paths.vals" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_siz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leg_mkr_siz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mkr_siz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_line_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_maj_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick_maj_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_maj_siz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick_maj_siz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_family</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Plotting" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.ax_line_width">
+<span class="sig-name descname"><span class="pre">ax_line_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.ax_line_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.base_siz">
+<span class="sig-name descname"><span class="pre">base_siz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.base_siz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.font_family">
+<span class="sig-name descname"><span class="pre">font_family</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.font_family" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.leg_mkr_siz">
+<span class="sig-name descname"><span class="pre">leg_mkr_siz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.leg_mkr_siz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.line_width">
+<span class="sig-name descname"><span class="pre">line_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.line_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.mkr_siz">
+<span class="sig-name descname"><span class="pre">mkr_siz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.mkr_siz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.xtick_maj_siz">
+<span class="sig-name descname"><span class="pre">xtick_maj_siz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.xtick_maj_siz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.xtick_maj_width">
+<span class="sig-name descname"><span class="pre">xtick_maj_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.xtick_maj_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.ytick_maj_siz">
+<span class="sig-name descname"><span class="pre">ytick_maj_siz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.ytick_maj_siz" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Plotting.ytick_maj_width">
+<span class="sig-name descname"><span class="pre">ytick_maj_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Plotting.ytick_maj_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_tune</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targ_acpt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Sampling" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.hdi">
+<span class="sig-name descname"><span class="pre">hdi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.hdi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.n_chains">
+<span class="sig-name descname"><span class="pre">n_chains</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_chains" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.n_cores">
+<span class="sig-name descname"><span class="pre">n_cores</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_cores" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.n_draws">
+<span class="sig-name descname"><span class="pre">n_draws</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_draws" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.n_tune">
+<span class="sig-name descname"><span class="pre">n_tune</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.n_tune" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.targ_acpt">
+<span class="sig-name descname"><span class="pre">targ_acpt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.targ_acpt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.vi_n_draws">
+<span class="sig-name descname"><span class="pre">vi_n_draws</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.vi_n_draws" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Sampling.vi_n_iter">
+<span class="sig-name descname"><span class="pre">vi_n_iter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Sampling.vi_n_iter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.config.Scraping">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.config.</span></span><span class="sig-name descname"><span class="pre">Scraping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crawl_till</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#Scraping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.config.Scraping" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Scraping.crawl_till">
+<span class="sig-name descname"><span class="pre">crawl_till</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pfd.utils.config.Scraping.crawl_till" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Scraping.headless">
+<span class="sig-name descname"><span class="pre">headless</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pfd.utils.config.Scraping.headless" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Scraping.repeat_per">
+<span class="sig-name descname"><span class="pre">repeat_per</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Scraping.repeat_per" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.config.Scraping.sleep">
+<span class="sig-name descname"><span class="pre">sleep</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#pfd.utils.config.Scraping.sleep" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.crawl_match_urls">
+<span id="pfd-utils-crawl-match-urls-module"></span><h2>pfd.utils.crawl_match_urls module<a class="headerlink" href="#module-pfd.utils.crawl_match_urls" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.crawl_match_urls.crawl_match_urls">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.crawl_match_urls.</span></span><span class="sig-name descname"><span class="pre">crawl_match_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WebDriver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_urls_tot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/crawl_match_urls.html#crawl_match_urls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.crawl_match_urls.crawl_match_urls" title="Link to this definition"></a></dt>
+<dd><p>Crawl match urls.</p>
+<p>This function crawls match urls from the target website.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>driver</strong> (<em>from selenium.webdriver.remote.webdriver.WebDriver</em>) – Selenium webdriver instance.</p></li>
+<li><p><strong>match_urls_tot</strong> (<em>list</em>) – List containing the total match urls crawled.</p></li>
+<li><p><strong>Returs</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.create_func_dict">
+<span id="pfd-utils-create-func-dict-module"></span><h2>pfd.utils.create_func_dict module<a class="headerlink" href="#module-pfd.utils.create_func_dict" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.create_func_dict.create_func_dict">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.create_func_dict.</span></span><span class="sig-name descname"><span class="pre">create_func_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/utils/create_func_dict.html#create_func_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.create_func_dict.create_func_dict" title="Link to this definition"></a></dt>
+<dd><p>Create dictionary with summary metrics.</p>
+<p>This function creates a dictionary that contains the median and the
+standard deviation of the median for each column of a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with pd.Series.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.enc_categ_var">
+<span id="pfd-utils-enc-categ-var-module"></span><h2>pfd.utils.enc_categ_var module<a class="headerlink" href="#module-pfd.utils.enc_categ_var" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.enc_categ_var.enc_categ_var">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.enc_categ_var.</span></span><span class="sig-name descname"><span class="pre">enc_categ_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rm_first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rm_categ_var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/enc_categ_var.html#enc_categ_var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.enc_categ_var.enc_categ_var" title="Link to this definition"></a></dt>
+<dd><p>Encode a categorical variable.</p>
+<p>This function encodes a categorical variable to a one-hot integer
+array and concatenates it to the input DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame with variables to be encoded.</p></li>
+<li><p><strong>col</strong> (<em>str</em>) – Variables to be encoded.</p></li>
+<li><p><strong>prefix</strong> (<em>str</em>) – String to prepend DataFrame column names.</p></li>
+<li><p><strong>rm_first</strong> (<em>bool</em>) – Whether to get k-1 dummies out of k categorical levels by
+removing the first level.</p></li>
+<li><p><strong>rm_categ_var</strong> (<em>bool</em>) – Whether to remove the input categorical variable after encoding.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with encoded variables.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<dl class="simple">
+<dt>for ele in df.select_dtypes(include=[“category”]).columns:</dt><dd><p>df = enc_categ_var(df, ele, “_”, True, True)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.est_pm_mod">
+<span id="pfd-utils-est-pm-mod-module"></span><h2>pfd.utils.est_pm_mod module<a class="headerlink" href="#module-pfd.utils.est_pm_mod" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.est_pm_mod.est_pm_mod">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.est_pm_mod.</span></span><span class="sig-name descname"><span class="pre">est_pm_mod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_tune</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targ_acpt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vi_n_draws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">InferenceData</span></span></span><a class="reference internal" href="_modules/pfd/utils/est_pm_mod.html#est_pm_mod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.est_pm_mod.est_pm_mod" title="Link to this definition"></a></dt>
+<dd><p>Estimate PyMC model.</p>
+<p>This function either numerically estimates the defined PyMC model
+using Hamiltonian Monte Carlo methods (NUTS) or approximates the
+results using Variational Inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>pymc.Model</em>) – PyMC model to be numerically estimated.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed.</p></li>
+<li><p><strong>n_draws</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Number of draws.</p></li>
+<li><p><strong>n_tune</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Number of tuning samples (burn-in).</p></li>
+<li><p><strong>n_chains</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Number of chains.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Number of cores.</p></li>
+<li><p><strong>targ_acpt</strong> (<em>float</em><em> | </em><em>None</em><em>, </em><em>default None</em>) – Target acceptance rate.</p></li>
+<li><p><strong>vi</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether variational inference should be used for estimation.</p></li>
+<li><p><strong>vi_n_iter</strong> (<em>int</em><em>, </em><em>default None</em>) – Number of iterations for variational inference.</p></li>
+<li><p><strong>vi_n_draws</strong> (<em>int</em><em>, </em><em>default None</em>) – Number of draws for variational inference.</p></li>
+<li><p><strong>*args</strong> (<em>tuple</em>) – Parameters specific to the trace.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Parameters specific to the trace.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Record of the estimation process.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Any, Any, Any] | arviz.InferenceData</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.finalize_plot">
+<span id="pfd-utils-finalize-plot-module"></span><h2>pfd.utils.finalize_plot module<a class="headerlink" href="#module-pfd.utils.finalize_plot" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.finalize_plot.finalize_plot">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.finalize_plot.</span></span><span class="sig-name descname"><span class="pre">finalize_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pdf'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/finalize_plot.html#finalize_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.finalize_plot.finalize_plot" title="Link to this definition"></a></dt>
+<dd><p>Finalize plot.</p>
+<p>This function finalizes a plot .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>list</em>) – The location and file name for the plot to be stored.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Save figure if True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.fit_mixed_lm">
+<span id="pfd-utils-fit-mixed-lm-module"></span><h2>pfd.utils.fit_mixed_lm module<a class="headerlink" href="#module-pfd.utils.fit_mixed_lm" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.fit_mixed_lm.fit_mixed_lm">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.fit_mixed_lm.</span></span><span class="sig-name descname"><span class="pre">fit_mixed_lm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/utils/fit_mixed_lm.html#fit_mixed_lm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.fit_mixed_lm.fit_mixed_lm" title="Link to this definition"></a></dt>
+<dd><p>Fit mixed linear model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>exog_var</strong> (<em>str</em>) – Exogenous variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with various metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.format_sum">
+<span id="pfd-utils-format-sum-module"></span><h2>pfd.utils.format_sum module<a class="headerlink" href="#module-pfd.utils.format_sum" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.format_sum.format_sum">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.format_sum.</span></span><span class="sig-name descname"><span class="pre">format_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/format_sum.html#format_sum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.format_sum.format_sum" title="Link to this definition"></a></dt>
+<dd><p>Format summary DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Summary DataFrame obtained from PyMC sampling.</p></li>
+<li><p><strong>cfg</strong> (<em>DictConfig</em>) – Dictionary containing the config parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.keep_pctls">
+<span id="pfd-utils-keep-pctls-module"></span><h2>pfd.utils.keep_pctls module<a class="headerlink" href="#module-pfd.utils.keep_pctls" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.keep_pctls.keep_pctls">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.keep_pctls.</span></span><span class="sig-name descname"><span class="pre">keep_pctls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pctls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/keep_pctls.html#keep_pctls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.keep_pctls.keep_pctls" title="Link to this definition"></a></dt>
+<dd><p>Keep percentiles.</p>
+<p>This function selects the values of a column based on the specified
+percentiles/quantiles. For example, read out every 5%-quantile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>pctls</strong> (<em>np.ndarray</em>) – Percentiles.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.logger">
+<span id="pfd-utils-logger-module"></span><h2>pfd.utils.logger module<a class="headerlink" href="#module-pfd.utils.logger" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.logger.Logger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.logger.</span></span><span class="sig-name descname"><span class="pre">Logger</span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.logger.Logger" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Start timing, initialize the logger and get execution time.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.logger.Logger.get_exec_time">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_exec_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">timedelta</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.get_exec_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.logger.Logger.get_exec_time" title="Link to this definition"></a></dt>
+<dd><p>Get execution time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>start_time</strong> (<em>float</em>) – Start time in seconds.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Execution time.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dt.timedelta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.logger.Logger.get_time">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.get_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.logger.Logger.get_time" title="Link to this definition"></a></dt>
+<dd><p>Start stop watch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Relative time.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.logger.Logger.init_logger">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Logger</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.init_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.logger.Logger.init_logger" title="Link to this definition"></a></dt>
+<dd><p>Initialize logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the logger. If no name is specified, return the root
+logger.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Logger with the specified name, creating it if necessary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>logging.Logger</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.login">
+<span id="pfd-utils-login-module"></span><h2>pfd.utils.login module<a class="headerlink" href="#module-pfd.utils.login" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.login.login">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.login.</span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">my_password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">WebDriver</span></span></span><a class="reference internal" href="_modules/pfd/utils/login.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.login.login" title="Link to this definition"></a></dt>
+<dd><p>Login to the website’s account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service</strong> (<em>selenium.webdriver.chrome.service.Service</em>) – Service parameter for the Chrome webdriver.</p></li>
+<li><p><strong>options</strong> (<em>selenium.webdriver.chrome.options.Options</em>) – Options for configuring the Chrome webdriver.</p></li>
+<li><p><strong>my_username</strong> (<em>str</em>) – Username for login.</p></li>
+<li><p><strong>my_password</strong> (<em>str</em>) – Password for login.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Selenium webdriver instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>selenium.webdriver.remote.webdriver.WebDriver</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.mod_tex_tab">
+<span id="pfd-utils-mod-tex-tab-module"></span><h2>pfd.utils.mod_tex_tab module<a class="headerlink" href="#module-pfd.utils.mod_tex_tab" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.mod_tex_tab.mod_tex_tab">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.mod_tex_tab.</span></span><span class="sig-name descname"><span class="pre">mod_tex_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pfd/utils/mod_tex_tab.html#mod_tex_tab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.mod_tex_tab.mod_tex_tab" title="Link to this definition"></a></dt>
+<dd><p>Modify TeX table.</p>
+<p>Insert a midrule in a TeX table at a specific position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab</strong> (<em>str</em>) – TeX table.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Modified TeX table.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.num_format">
+<span id="pfd-utils-num-format-module"></span><h2>pfd.utils.num_format module<a class="headerlink" href="#module-pfd.utils.num_format" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.num_format.NumFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.num_format.</span></span><span class="sig-name descname"><span class="pre">NumFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{:.2g}'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.num_format.NumFormat" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.num_format.NumFormat.format_col">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_col</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_col"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.num_format.NumFormat.format_col" title="Link to this definition"></a></dt>
+<dd><p>Format a column of a DataFrame according to a specified format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.Series</em>) – DataFrame column to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted DataFrame column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.num_format.NumFormat.format_num">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_num"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.num_format.NumFormat.format_num" title="Link to this definition"></a></dt>
+<dd><p>Format numbers according to the specified string operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in_val</strong> (<em>int</em><em> | </em><em>float</em><em> | </em><em>str</em><em> | </em><em>bool</em><em> | </em><em>None</em>) – Input number to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted number.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | float | str | bool | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.num_format.NumFormat.format_post">
+<span class="sig-name descname"><span class="pre">format_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.num_format.NumFormat.format_post" title="Link to this definition"></a></dt>
+<dd><p>Format a column of a DataFrame according to a specified format.</p>
+<p>This function attempts to convert the input value to a numeric
+value. If the conversion is successful, it formats the value to
+have the specific format. If the conversion fails (due to a
+ValueError or TypeError), it returns the original value
+unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>float</em>) – Input value to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.pivot_df">
+<span id="pfd-utils-pivot-df-module"></span><h2>pfd.utils.pivot_df module<a class="headerlink" href="#module-pfd.utils.pivot_df" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.pivot_df.pivot_df">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.pivot_df.</span></span><span class="sig-name descname"><span class="pre">pivot_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/pivot_df.html#pivot_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.pivot_df.pivot_df" title="Link to this definition"></a></dt>
+<dd><p>Pivot DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame to be reshaped.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em>) – Exogenous variables.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reshaped DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.plot_params">
+<span id="pfd-utils-plot-params-module"></span><h2>pfd.utils.plot_params module<a class="headerlink" href="#module-pfd.utils.plot_params" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.plot_params.PlotParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.plot_params.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.plot_params.PlotParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.plot_params.PlotParams.font_scalings">
+<span class="sig-name descname"><span class="pre">font_scalings</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'large':</span> <span class="pre">1.2,</span> <span class="pre">'larger':</span> <span class="pre">1.2,</span> <span class="pre">'medium':</span> <span class="pre">1.0,</span> <span class="pre">'small':</span> <span class="pre">0.833,</span> <span class="pre">'smaller':</span> <span class="pre">0.833,</span> <span class="pre">'x-large':</span> <span class="pre">1.44,</span> <span class="pre">'x-small':</span> <span class="pre">0.694,</span> <span class="pre">'xx-large':</span> <span class="pre">1.728,</span> <span class="pre">'xx-small':</span> <span class="pre">0.579,</span> <span class="pre">None:</span> <span class="pre">1.0}</span></em><a class="headerlink" href="#pfd.utils.plot_params.PlotParams.font_scalings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.plot_params.PlotParams.set_rc_params">
+<span class="sig-name descname"><span class="pre">set_rc_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams.set_rc_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.plot_params.PlotParams.set_rc_params" title="Link to this definition"></a></dt>
+<dd><p>Define plotting parameters.</p>
+<p>This function returns the plotting parameters for different
+plot styles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kind</strong> (<em>str</em>) – Type of figure [fig_small, fig_medium, fig_big].</p></li>
+<li><p><strong>fig_size</strong> (<em>tuple</em>) – Figure size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with parameters for plotting.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.resample">
+<span id="pfd-utils-resample-module"></span><h2>pfd.utils.resample module<a class="headerlink" href="#module-pfd.utils.resample" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.resample.resample">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.resample.</span></span><span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pctls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/resample.html#resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.resample.resample" title="Link to this definition"></a></dt>
+<dd><p>Resample time series</p>
+<p>This function resamples a given period of a time-series to a given
+frequency</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>period</strong> (<em>int</em><em> | </em><em>None</em>) – Sub-period of time-series to be resampled. Use None for total
+series.</p></li>
+<li><p><strong>freq</strong> (<em>str</em>) – Frequency to which the series is supposed to be resampled
+(e.g. “1min”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resampled DataFrame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.scale_vars">
+<span id="pfd-utils-scale-vars-module"></span><h2>pfd.utils.scale_vars module<a class="headerlink" href="#module-pfd.utils.scale_vars" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.scale_vars.scale_vars">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.scale_vars.</span></span><span class="sig-name descname"><span class="pre">scale_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/pfd/utils/scale_vars.html#scale_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.scale_vars.scale_vars" title="Link to this definition"></a></dt>
+<dd><p>Standardize variables.</p>
+<p>This function standardizes features by removing the mean and scaling
+to unit variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em><em> | </em><em>np.ndarray</em>) – Data to be standardized.</p></li>
+<li><p><strong>with_mean</strong> (<em>bool</em><em>, </em><em>default True</em>) – If True, scale the data to zero mean.</p></li>
+<li><p><strong>with_std</strong> (<em>bool</em><em>, </em><em>default True</em>) – If True, scale the data to unit variance (or equivalently, unit
+standard deviation).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Standardized data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.set_options">
+<span id="pfd-utils-set-options-module"></span><h2>pfd.utils.set_options module<a class="headerlink" href="#module-pfd.utils.set_options" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.set_options.set_options">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.set_options.</span></span><span class="sig-name descname"><span class="pre">set_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acpt_cookies_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headless</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Options</span></span></span><a class="reference internal" href="_modules/pfd/utils/set_options.html#set_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.set_options.set_options" title="Link to this definition"></a></dt>
+<dd><p>Define the options for the webdriver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acpt_cookies_path</strong> (<em>str</em>) – Path of “I-don-t-care-about-cookies.crx” file</p></li>
+<li><p><strong>user_agent</strong> (<em>str</em>) – Fake user agent.</p></li>
+<li><p><strong>headless</strong> (<em>bool</em>) – Headless mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Options for configuring the Chrome webdriver.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>selenium.webdriver.chrome.options.Options</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.set_user_agent">
+<span id="pfd-utils-set-user-agent-module"></span><h2>pfd.utils.set_user_agent module<a class="headerlink" href="#module-pfd.utils.set_user_agent" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.set_user_agent.set_user_agent">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.set_user_agent.</span></span><span class="sig-name descname"><span class="pre">set_user_agent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pfd/utils/set_user_agent.html#set_user_agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.set_user_agent.set_user_agent" title="Link to this definition"></a></dt>
+<dd><p>Set the random user agent for the webdriver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_agents</strong> (<em>Any</em><em> | </em><em>str</em>) – Fake user agents.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>User agent.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.shape_odds">
+<span id="pfd-utils-shape-odds-module"></span><h2>pfd.utils.shape_odds module<a class="headerlink" href="#module-pfd.utils.shape_odds" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.shape_odds.shape_odds">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.shape_odds.</span></span><span class="sig-name descname"><span class="pre">shape_odds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pfd/utils/shape_odds.html#shape_odds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.shape_odds.shape_odds" title="Link to this definition"></a></dt>
+<dd><p>Shape the crawled odds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data.</p></li>
+<li><p><strong>cols_base</strong> (<em>list</em>) – List containing the base columns.</p></li>
+<li><p><strong>side</strong> (<em>str</em>) – Side (Home or Away).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Shaped data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils.write_text_file">
+<span id="pfd-utils-write-text-file-module"></span><h2>pfd.utils.write_text_file module<a class="headerlink" href="#module-pfd.utils.write_text_file" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.utils.write_text_file.write_text_file">
+<span class="sig-prename descclassname"><span class="pre">pfd.utils.write_text_file.</span></span><span class="sig-name descname"><span class="pre">write_text_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/write_text_file.html#write_text_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.write_text_file.write_text_file" title="Link to this definition"></a></dt>
+<dd><p>Write text to a text file.</p>
+<p>This function can be particulary useful to store TeX table code in
+a text file. For example, the first and the last line can be
+stripped to embed the file within a TeX tabular environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Name (path) of file.</p></li>
+<li><p><strong>body</strong> (<em>str</em>) – Text to write.</p></li>
+<li><p><strong>first_line</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default 1</em>) – First line to write.</p></li>
+<li><p><strong>last_line</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>default -1</em>) – Last line to write.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.DataFrame.to_latex</span></code></dt><dd><p>Render object to a LaTeX tabular, longtable, or nested table.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.1234</span><span class="p">],</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15000</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="go">        A      B</span>
+<span class="go">0  1.5000     -2</span>
+<span class="go">1  0.1234  15000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write_text_file</span><span class="p">(</span>
+<span class="go">        file=&quot;df.tex&quot;,</span>
+<span class="go">        body=df.to_latex(),</span>
+<span class="go">        first_line=1,</span>
+<span class="go">        last_line=-1</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-pfd.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pfd.utils" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.Logger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">Logger</span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.Logger" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Start timing, initialize the logger and get execution time.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.Logger.get_exec_time">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_exec_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">timedelta</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.get_exec_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.Logger.get_exec_time" title="Link to this definition"></a></dt>
+<dd><p>Get execution time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>start_time</strong> (<em>float</em>) – Start time in seconds.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Execution time.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dt.timedelta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.Logger.get_time">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.get_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.Logger.get_time" title="Link to this definition"></a></dt>
+<dd><p>Start stop watch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Relative time.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.Logger.init_logger">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Logger</span></span></span><a class="reference internal" href="_modules/pfd/utils/logger.html#Logger.init_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.Logger.init_logger" title="Link to this definition"></a></dt>
+<dd><p>Initialize logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em><em> | </em><em>None</em>) – Name of the logger. If no name is specified, return the root
+logger.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Logger with the specified name, creating it if necessary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>logging.Logger</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.NumFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">NumFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">my_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{:.2g}'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.NumFormat" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.NumFormat.format_col">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_col</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_col"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.NumFormat.format_col" title="Link to this definition"></a></dt>
+<dd><p>Format a column of a DataFrame according to a specified format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.Series</em>) – DataFrame column to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted DataFrame column.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.NumFormat.format_num">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format_num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_num"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.NumFormat.format_num" title="Link to this definition"></a></dt>
+<dd><p>Format numbers according to the specified string operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in_val</strong> (<em>int</em><em> | </em><em>float</em><em> | </em><em>str</em><em> | </em><em>bool</em><em> | </em><em>None</em>) – Input number to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted number.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | float | str | bool | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.NumFormat.format_post">
+<span class="sig-name descname"><span class="pre">format_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pfd/utils/num_format.html#NumFormat.format_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.NumFormat.format_post" title="Link to this definition"></a></dt>
+<dd><p>Format a column of a DataFrame according to a specified format.</p>
+<p>This function attempts to convert the input value to a numeric
+value. If the conversion is successful, it formats the value to
+have the specific format. If the conversion fails (due to a
+ValueError or TypeError), it returns the original value
+unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>float</em>) – Input value to be formatted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">PFDConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Estimation" title="pfd.utils.config.Estimation"><span class="pre">pfd.utils.config.Estimation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Filenames" title="pfd.utils.config.Filenames"><span class="pre">pfd.utils.config.Filenames</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Files" title="pfd.utils.config.Files"><span class="pre">pfd.utils.config.Files</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">general</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.General" title="pfd.utils.config.General"><span class="pre">pfd.utils.config.General</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Paths" title="pfd.utils.config.Paths"><span class="pre">pfd.utils.config.Paths</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Plotting" title="pfd.utils.config.Plotting"><span class="pre">pfd.utils.config.Plotting</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Sampling" title="pfd.utils.config.Sampling"><span class="pre">pfd.utils.config.Sampling</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scraping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pfd.utils.config.Scraping" title="pfd.utils.config.Scraping"><span class="pre">pfd.utils.config.Scraping</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/config.html#PFDConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.PFDConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.estimation">
+<span class="sig-name descname"><span class="pre">estimation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Estimation" title="pfd.utils.config.Estimation"><span class="pre">Estimation</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.estimation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.filenames">
+<span class="sig-name descname"><span class="pre">filenames</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Filenames" title="pfd.utils.config.Filenames"><span class="pre">Filenames</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.filenames" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.files">
+<span class="sig-name descname"><span class="pre">files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Files" title="pfd.utils.config.Files"><span class="pre">Files</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.general">
+<span class="sig-name descname"><span class="pre">general</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.General" title="pfd.utils.config.General"><span class="pre">General</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.general" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Paths" title="pfd.utils.config.Paths"><span class="pre">Paths</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.paths" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.plotting">
+<span class="sig-name descname"><span class="pre">plotting</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Plotting" title="pfd.utils.config.Plotting"><span class="pre">Plotting</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.plotting" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.sampling">
+<span class="sig-name descname"><span class="pre">sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Sampling" title="pfd.utils.config.Sampling"><span class="pre">Sampling</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.sampling" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PFDConfig.scraping">
+<span class="sig-name descname"><span class="pre">scraping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pfd.utils.config.Scraping" title="pfd.utils.config.Scraping"><span class="pre">Scraping</span></a></em><a class="headerlink" href="#pfd.utils.PFDConfig.scraping" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfd.utils.PlotParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfd.utils.</span></span><span class="sig-name descname"><span class="pre">PlotParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.PlotParams" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfd.utils.PlotParams.font_scalings">
+<span class="sig-name descname"><span class="pre">font_scalings</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'large':</span> <span class="pre">1.2,</span> <span class="pre">'larger':</span> <span class="pre">1.2,</span> <span class="pre">'medium':</span> <span class="pre">1.0,</span> <span class="pre">'small':</span> <span class="pre">0.833,</span> <span class="pre">'smaller':</span> <span class="pre">0.833,</span> <span class="pre">'x-large':</span> <span class="pre">1.44,</span> <span class="pre">'x-small':</span> <span class="pre">0.694,</span> <span class="pre">'xx-large':</span> <span class="pre">1.728,</span> <span class="pre">'xx-small':</span> <span class="pre">0.579,</span> <span class="pre">None:</span> <span class="pre">1.0}</span></em><a class="headerlink" href="#pfd.utils.PlotParams.font_scalings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfd.utils.PlotParams.set_rc_params">
+<span class="sig-name descname"><span class="pre">set_rc_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pfd/utils/plot_params.html#PlotParams.set_rc_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.utils.PlotParams.set_rc_params" title="Link to this definition"></a></dt>
+<dd><p>Define plotting parameters.</p>
+<p>This function returns the plotting parameters for different
+plot styles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kind</strong> (<em>str</em>) – Type of figure [fig_small, fig_medium, fig_big].</p></li>
+<li><p><strong>fig_size</strong> (<em>tuple</em>) – Figure size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with parameters for plotting.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pfd.models.html" class="btn btn-neutral float-left" title="pfd.models package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pfd.visualization.html" class="btn btn-neutral float-right" title="pfd.visualization package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Nagel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
