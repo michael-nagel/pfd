@@ -1,0 +1,1213 @@
+%%
+%% Copyright 2025 Oxford University Press
+%%
+%% This file is part of the 'oup-authoring-template Bundle'.
+%% ---------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.3 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    https://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%%
+%% The list of all files belonging to the 'oup-authoring-template Bundle' is
+%% given in the file `manifest.txt'.
+%%
+%% Template article for Oxford University Press's document class `oup-authoring-template'
+%% with bibliographic references
+%%
+
+%%%CONTEMPORARY%%%
+%\documentclass[webpdf,contemporary,large]{oup-authoring-template}%
+%\documentclass[unnumsec,webpdf,contemporary,large,numbered]{oup-authoring-template}% uncomment this line to get the numbered reference output
+%\documentclass[unnumsec,webpdf,contemporary,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,contemporary,mediumone]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,contemporary,small]{oup-authoring-template}
+
+%%%MODERN%%%
+\documentclass[webpdf,modern,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,modern,large,numbered]{oup-authoring-template}%   uncomment this line to get the numbered reference output
+%\documentclass[unnumsec,webpdf,modern,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,modern,mediumone]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,modern,small]{oup-authoring-template}
+
+%%%TRADITIONAL%%%
+%\documentclass[webpdf,traditional,large]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,traditional,large,numbered]{oup-authoring-template}%   uncomment this line to get the numbered reference output
+%\documentclass[unnumsec,webpdf,traditional,medium]{oup-authoring-template}
+%\documentclass[unnumsec,webpdf,traditional,mediumone]{oup-authoring-template}
+%\documentclass[namedate,webpdf,traditional,small]{oup-authoring-template}
+
+\onecolumn % for one column layouts
+
+%\usepackage{showframe}
+
+\graphicspath{{figures/}}
+
+\usepackage{datatool} % provide loading and manipulating of data (e.g., value file)
+\DTLsetseparator{;} % set column separator for value file, for example
+\DTLloaddb[noheader, keys={thekey,thevalue}]{values}{values.dat} % load data file (e.g., values)
+\newcommand{\var}[1]{\DTLfetch{values}{thekey}{#1}{thevalue}} % create shortcut for embedding variables
+
+\newcommand{\bs}{\boldsymbol}
+
+\usepackage{booktabs}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{tikz}
+\usepackage{lineno}
+\usepackage{setspace}
+
+
+\newcommand*\InputTable[1]{\input{tables/#1}}
+
+
+
+% line numbers
+%\usepackage[mathlines, switch]{lineno}
+%\usepackage[right]{lineno}
+
+\theoremstyle{thmstyleone}%
+\newtheorem{theorem}{Theorem}%  meant for continuous numbers
+%%\newtheorem{theorem}{Theorem}[section]% meant for sectionwise numbers
+%% optional argument [theorem] produces theorem numbering sequence instead of independent numbers for Proposition
+\newtheorem{proposition}[theorem]{Proposition}%
+%%\newtheorem{proposition}{Proposition}% to get separate numbers for theorem and proposition etc.
+\theoremstyle{thmstyletwo}%
+\newtheorem{example}{Example}%
+\newtheorem{remark}{Remark}%
+\theoremstyle{thmstylethree}%
+\newtheorem{definition}{Definition}
+
+%\usepackage{draftwatermark}
+%\SetWatermarkText{Draft}
+%%Uncomment  \usepackage{draftwatermark} and \SetWatermarkText{Draft} to watermark your PDF as a draft
+\begin{document}
+
+\journaltitle{submitted to JRSS-A}
+\DOI{DOI added during production}
+\copyrightyear{YEAR}
+\pubyear{YEAR}
+\vol{XX}
+\issue{x}
+\access{Published: Date added during production}
+\appnotes{Paper}
+
+\firstpage{1}
+
+%\subtitle{Subject Section}
+
+
+\title[Price Formation in Tennis Sports Betting]{Price Formation Dynamics and Learning in the Tennis Sports Betting Market}
+
+
+\author[1]{Michael Nagel\ORCID{0009-0002-7246-6187}}
+\author[2]{Lukas Fischer}
+\author[3,$ast$]{Thomas Dimpfl\ORCID{0000-0003-3415-7412}}
+
+\address[1]{\orgdiv{Methods Center}, \orgname{University of T\"ubingen}, \orgaddress{\street{Hau\ss{}erstra\ss{}e 11, T\"ubingen}, \postcode{72076}, \country{Germany}}}
+\address[2]{\orgdiv{Methods Center}, \orgname{University of T\"ubingen}, \orgaddress{\street{Hau\ss{}erstra\ss{}e 11, T\"ubingen}, \postcode{72076}, \country{Germany}}}
+\address[3]{\orgdiv{Institute of Financial Management and Computational Science Hub}, \orgname{University of Hohenheim}, \orgaddress{\street{Fruwirthstra\ss{}e 49, Stuttgart}, \postcode{70599},  \country{Germany}}}
+
+\corresp[$\ast$]{Corresponding author. \href{email:thomas.dimpfl@uni-hohenheim.de}{thomas.dimpfl@uni-hohenheim.de}}
+
+
+
+% \received{Date}{0}{Year}
+% \revised{Date}{0}{Year}
+% \accepted{Date}{0}{Year}
+
+%\editor{Associate Editor: Name}
+
+%\abstract{
+%\textbf{Motivation:} .\\
+%\textbf{Results:} .\\
+%\textbf{Availability:} .\\
+%\textbf{Contact:} \href{name@email.com}{name@email.com}\\
+%\textbf{Supplementary information:} Supplementary data are available at \textit{Journal Name}
+%online.}
+
+\abstract{We investigate price formation and learning in the tennis sports betting market using longitudinal data from multiple bookmakers. Our results show that opening prices are often noisy and biased but become more accurate as the market approaches closing, indicating a clear learning process driven by bettors. We estimate learning rates using both GMM and Bayesian methods and find substantial heterogeneity across bookmakers and market segments. Learning rates are higher for larger odds and vary with competition intensity, suggesting differing market dynamics. These findings deepen our understanding of learning and price formation in betting markets and offer insights relevant for broader financial markets.} 
+
+\keywords{bayesian estimation, gmm, learning rate, longitudinal data, price formation, sports betting market}
+
+% \keywords[Abbreviations]{abbreviation1, abbreviation2, abbreviation3, abbreviation4}
+
+% \otherabstract[Additional Abstract]{Use this element for elements such as Graphical abstract, Lay summary, Translated abstract etc. Que cum aut etum qui ium dolupta ssequia autati odis demporepe ad et es alit rem repudaerae min et volorum re volupta nobit volectur aut fuga.}
+
+% \otherabstract[Graphical Abstract]{\colorbox{black!20}{\hbox to 0.97\textwidth{\vbox to 50pt{}}}}
+
+% \boxedtext{Key Messages}{
+% \begin{itemize}
+% \item Key boxed text here.
+% \item Key boxed text here.
+% \item Key boxed text here.
+% \end{itemize}}
+
+\maketitle
+
+%\begin{epigraph}
+%Epigraph text. Ximporem qui reperov idempedit modio. Bisto imagnatem quae aceptis
+%nobitae quid eum rae adignis quias-sit vellacc uptatur sunt quis rentis eaquasit alia deliquam
+%rec-to consed unt. Empor sum ratur ressimusdae. Nam fugiae.
+%\source{Epigraph source}
+%\end{epigraph}
+
+
+\linenumbers
+\onehalfspacing
+\section{Introduction}
+
+
+
+
+
+
+Understanding the mechanisms behind price formation and equilibrium dynamics is a central concern in financial market research. The concept of t\^{a}tonnement, introduced by \citet{walras1889}, describes the fundamental process of price discovery where agents adjust buy and sell offers until supply and demand match. \citet{biais1999} apply this concept to the preopening period in the Paris Bourse, revealing that while early preopening prices are noisy, they become more informative and efficient as the market nears opening. This convergence towards an equilibrium valuation is key to price formation.
+
+
+
+While the literature extensively explores learning behavior in broader financial markets, studies focusing on the pre-match phase of sports betting markets remain scarce. We contribute to the literature with an investigation of the information content of pre-match price movements in the tennis betting market, focusing on understanding the price formation process, identifying potential mispricing, and evaluating the market’s learning rate.
+
+Research on betting markets consistently finds evidence that betting markets may not be efficient, revealing inefficiencies in how new information is incorporated into prices, i.e., inefficient learning. In an efficient market, the price at any given time $t$ reflects the conditional expectation of a betting contract, thereby eliminating opportunities for profitable strategies based on mispricing. Early work by \citet{thaler1988} highlights market inefficiencies in the horse racing market, where the expected returns from betting on favorites significantly exceed those from betting on underdogs---a phenomenon known as the favorite-longshot bias.
+
+Subsequent studies uncover similar inefficiencies in other sports betting contexts. For example, \citet{gray1997} find that simple strategies like betting on home-team underdogs in the NFL can yield positive returns, often driven by market overreactions to recent team performances. \citet{forrest2008} show that sentiment biases odds in Spanish and Scottish soccer matches, with bookmakers exploiting bettors’ preferences by pricing popular bets higher.
+In contrast, \citet{croxson2014} analyze goal arrivals in soccer using high-frequency in-play data from the betting exchange Betfair and find that prices respond swiftly and fully to new information related to goals scored. However, the focus on goals scored near half-time limits the generalizability of their findings to events occurring during regular play.
+
+\citet{hegarty2024} find that betting markets for soccer and tennis do not fully adhere to the strong-form definition of market efficiency, as expected returns on favorites tend to be higher than those on underdogs, exhibiting a favorite-longshot bias. However, they argue that this bias does not lead to consistently profitable betting strategies, suggesting that weak-form market efficiency cannot be entirely rejected. \citet{gandar1998} investigate how changes in betting lines from opening to closing reflect the information content of these lines and improve the accuracy of game outcome forecasts. Their findings suggest that informed traders play a significant role in the market, as the shifts in betting lines tend to enhance predictive accuracy, indicating that the market assimilates new information effectively as it becomes available.
+
+\citet{moskowitz2021} reveals evidence of momentum by analyzing a wide array of betting contracts, aligning with the idea of delayed overreaction and contradicting the theories of underreaction and rational pricing. \citet{ramirez2023} analyze the relationship between Wikipedia page views of professional tennis players and bookmakers' pricing. They report that a ``buzz factor''---measured by the difference in pre-match page views relative to the previous year---predicts mispricing. They demonstrate that betting on players with higher pre-match buzz generates sizable profits, suggesting that sportsbooks could improve pricing efficiency by considering this buzz factor.
+
+Most existing studies that investigate the pre-match phase focus on aggregated effects from the opening to the closing using cross-sectional data, often from a single bookmaker \citep[e.g.,][]{gandar1998}. This approach neglects the learning dynamics within the market and the valuable insights embedded in intermediate price changes. To fully capture these dynamics, we analyze the time series of prices across multiple bookmakers throughout the market's betting period, from opening to closing. To the best of our knowledge, this paper is the first to explore these pre-match learning dynamics within the sports betting (soft) market using these longitudinal data\footnote{We specifically refer to learning during the pre-match phase, defined by the first and last prices set by bookmakers before kickoff. In contrast, in-play learning, such as market responses to major events like goals during a match, has been studied more frequently \citep[e.g.,][]{croxson2014, angelini2022}.}.
+
+
+
+\citet{moskowitz2021} highlights the complexity of financial markets as empirical laboratories. The joint hypothesis problem \citep{fama1970}, complicates hypothesis testing because it simultaneously evaluates both the hypothesis and the validity of the underlying model. This interdependence makes it challenging to distinguish between flawed hypotheses and incorrect models.
+In contrast, the sports betting market offers a unique research setting compared to financial market securities. Sports bets are isolated from systematic economic risks and have exogenous terminal values, allowing for a clearer analysis of bettor behavior and pricing anomalies without the confounding effects of broader market risks \citep{moskowitz2021,palacioshuerta2023}.
+
+Additionally, \citet{moskowitz2021} emphasizes that the short, predetermined termination dates of sports betting contracts, determined by the outcomes of events independent of investor actions, provide a clean basis for identifying mispricing and testing theories about price corrections.
+Using the sports betting market as a controlled laboratory allows for the testing of theories and hypotheses that could be extrapolated and generalized to broader financial markets. Both markets share parallels, including high transaction volumes, liquidity, and the availability of information, all of which influence decisions and outcomes. Market makers/bookmakers provide liquidity and facilitate trades or bets, while professional analysts and bettors engage in arbitrage, mirroring financial market activities.
+
+Behavioral patterns, such as those explained by psychological theories \citep[e.g.,][]{krieger2021,goodell2023}, are observed in both markets and indicate similar underlying decision-making processes. While entertainment motives are more apparent in sports betting, they are also present in financial markets, where investors often derive non-monetary satisfaction from their investments \citep{gao2015}.
+
+    % Thus, the findings of this study may not only have significant implications for understanding price discovery and learning in the sports betting market, but also for providing potentially relevant insights for the broader financial market.
+
+
+
+\section{The Market Structure}
+
+% Tennis is either played between two players (singles) or between two teams of two players each (doubles). To ensure a homogeneous sample, we focus exclusively on singles matches. Unlike many team sports, tennis has fewer variables that can influence match outcomes right before the start, such as lineup changes in soccer. Additionally, there are only two potential match outcomes: a player can either win or lose. With only one player per side, the number of uncontrollable exogenous factors is minimized, making singles tennis an attractive choice for professional bettors.
+
+Tennis is played either as singles or doubles; to ensure a homogeneous sample, we focus exclusively on singles matches. Compared to team sports such as soccer, tennis involves fewer last-minute factors affecting outcomes, such as lineup changes, and has only two possible outcomes: win or loss. With one player per side, uncontrollable exogenous factors are minimized, making singles tennis particularly attractive for professional bettors.
+
+We focus on the fixed-odds market for tennis, a popular betting format in which odds are fixed at the time bets are placed, regardless of subsequent changes. Sports betting markets can broadly be divided into sharp bookmakers, which primarily serve informed bettors and adjust prices quickly, and soft bookmakers, which cater to recreational bettors and often maintain less efficient pricing. Sharp bookmakers typically impose low limits and move odds aggressively in response to information, whereas soft bookmakers rely more on margins and bettor behavior. In this analysis, we focus on the soft bookmaker market. Specifically, we examine moneyline betting, where bettors wager on which player will win the match.
+Odds are quoted as decimal (European) odds, representing the total payout per unit staked; losing bets result in the loss of the stake.
+
+% The fixed odds are expressed as decimal odds (European odds) and presented as a decimal number. This number represents the total payout a bettor will receive for a winning bet per unit staked  (e.g., 2.50). Therefore, the total amount returned for a winning bet, including the initial stake, is the product of the stake and the odds. If a bettor loses a bet, they lose their stake.
+
+While odds represent the potential payout of a bet, their reciprocals---known as implied probabilities, which can be viewed as the price $p$ of taking the bet---reflect the likelihood of winning. For example, if the decimal odds for Player 1 to win are 2.50, the implied probability is $\text{1/2.50 = 0.40}$. Higher implied probabilities imply lower odds and a lower potential payout, reflecting a lower risk and thus a higher price. Conversely, lower implied probabilities indicate higher odds and a higher payout, reflecting a higher risk and thus a lower price.
+
+Implied probabilities reflect the sum of the estimated probabilities and the margin the bookmaker incorporates to make a profit. As the outcome is binary and the probabilities sum to 1, the implied probability for Player 2 is the difference between 1 and the implied probabilities for Player 1, deducting the margin. Therefore, the implied probabilities for Player 1 and Player 2 are almost perfectly negatively correlated: an increase in Player 1's implied probabilities by a certain amount necessitates an equal decrease in Player 2's implied probabilities, if the margin remains constant. However, since the margin may vary, the correlation is not perfectly negative. In tennis, the assignment of a particular player to Player 1 or Player 2 is not systematically related to their winning prospects.
+
+Bookmakers dynamically place and adjust their prices for both potential match outcomes from the market open to the market close.
+According to \citet{gandar1998} and \citet{moskowitz2021}, bookmakers set an initial price on each contract at the open with the goal of maximizing risk-adjusted profits. By trying to either balance the total stakes on both sides of the contract or its outcome probabilities, bookmakers ensure that they receive the margin with minimal risk exposure. If the bookmaker's predictions are more accurate than the bettors' predictions, they might also decide to take some risk exposure to earn higher profits.
+
+%         \begin{figure}[htb]
+%             \centering
+%             \caption{Timeline of a Betting Contract}
+%             \vspace{1em}
+%             \label{fig:timeline}
+%             \begin{tikzpicture}
+%                 % Draw the timeline
+%                 \draw[thick] (0,0) -- (10,0);
+
+%                 % Add markers and labels
+%                 \draw[thick] (0,-0.2) -- (0,0.2);
+%                 \node[below] at (0,-0.2) {$p_0$};
+%                 \node[below] at (0,-0.8) {(opening price)};
+
+%                 % Add intermediate price changes (example: 3 changes)
+%                 \foreach \x in {1, 2} {
+%                     \draw[thick] (\x,-0.2) -- (\x,0.2);
+%                     \node[below] at (\x,-0.2) {$p_{\x}$};
+%                 }
+
+%                 \draw[thick] (4,-0.2) -- (4,0.2);
+%                 \node[below] at (4,-0.2) {$p_{t}$};
+
+%                 \draw[thick] (6,-0.2) -- (6,0.2);
+%                 \node[below] at (6,-0.2) {$p_T$};
+%                 \node[below] at (6,-0.8) {(closing price)};
+
+%                 \draw[thick] (10,-0.2) -- (10,0.2);
+%                 \node[below] at (10,-0.2) {$\omega$};
+%                 \node[below] at (10,-0.8) {(match outcome)};
+%             \end{tikzpicture}
+%             \begin{minipage}{\linewidth} Note. The figure presents the typical timeline of a betting contract, showing the price series from the initial opening price ($p_0$) to the final closing price ($p_T$), along with the terminal value, representing the match outcome ($\omega$).
+%             \end{minipage}
+%         \end{figure}
+
+% Figure~\ref{fig:timeline} depicts the timeline of a betting contract, showing the prices from the opening to the closing, along with the terminal value.
+% Once a bookmaker sets the opening price $p_0$ for a given match, bettors can place their bets until the start of the match. During this period, betting can change the price ($p_1, p_2, \ldots, p_T$) as bookmakers attempt to balance the betting volume on both sides of the contract. Prices can also shift without changes in volume if new information, such as a player's injury, becomes available \citep{moskowitz2021}.
+
+
+\section{Methods}
+
+We first examine the cross-section of opening and closing prices before proceeding to the total time series. Subsequently, we use $N$ to denote the number of matches with $i = 1, \ldots, N$.  $K$ is the number of bookmakers, where $j = 1, \ldots, K$. Time runs from $t = 1, \ldots, T$. We represent the match outcome by $\omega$, where $\omega=0$ if Player 1 loses and $\omega=1$ if Player 1 wins the match. Vectors and matrices are highlighted in bold.
+
+    \subsection{Forecast Accuracy of Individual Bookmakers}
+
+        To assess the effectiveness of bookmakers in predicting match outcomes, we calculate the root mean squared error (RMSE) for each bookmaker. This metric measures the forecast error of their opening prices in predicting match results. By analyzing these RMSE values, we evaluate the forecast accuracy of each bookmaker's opening prices.
+        %
+        Note that accuracy alone does not necessarily imply well-calibrated probabilities. For example, if a model predicts a probability of 0.8, it should be correct 80\% of the time when making such predictions. Evaluating the overall reliability of predicted probabilities requires considering metrics like the expected calibration error, which is not the primary focus of this analysis.
+
+
+    \subsection{Price Change Mechanisms: Reasons and Implications}
+
+        Price movements from the open to the close convert bookmakers’ forecasts of match outcomes into market forecasts \citep{gandar1998}. Since the terminal values of the contracts (i.e., actual match outcomes) are observable, we can examine whether these price movements contain information relevant to predicting the match outcome.
+        For the analysis, we calculate open-to-close returns as $r_T = p_T / p_0 - 1$, for all matches and bookmakers.
+        %
+        % Figure~\ref{fig:rtrn_opn_cls} presents the distribution of the open-to-close returns, calculated as $r_T = p_T / p_0 - 1$, for all matches and bookmakers.
+        % %
+        % \begin{figure}[htb]
+        %     \centering
+        %     \caption{Distribution of Open-to-Close Returns}
+        %     \includegraphics[width=0.5\linewidth]{rtrn_opn_cls.pdf}
+        %     \label{fig:rtrn_opn_cls}
+        %     \begin{minipage}{\linewidth}Note. The figure presents the distribution of open-to-close returns based on all bookmakers and matches. The open-to-close returns are calculated as $\bs{r}_T =  \bs{p}_T / \bs{p}_0 - 1$. The distribution is approximately normal and ranges from -0.5 to 0.5, with some outliers.
+        %     \end{minipage}
+        % \end{figure}
+        %
+        The returns are approximately normally distributed and, excluding some outliers, range from -0.5 to 0.5 with an interquartile range of \var{iqr_rtrns}.
+        Note that, unlike in the stock market, these returns are not realizable through strategies such as going short at the opening and long at the closing, as it is not possible to sell odds at the current price and later back them at a different price.
+
+        \citet{gandar1998} offer three explanations for betting imbalances at the opening stages that give rise to price changes: the release of new information, randomness of order flow, and prediction errors by the bookmakers. Given the relatively short betting windows with a median of $\var{ts_dur_med}$ hours, the arrival of new information is unlikely to be responsible for all price changes.
+
+
+        % For the NFL betting market, \citet{gandar1988} show that the release of new information during short betting periods can explain only a small fraction of all price movements.
+        % In singles tennis, there are no short-term changes in lineups that can distort expectations, as often happens in team sports like soccer. While randomness of order flow could explain some of the smaller price changes, it is an unlikely explanation for medium-sized and larger-sized price changes.
+        %depicted in Figure~\ref{fig:rtrn_opn_cls}.
+
+    \subsection{Price Movements on New Information}
+
+If prices move based on information (%e.g., relevant information about the winning prospects is
+announced after the open but before the match starts) and the market reacts rationally to the news, the closing price should better predict the match outcome than the opening price \citep{moskowitz2021}. In this scenario, the closing price becomes the conditional expectation of the match outcome, meaning there is no return predictability from the close to the end of the match, and changes from the open to the close have no explanatory power for the return from the close to the end of the match.
+
+To analyze the response to information, we adjust the linear regression proposed by \citet{moskowitz2021} by incorporating bookmaker random effects and controlling for a number of relevant factors. The hierarchical model is specified as follows:
+        \begin{equation}
+            \begin{split}
+                r_{ij\omega} &= \nu_{0j} + \nu_{1j} r_{ijT} + \bs{\theta} \bs{X}_{ij} + \varepsilon_{ij}, \\
+                \nu_{0j} &= \nu_{0} + u_{0j},\quad \nu_{1j} = \nu_{1} + u_{1j}, \\
+            \end{split}
+        \label{eq:resp_to_info}
+        \end{equation}
+        %
+        where $r_{ij\omega}$ is the match and bookmaker-specific close-to-end return, calculated as $r_{ij\omega} = \omega_i / p_{ijT} - 1$. The fixed effects matrix $\bs{X}$ comprises the time from open to close and competition indicators (ATP, WTA, ...), with $\bs{\theta}$ representing the corresponding coefficients. We denote the bookmaker random effects for the intercept and slope by $u_{0j}$ and $u_{1j}$, respectively, and $\varepsilon_{ij}$ is a Gaussian white noise innovation term.
+
+        \citet{moskowitz2021} demonstrate that $\nu_1 = 0$ if prices move based on information and markets respond rationally. If prices move for non-informational reasons, such as investor sentiment or noise, $\nu_1 = -1$ because biased closing prices are corrected by the exogenous match outcomes.
+        Finally, prices can move based on information, but markets may respond irrationally. For example, there could be over- or underreactions to information, which are two of the leading behavioral mechanisms in the asset pricing literature (see, e.g., \citet{barberis1998, daniel1998, moskowitz2021}). In these cases, $\nu_1 > 0$ if the market underreacts and $\nu_1 < 0$ if the market overreacts to information.
+
+    \subsection{Relative Forecast Accuracy of Opening and Closing Prices}
+
+        If bookmakers introduce bias into initial prices, we can consider two scenarios \citep{gandar1998}. In the first, opening prices are biased, either intentionally or due to prediction errors, while subsequent price movements result from noise.
+        Bookmakers may intentionally bias opening prices to maximize profits or achieve a balanced book, as observed by \citet{dare1996} in the wagering market on Super Bowl games. The ``hot hand'' phenomenon explored by \citet{camerer1989} and \citet{brown1993} illustrates irrational betting behavior that bookmakers might account for when setting initial prices. If biased opening prices remain uncorrected by the bettors, closing prices would have equal or less predictive power for match outcomes compared to opening prices. In the second scenario, bettors identify and exploit the biased opening prices. This would lead to closing prices becoming superior predictors of match outcomes.
+
+        To investigate the statistical difference between the relative predictive abilities of the two forecasts, we use the AGS test as applied by \citet{gandar1998} and developed by \citet{ashley1980}. The test procedure involves calculating the forecast errors implied by both the opening and closing prices as
+         $  e_{ij0} = \lvert \omega_i - p_{ij0} \rvert$ and $e_{ijT} = \lvert \omega_i - p_{ijT} \rvert$, respectively,
+        %
+        where $e_{ij0}$ and $e_{ijT}$ are the match and bookmaker-specific forecast errors of the opening and closing prices. Denoting by $\Delta_{ij} = e_{ij0} - e_{ijT}$ the difference and by $\Sigma_{ij} = e_{ij0} + e_{ijT}$ the sum of the forecast errors, we can estimate the regression implied by the AGS test.
+        As before, we use a random effects model to account for the nested data structure and control by a vector of fixed effects:
+        %
+        \begin{equation}
+            \begin{split}
+                \Delta_{ij} &= \lambda_{0j} + \lambda_{1j} \, (\Sigma_{ij} - \overline{\Sigma}_{j}) + \bs{\theta} \bs{X}_{ij} + \varepsilon_{ij}, \\
+                \lambda_{0j} &= \lambda_{0} + u_{0j}, \quad  \lambda_{1j} = \lambda_{1} + u_{1j}, \\
+            \end{split}
+        \label{eq:ags_test}
+        \end{equation}
+        %
+        with $\overline{\Sigma}_{j}$ being the mean forecast error of bookmaker $j$.
+        The individual estimates for the intercept and slope allow us to draw conclusions about the relative forecast accuracy of opening and closing prices: the intercept $\lambda_0$ provides information about the difference in the mean absolute forecast errors, while the slope $\lambda_1$ tests for a significant difference in the forecast error variances \citep{gandar1998}. Specifically, an intercept estimate significantly larger (smaller) than zero indicates a smaller (larger) mean forecast error for closing prices. Similarly, a slope estimate significantly larger (smaller) than zero indicates a smaller (larger) mean forecast error variance for closing prices.
+
+    \subsection{Magnitude and Direction of Price Movements}
+
+        If price movements from the open to the close indicate that the market perceives a mispricing at the open, this suggests that a player is either undervalued or overvalued. For instance, an increasing price implies that the market believes a player was initially undervalued, leading bettors to strategically place their bets on that player to exploit the mispricing.
+
+        When rational bettors dominate irrational bettors in the market in terms of aggregated betting volume, the undervalued player attracts higher stakes relative to their initial price. As a result, bookmakers need to adjust the price upward to balance the book by the closing. The magnitude of the price change can also indicate the market's confidence in how much a player was over- or undervalued at the opening \citep{gandar1998}.
+        Furthermore, the winning rate of players who become more favored during betting (i.e., those experiencing positive price changes) should exceed 0.5. Conversely, the winning rate of players who become less favored (i.e., those experiencing negative price changes) should fall below 0.5. These winning rates are expected to deviate more significantly from 0.5 for larger price changes, with the magnitude of winning rates increasing (or decreasing) proportionately with the extent of the positive (or negative) price changes.
+
+        If we organize the matches by the extent of price changes from opening to closing, using intervals $\bs{\Delta}(p_T, p_0)$ that capture different magnitudes of price changes, and then sort these intervals from the largest negative to the largest positive changes, we would expect to observe winning rates $\overline{\bs{\omega}}$ within these bins that reflect the price movements. Specifically, winning rates should be significantly lower than 0.5 for intervals indicating negative price changes and significantly higher than 0.5 for intervals with positive price changes, with a monotonic increase in winning rates as we move from negative to positive intervals.
+
+        We further examine this pattern by regressing the winning rates on the intervals' average price change magnitudes $\overline{\bs{\Delta}}(p_T, p_0)$ \citep{gandar1998}. We use a random effects model to incorporate bookmaker-specific effects and control for the number of price changes:
+        %
+        \begin{equation}
+            \begin{split}
+                \overline{\bs{\omega}} &= \eta_{0j} + \eta_{1j} \, \overline{\bs{\Delta}}_j(p_T, p_0) + \kappa C + \varepsilon_j, \\
+                \eta_{0j} &= \eta_{0} + u_{0j}, \quad \eta_{1j} = \eta_{1} + u_{1j},\\
+            \end{split}
+            \label{eq:win_rates}
+        \end{equation}
+        %
+        where $\kappa$ is the coefficient on the number of price changes.
+
+        Since we estimate a regression model with a generated regressor and dependent variable, \(\overline{\bs{\Delta}}_j(p_T, p_0)\) and $\overline{\bs{\omega}}$, where we replace expected values with sample averages, we must adjust the standard error of the associated regression coefficient. This adjustment is necessary because the generated variables are estimated rather than directly observed, and their variability affects the precision of the coefficient estimates. To address this, we use 1,000 bootstrap samples to approximate the regressor coefficient's distribution and calculate its standard error and confidence intervals from the bootstrap distribution.
+
+        If price changes are noise or irrational betting moves prices, the magnitude and direction of price changes cannot explain actual winning rates. In this case, $\eta_{0} = 0.5$ and $\eta_{1} = 0$. On the other hand, if rational bettors dominate irrational bettors in the market, price changes are proportionately related to winning rates. In this case, $\eta_{0} = 0.5$ and $\eta_{1} > 0$ \citep{gandar1998}.
+
+    \subsection{Alternative Hypotheses}
+
+Not all price changes are equally informative; instead, we expect to observe a visible learning process. To investigate this process, we follow \citet{biais1999} and test the following two hypotheses:
+% the following two alternative hypotheses, adapted from \citet{biais1999} using the information content embedded in intermediate price changes (i.e., price changes between opening and closing). These hypotheses describe the two extreme cases: price changes being only noisy and price changes being completely informative.
+%
+Under the noise hypothesis,
+\begin{equation}
+    H_0: p_{ijt} = \mathrm{E}\left[\omega_i \mid \mathrm{I}_0\right] + \varepsilon_{ijt},
+    \label{eq:noise_hypothesis}
+\end{equation}
+where $\mathrm{E}\left[\omega_i\mid\mathrm{I}_0\right]$ is the expected match outcome conditional on an information set at $t=0$, the price at time $t$ does not reflect any information learned or processed since the market opening. In this case, the placed bets are not informative about the match outcome; their explanatory power is not greater than that of the bookmakers' initial expectations. The information set at $t=0$ includes all the information available up to and including the market opening that bookmakers use to make predictions.
+
+In contrast, under the learning hypothesis,
+%
+\begin{equation}
+    H_A: p_{ijt} = \mathrm{E}\left[\omega_i \mid \mathrm{I}_t \right],
+    \label{eq:learning_hypothesis}
+\end{equation}
+%
+where $\mathrm{E}\left[\omega_i \mid \mathrm{I}_t\right]$ is the expected match outcome conditional on an information set at time $t$, bettors act competitively and drive the price to the conditional expectation of the match outcome by exploiting immediate betting opportunities that the pricing offers. Consequently, the price at time $t$ reflects the conditional expectation for the match outcome, implying that the predictive power of these prices increases over the period from the open to the close.
+
+To test the alternatives, we regress the returns of the prices from the open to the end onto the returns of the prices from the open to each time $t$. Following \citet{hodrick1987, biais1999}, we employ so-called unbiasedness regressions to control for a potentially time-varying distribution of the price series, which may be induced through the learning process itself. Specifically, we estimate one unbiasedness regression across matches for each $t$ between the beginning and the end of the betting window, controlling for bookmaker random effects. %Thus, we analyze the distribution of prices for each point in time $t$.
+
+        Under the learning hypothesis, the slope coefficient $\beta_1$ in the regression
+        %
+        \begin{equation}
+            \begin{split}
+                \omega_i - \mathrm{E}[\omega_i \mid \mathrm{I}_0] &= \beta_{0jt} + \beta_{1jt} \, (p_{ijt} - \mathrm{E}[\omega_i \mid \mathrm{I}_0]) + \varepsilon_{ijt}, \\
+                \beta_{0jt} &= \beta_{0t} + u_{0jt}, \quad \beta_{1jt} = \beta_{1t} + u_{1jt}, \\
+            \end{split}
+            \label{eq:unbiasedness_reg}
+        \end{equation}
+        %
+        is equal to one for all $t$. Additionally, the residual variances measuring the remaining uncertainty in the predictions should decrease as the kickoff gets closer. Under the noise hypothesis, the slope coefficient $\beta_1$ is equal to zero for all $t$ because intermediate price changes at $t$ have no informational content and do not help to predict the deviation between the actual match outcome and its ex ante expectation, such that
+        %
+        \begin{equation*}
+            \operatorname{cov}\left(\omega_i - \mathrm{E}\left[\omega_i \mid I_0\right], p_{ijt} - \mathrm{E}\left[\omega_i \mid I_0\right]\right)=\operatorname{cov}\left(\omega_i - \mathrm{E}\left[\omega_i \mid I_0\right], \boldsymbol{\varepsilon}_{ijt}\right)=0.
+        \end{equation*}
+        %
+        Additionally, the residual variances of the regressions should remain at the same level.
+        Positive slope coefficients that deviate from zero indicate improving, yet still biased, intermediate prices, with the bias increasing as the coefficient diverges further from one. In such cases, the learning hypothesis remains rejected. Conversely, coefficients smaller than zero imply that intermediate price changes not only lack informational value but also deteriorate the accuracy of forecasts.
+
+    \subsection{Learning Rate}
+
+        To examine how fast information is processed into prices, we estimate the learning rate using the methodology outlined by \citet{biais1999} for financial market securities. The procedure builds on the work of \citet{vives1995}, who characterizes the asymptotic speed of learning as
+        $t^\gamma\left(p_t - \omega\right) \xrightarrow[]{d} \mathcal{N}\left(0, \sigma^2\right)$ as $ t \rightarrow \infty$,
+        where $\gamma$ is the convergence, or learning rate.
+        As the relationship only holds asymptotically, we consider large values of $t$ (i.e., the end of the period) and approximate the equation by
+        $    p_t - \omega = \varepsilon/t^\gamma \cdot \sigma,$
+        assuming that $\varepsilon$ is normally distributed with zero conditional mean $\mathrm{E}\left[\varepsilon \mid \mathrm{I}_t \right] = 0$ and unit conditional variance $var(\varepsilon \mid \mathrm{I}_t) = 1$.
+        % We reflect the possible errors of proxying $v$ by $p_T$ by
+        % %
+        % \begin{equation*}
+        %     p_T = v + \phi, \quad \phi \perp v, \quad \phi \perp \varepsilon,
+        % \end{equation*}
+        % %
+        % such that Equation \ref{eq:asymp_learn_1} transforms to
+        % %
+        % \begin{equation*}
+        %     p_t - p_T = \frac{\varepsilon}{t^\gamma} \sigma - \phi.
+        % \end{equation*}
+        % %
+        Taking squares and expectations, we get
+        %
+        % \begin{equation*}
+        %     \left(p_t - p_T\right)^2 = \frac{\varepsilon^2}{t^{2 \gamma}} \sigma^2 + \phi^2 - \frac{2 \varepsilon \phi \sigma}{t^\gamma}.
+        % \end{equation*}
+        %Taking expectations, we get
+        %
+        % \begin{equation*}
+        %     \mathrm{E}\left[\left(p_t - p_T\right)^2 \mid \mathrm{I}_t\right] = \mathrm{E}\left(\phi^2 \mid \mathrm{I}_t\right) + \frac{\sigma^2}{t^{2 \gamma}} - 2 \mathrm{E}\left(\frac{\varepsilon \phi \sigma}{t^\gamma} \mid \mathrm{I}_t\right).
+        % \end{equation*}
+        \begin{equation}
+            \label{eq:expres_1}
+            \mathrm{E}\left[\left(p_t - \omega\right)^2 \mid \mathrm{I}_t\right] = \frac{\sigma^2}{t^{2 \gamma}}.
+        \end{equation}
+        %
+        % Because $\mathrm{E}\left[\varepsilon \mid \phi\right] = 0$ and $\mathrm{E}\left[\varepsilon \right] = 0$, we can simplify the expectation to
+        % %
+        % \begin{equation}
+        % \label{eq:expres_1}
+        %     \mathrm{E}\left[\left(p_t - p_T\right)^2 \mid \mathrm{I}_t\right] - \mathrm{E}\left(\phi^2 \mid \mathrm{I}_t\right) = \frac{\sigma^2}{t^{2 \gamma}}.
+        % \end{equation}
+        % %
+        Repeating the procedure for $t - 1$ yields
+        %
+        % \begin{equation}
+        % \label{eq:express_2}
+        %     \mathrm{E}\left[\left(p_{t - 1} - p_T\right)^2 \mid \mathrm{I}_{t - 1}\right] - \mathrm{E}\left(\phi^2 \mid \mathrm{I}_{t - 1}\right) = \frac{\sigma^2}{(t - 1)^{2 \gamma}}.
+        % \end{equation}
+        \begin{equation}
+        \label{eq:express_2}
+            \mathrm{E}\left[\left(p_{t - 1} - \omega\right)^2 \mid \mathrm{I}_{t - 1}\right] = \frac{\sigma^2}{(t - 1)^{2 \gamma}}.
+        \end{equation}
+        %
+        % Because the proxy error is independent of time, $\mathrm{E}\left[\phi^2 \mid \mathrm{I}_t \right] = \mathrm{E}\left[\phi^2 \mid \mathrm{I}_{t - 1} \right]$. This is the first parameter that we estimate, denoted by $K$.
+        %
+        Dividing Equation~(\ref{eq:expres_1}) by Equation~\eqref{eq:express_2}, we get
+        %
+        % \begin{equation*}
+        %     \frac{\mathrm{E}\left[\left(p_t - \hat{p_T}\right)^2 \mid \mathrm{I}_t\right] - K}{\mathrm{E}\left[\left(p_{t - 1} - \hat{p_T}\right)^2 \mid \mathrm{I}_{t - 1}\right] - K} = \left(\frac{t - 1}{t}\right)^{2 \gamma}
+        % \end{equation*}
+        \begin{equation*}
+            \frac{\mathrm{E}\left[\left(p_t - \omega\right)^2 \mid \mathrm{I}_t\right]}{\mathrm{E}\left[\left(p_{t - 1} - \omega \right)^2 \mid \mathrm{I}_{t - 1}\right]} = \left(\frac{t - 1}{t}\right)^{2 \gamma}.
+        \end{equation*}
+        %
+        Implementing the same steps for the comparison between $p_{t - 1}$ and $p_{t - 2}$, we obtain the two moment conditions
+        %
+        % \begin{equation*}
+        %     \bs{m}\left(\bs{q}, \gamma, K \right) = \left[\begin{array}{c}
+        %     \mathrm{E}\left[\left(p_t - p_T\right)^2 - \left(\frac{t - 1}{t}\right)^{2 \gamma}\left(p_{t - 1} - p_T\right)^2 - K\left[1 - \left(\frac{t - 1}{t}\right)^{2 \gamma}\right] \mid \mathrm{I}_{t - 2}\right] = 0, \\
+        %     \mathrm{E}\left[\left(p_{t - 1}-p_T\right)^2 - \left(\frac{t - 2}{t - 1}\right)^{2 \gamma}\left(p_{t - 2} - p_T\right)^2 - K\left[1 - \left(\frac{t - 2}{t - 1}\right)^{2 \gamma}\right] \mid \mathrm{I}_{t - 2}\right] = 0
+        %     \end{array}\right]
+        % \end{equation*}
+        \begin{equation}
+            \bs{m}\left(\bs{p}, \gamma \right) = \left[\begin{array}{c}
+            \mathrm{E}\left[\left(p_t - \omega\right)^2 - \left(\frac{t - 1}{t}\right)^{2 \gamma}\left(p_{t - 1} - \omega\right)^2 \mid \mathrm{I}_{t - 1}\right] = 0 \\
+            \mathrm{E}\left[\left(p_{t - 1} - \omega\right)^2 - \left(\frac{t - 2}{t - 1}\right)^{2 \gamma}\left(p_{t - 2} - \omega\right)^2  \mid \mathrm{I}_{t - 2}\right] = 0
+            \end{array}\right],
+        \label{eq:moment_conditions}
+        \end{equation}
+        %
+        with $\gamma$ being the learning rate parameter to be estimated.
+        \citet{biais1999} point out the following two convenient statistical properties of the moment conditions. First, they are robust to heteroskedasticity reflected by changes in $\sigma$ across time and matches because $\sigma^2$ cancels out. Second, the moment conditions are robust to temporal aggregation.
+        Note that if the true learning rate $t$ was scaled by a constant $n$, we would still obtain the same moment conditions as $n$ cancels during the division of the two equations.
+        % If the true learning rate is not $t$ but scaled by a constant $nt$, Equation~\eqref{eq:expres_1} becomes:
+        % %
+        % % \begin{equation}
+        % % \label{eq:express_3}
+        % %     \mathrm{E}\left[\left(p_t - p_T\right)^2 \mid \mathrm{I}_t\right] - \mathrm{E}\left(\phi^2 \mid \mathrm{I}_t\right) = \frac{\sigma^2}{(nt)^{2 \gamma}}.
+        % % \end{equation}
+        % \begin{equation}
+        % \label{eq:express_3}
+        %     \mathrm{E}\left[\left(p_t - \omega\right)^2 \mid \mathrm{I}_t\right] = \frac{\sigma^2}{(nt)^{2 \gamma}},
+        % \end{equation}
+        % %
+        % and Equation~\eqref{eq:express_2} becomes:
+        % %
+        % % \begin{equation}
+        % % \label{eq:express_4}
+        % %     \mathrm{E}\left[\left(p_{t - 1} - p_T\right)^2 \mid \mathrm{I}_{t - 1}\right] - \mathrm{E}\left(\phi^2 \mid \mathrm{I}_{t - 1}\right) = \frac{\sigma^2}{n(t - 1)^{2 \gamma}}.
+        % % \end{equation}
+        % \begin{equation}
+        % \label{eq:express_4}
+        %     \mathrm{E}\left[\left(p_{t - 1} - \omega\right)^2 \mid \mathrm{I}_{t - 1}\right] = \frac{\sigma^2}{\left[n(t - 1)\right]^{2 \gamma}},
+        % \end{equation}
+        % %
+        % which still yields the same moment conditions, because $n$ cancels  when we divide Equation~\eqref{eq:express_3} by Equation~\eqref{eq:express_4}.
+
+\subsubsection{Generalized Methods of Moments Estimation}
+
+    To estimate the learning rate, we utilize the Generalized Methods of Moments (GMM) as proposed by \citet{hansen1982}. The GMM estimator is consistent, asymptotically normal, and efficient. The estimation process involves solving the minimization problem
+    %
+    % \begin{equation*}
+    %     \min_{\gamma, K}\left[\frac{1}{P} \sum_{p=1}^P g_p\left(\bs{q}, \gamma, K \right)\right]^{\prime}\bs{W}^{-1}\left[\frac{1}{P} \sum_{p=1}^P g_P\left(\bs{q}, \gamma, K \right)\right],
+    % \end{equation*}
+    \begin{equation}
+        \arg \min_{\gamma}\left[\frac{1}{N} \sum_{i=1}^N \bs{g}_N\left(\bs{p}, \gamma \right)\right]^{\prime}\bs{W}_N\left[\frac{1}{N} \sum_{i=1}^N \bs{g}_N\left(\bs{p}, \gamma \right)\right],
+    \label{eq:first_stage_min}
+    \end{equation}
+    %
+    % and describes the just-identified case, because the number of parameters to be estimated is equal to the number of moment conditions.
+    where $\bs{g}_N\left(\bs{p}, \gamma \right)$ is the vector of moment conditions, and $\bs{W}_N$ is the weighting matrix.
+
+    Despite the system already being overidentified (2 moment conditions, 1 parameter), the inclusion of instruments can enhance the precision of the estimates. An instrument $z$ needs to be any variable that belongs to the information set at $t-2$, i.e., $z \in I_{t−2}$. Following \citet{biais1999}, we employ the following seven instruments:
+    %
+    \begin{equation*}
+        \bs{z} = \left[\begin{array}{c}
+        1 \\
+        p_{t - 2} - p_{t - 3}  \\
+        \left(p_{t - 2} - p_{t - 3}\right)^2 \\
+        p_{t - 3} - p_{t - 4} \\
+        \left(p_{t - 3} - p_{t - 4}\right)^2 \\
+        p_{t - 4} - \mathrm{E}\left[\omega \mid \mathrm{I}_0\right] \\
+        \left(p_{t - 4} - \mathrm{E}\left[\omega \mid \mathrm{I}_0\right]\right)^2
+        \end{array}\right].
+    \end{equation*}
+    %
+    Including these instruments increases the number of moment conditions to 14, such that $\bs{g}_N\left(\bs{p}, \gamma \right)$ is of dimension ($14 \times 1$).
+
+    First, we derive the estimates by minimizing the objective function (\ref{eq:first_stage_min}) using first-stage GMM. Next, we apply the continuous-updating estimator (CUE), as proposed by \citet{hansen1996}, to improve the precision of our estimates. In the CUE approach, the weighting matrix \(\bs{W}_N\) is replaced by the optimal weighting matrix \(\bs{W}(\gamma)\), which is continuously updated during the minimization process. This involves re-estimating the matrix at each iteration based on the current parameter estimates.
+
+    % The optimal weighting matrix \(\bs{W}\) is a consistent estimator of the inverse of the variance-covariance matrix of the moment conditions, denoted as \(\bs{W} = \bs{S}^{-1}\). It assigns greater weight to more precise moment conditions (i.e., those with lower variance) and less weight to moment conditions with higher variance, thus improving the efficiency of the estimator.
+
+    %
+    % \begin{equation*}
+    %     \min _{\gamma, K}\left[\frac{1}{P} \sum_{p=1}^P g_p\left(\bs{p}, \gamma, K \right)\right]^{\prime}\bs{W}(\gamma, K)^{-1}\left[\frac{1}{P} \sum_{p=1}^P g_p\left(\bs{p}, \gamma, K \right)\right],
+    % \end{equation*}
+    % %
+    % where $g_p\left(\bs{q}, \gamma, K \right)$ is a ($14 \times 1$) vector of moment conditions and $\bs{W}(\gamma, K)$ is the weighting matrix.
+    %
+
+    For the choice of times $t, t-1, \ldots, t-4$,  we follow the recommendation of \citet{biais1999} by selecting every fifth time increment to mitigate numerical instability. Specifically, we consider the final observation for $t$, the fifth last observation for $t−1$, and so on. This approach balances the need for these times to be close to the end of the period with the goal of reducing instability in parameter estimation.
+
+    The GMM estimator requires specifying a starting value for the parameter to be estimated. We use $\gamma=0.01$. However, the starting value can significantly impact the estimates. Thus, we perform the estimation for nine additional randomly selected starting values (drawn from a uniform distribution with intervals $\gamma \in [0, 1]$) to verify that the estimates are not highly sensitive to the choice of starting values. We conduct the estimation separately for each bookmaker.
+    To evaluate the validity of the model's moment conditions, we use the Hansen J-test. This test is asymptotically \(\chi^2\)-distributed with degrees of freedom equal to the number of moment conditions (14) minus the number of parameters (1). The J-statistic is computed as
+    \begin{equation*}
+        J_N = N \bs{g}_N(\bs{p},\hat{\gamma})'\left[\widehat{Avar}(\bs{g}_N(\bs{p},\hat{\gamma}))\right]^+\bs{g}_N(\bs{p},\hat{\gamma}) \xrightarrow[d]{} \chi^2\left(13\right).
+    \end{equation*}
+
+\subsubsection{Bayesian Estimation}
+
+     Our dataset includes longitudinal data across multiple bookmakers and, thus, enables us to estimate the overall average learning rate and specific deviations for each bookmaker, through the moment conditions (\ref{eq:moment_conditions}). This approach effectively accounts for the nested structure of the data and enhances the accuracy and precision of our estimates.
+
+    Bayesian estimation is advantageous in this context, as it facilitates the formulation of such models while also providing the full posterior distribution of the estimated parameters. Furthermore, this estimation procedure helps corroborate the reliability of the results.
+
+    Using our prior knowledge about the domain and distribution of the parameters---for example, recognizing that the learning rate, as a measure of convergence, should be non-negative---we apply the following weakly informative prior distributions:
+    %
+    \begin{alignat*}{2}
+            \gamma_j &\sim \mathcal{N}^T\left(\mu_{\gamma}, \sigma_{\gamma}^2; 0, \infty \right),\quad &
+            \mu_{\gamma}& \sim \mathcal{N}^T\left(0, 1; 0, \infty \right), \\
+            \sigma_{\gamma} &\sim \mathrm{Exp}\left(2.5 \right), &
+            \sigma_{\varepsilon} &\sim \mathcal{C}^+\left(0, 0.01 \right).
+    \end{alignat*}
+    %
+    Here, $\mathcal{N}^T\left(\mu_{\gamma}, \sigma_{\gamma}^2; 0, \infty \right)$ denotes a truncated normal distribution with a lower bound of zero. We use the truncated normal distribution for the bookmaker-specific learning rates to maintain the shape of the normal distribution while ensuring non-negativity. For the mean $\mu_{\gamma}$, we use a truncated standard normal distribution to model the average learning rate of all bookmakers in the sample, and an exponential distribution for standard deviation $\sigma_{\gamma}$. For the noise variance $\sigma_{\varepsilon}$, we use the more heavily-tailed half-Cauchy distribution.
+    These priors provide some structure and regularization to the model without being too restrictive, thereby enabling the data to effectively guide the shaping of the posterior distributions.
+
+    Furthermore, we estimate the average learning rates for favorites and longshots. Matches where Player 1's opening price is higher than Player 2's opening price are categorized as favorites, while the remaining matches are classified as longshots. If the opening prices are equal, the classification is determined by comparing the closing prices using the same logic. Differences in learning rates between these groups could provide valuable insights into the mechanisms driving the favorite-longshot bias.
+
+    We extend and refine this analysis by dividing the matches into 10 opening price percentile intervals: 0-10, 10-20, ..., 90-100. This approach allows us to differentiate between more extreme favorites and longshots and their less extreme counterparts, providing insights into how learning rates vary across different price ranges.
+
+    Additionally, we investigate whether learning rates vary based on the level of competition. To do this, we classify all matches in the sample as either professional or amateur, designating ATP and WTA competitions as professional and Challenger and ITF competitions as amateur. The share of professionals is equal to \var{is_pro}, while the share of amateurs is \var{is_amateur}. This comparison allows us to observe the differences in the estimated parameters between the two groups, providing insights into how learning is driven by the level of competition.
+
+    We estimate the parameters using the No-U-Turn sampler (NUTS) and using automatic differentiation variational inference (ADVI). For detailed information on these algorithms and the procedures used, please refer to Appendix \ref{appx:algorithms}.
+
+
+
+
+\section{Data}
+
+Our dataset comprises \var{n_matches_tot} tennis matches, totaling \var{n_obs} observations, web-scraped from Oddsportal\footnote{\url{https://www.oddsportal.com/}} using Selenium in Python. The data collection spanned approximately \var{crawl_dur} weeks, from \var{crawl_start} to \var{crawl_end}, with the scraper running continuously, aside from occasional interruptions due to server and technical issues.
+        %Figure~\ref{fig:crawling_process} illustrates the density of the crawling process, highlighting the relative frequency of matches crawled per day.
+
+        % \begin{figure}[htb]
+        %     \centering
+        %     \caption{Probability Distribution of Crawled Matches Over Time}
+        %     \includegraphics[width=0.6\linewidth]{crawling_process.pdf}
+        %     \label{fig:crawling_process}
+        %     \begin{minipage}{\linewidth} Note. The figure presents the relative frequencies of crawled matches per day over the total crawling period from \var{crawl_start} to \var{crawl_end}. Zero probability mass indicates either that no matches were available on this date or that the crawling process was interrupted due to server or other technical errors.
+        %     \end{minipage}
+        % \end{figure}
+
+        The dataset comprises detailed information about each match, including match ID, involved players, the country in which the match took place, name of the competition or tour, tournament name, list of bookmakers that offered odds on the match, match outcome, and final score of the match. Most importantly, the dataset includes comprehensive odds information provided by up to \var{n_bm_tot} bookmakers per match. These odds cover both opening and closing odds (i.e., the first and last odds for a given match) and updates to the odds from open to close of the market.
+
+
+
+    \subsection{Data Preparation}
+
+        Because the odds for Player 1 are nearly perfectly negatively correlated with those for Player 2, we consider only the odds for Player 1.
+        We exclude matches where the winner is determined by withdrawal, walkover, retirement, default, or disqualification. Including these matches could introduce selection bias, as such incidents may be systematically related to a player's winning prospects and odds. Only if bookmakers correctly account for such cases, the conditional expectation of the match outcome, given the opening odds, would be unbiased.
+
+        To eliminate idiosyncrasies related to very small bookmakers, we calculate the number of observations each bookmaker contributes to the sample and discard those in the lowest \var{bm_quantile}\% quantile. This increases the stability, reliability, and interpretability of the estimates, particularly as it removes groups that are too small to provide meaningful estimates or that might introduce excessive noise or bias into the analysis.
+        Additionally, we discard observations with implausible margins, specifically those that are negative or greater than 15\%, as well as time series with zero variance.
+
+        The timing of when bookmakers first offer their odds varies, meaning that not all bookmakers place and update their odds simultaneously. Likewise, the betting periods vary by match, ranging from several hours to up to a few days. To obtain a homogeneous sample, we remove time series with lengths shorter than \var{ts_dur_from} hours and longer than \var{ts_dur_till} hours.
+        Note that Oddsportal provides only the opening odds and the last 20 updates before kickoff. Hence, there are at most 21 observations per match and bookmaker.
+
+        Moreover, we use implied probabilities because they have better statistical properties than odds. For example, they range between zero and one if no-arbitrage conditions hold, and their empirical distribution is approximately normal.
+
+        For the time series analysis, we generate homogeneous time intervals for each match, determined by the timestamp of the first opening odds of all bookmakers and the kickoff time of each match.
+        We resample the data into 1-minute intervals and impute the missing values caused by irregular time intervals using last tick interpolation. %for each missing data point, we use the most recent available data point to fill the gap, because the last known observation remains valid until a new observation is available.
+        %
+        Then, we read out the implied probabilities (i.e., prices) at every second time percentile increment of the series, such that each time series has a length of 51 observations (i.e., 50 plus the opening price). This choice is driven by the objective of finding the optimal balance between the length of the time series and their variability, which inherently involves a trade-off.
+        %
+        Subsequently, we impute the remaining missing observations at the beginning of some time series resulting from different opening timestamps using a multivariate imputation strategy. This strategy employs a Bayesian Ridge regression model that incorporates prior distributions over the parameters to predict missing values by accounting for the relationships between multiple features. A detailed description of the imputation strategy is provided in Appendix~\ref{appx:imputation}.
+
+        % We investigate the statistical properties of the data by applying various time series analyses, testing for a unit root, autocorrelation, and heteroskedasticity. Appendix~\ref{appx:time_series_properties} presents the detailed results from these tests.
+
+    \subsection{Descriptive Statistics}
+
+        Table~\ref{tab:desc_num} provides a summary of the numerical variables used in this study. Overall, there are 1.65 million observations available. Match outcome averages 0.5094, implying that the players assigned to position 1 have an unconditional winning rate of 50.94\%, demonstrating a nearly equal distribution of match outcomes between Player 1 and Player 2. Prices range from 0.0272 and 0.9901, with an average price across matches and time of 0.5438. This number is slightly larger than 0.5 due to the margin bookmakers add to the fair prices to make a profit. The corresponding standard deviation is 0.1925, reflecting moderate variability in the prices. The opening and closing prices average 0.5441 and 0.5434, respectively, with standard deviations of 0.1896 and 0.1947. These values indicate that the distribution of prices does not change strongly from the opening to the closing stages of betting.
+        %For a comparison, see Figure~\ref{fig:violin_opn_cls} in the appendix.
+        %
+        \begin{table*}[htb]
+            \caption{Descriptive Statistics for Numerical Variables}
+            \label{tab:desc_num}
+            \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrr@{\extracolsep{\fill}}}
+                \toprule
+                \InputTable{desc_num}
+            \end{tabular*}
+            \begin{minipage}{\linewidth}
+            Note. The table presents descriptive statistics for the numerical variables used in the study. The columns display the sample mean (\textit{mean}), standard deviation (\textit{std}), minimum value (\textit{min}), first quartile (\textit{25\%}), median (\textit{50\%}), third quartile (\textit{75\%}), and maximum value (\textit{max}).
+            \end{minipage}
+        \end{table*}
+        %
+
+
+
+
+        On average, matches are available for betting for 26.7 hours, with a standard deviation of 14.8 hours.
+        %Figure~\ref{fig:hist_ts_dur} in the appendix illustrates the distribution of the betting periods in hours from the opening prices to the kickoff for all bookmakers and matches in the sample.
+        %
+        The number of price changes per match and bookmaker averages 11.2, with a standard deviation of 5.58, suggesting active adjustment of prices over time.
+        %Figure~\ref{fig:hist_price_mvts} in the appendix displays the distribution of the number of price movements.
+
+        Table~\ref{tab:desc_cat} provides a detailed summary of the categorical variables. There are 24 different bookmakers left in the dataset (\textit{unique}), with Marathonbet being the most frequently represented bookmaker (\textit{top}), appearing 130,432 times (\textit{freq}).
+        %Figure~\ref{fig:dist_bookies} in the appendix illustrates the number of matches offered by each bookmaker.
+        The data covers matches played in 81 different countries, with France being the most common. The most frequent competition is the Challenger Men. The dataset also includes a wide range of tournaments, with the ATP French Open being the most represented.
+        %
+        \begin{table*}[htb]
+            \caption{Descriptive Statistics for Categorical Variables}
+            \label{tab:desc_cat}
+            \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{\extracolsep{\fill}}}
+                \toprule
+                \InputTable{desc_cat}
+            \end{tabular*}
+            \begin{minipage}{\linewidth}
+            Note. The table presents descriptive statistics for the categorical variables used in the study. The columns display the number of observations (\textit{count}) in millions, number of unique values (\textit{unique}), the most frequent value (\textit{top}), and the number of occurrences of the most frequent value (\textit{freq}).
+            \end{minipage}
+        \end{table*}
+
+
+\section{Results}
+
+    \subsection{Forecast Accuracy of Individual Bookmakers}
+
+        Figure~\ref{fig:rmse} illustrates the bookmaker-specific RMSE, assessing the effectiveness of each bookmaker's opening prices in predicting match outcomes.
+        %
+        \begin{figure}[ht]
+            \centering
+            \caption{Accuracy of Opening Prices for Predicting Match Outcomes}
+            \includegraphics[width=0.95\linewidth]{rmse.pdf}
+            \label{fig:rmse}
+            \begin{minipage}{\linewidth}
+            Note. The figure presents the RMSE of opening prices for predicting match outcomes for each bookmaker.
+            \end{minipage}
+        \end{figure}
+        %
+        Overall, all bookmakers show similar prediction accuracy based on opening prices, with RMSE values clustering around 0.45.  These values suggest that the bookmakers' models make fairly accurate predictions. Ordering by RMSE suggests that the bookmakers Vulkan Bet, 10Bet, and GGBET perform slightly better than average while Pinnacle, BetInAsia, and NordicBet exhibit slightly higher RMSE values, indicating slightly less accurate predictions. Given that odds are public, the similar predictive performance is not surprising.
+        % Overall, all bookmakers show similar prediction accuracy based on opening prices, with RMSE values clustering around 0.45.  These values suggest that the bookmakers' models make fairly accurate predictions.
+        % The bookmakers Vulkan Bet, 10Bet, and GGBET have the best performance, with the lowest RMSE values. In contrast, Pinnacle, BetInAsia, and NordicBet exhibit the highest RMSE values, indicating slightly less accurate predictions.
+        %For context, if the predicted probabilities align exactly with the true class labels, the RMSE would be 0. In contrast, random predictions (e.g., 50/50 probabilities in binary classification) result in an RMSE of 0.5.
+        %
+        Importantly, these individual-specific forecast errors do not account for differences in the time stamps of opening prices. For instance, some bookmakers may post their initial prices later than others, potentially leading to higher accuracy if their prices benefit from a learning process and thus better capture information relevant to predicting match outcomes.
+
+    \subsection{Price Movements on New Information}
+
+Table~\ref{tab:res_gpm} presents the regression results implied by Equation~\eqref{eq:resp_to_info}, where we regress close-to-end returns on open-to-close returns to evaluate the market's response to new information that emerges between the opening and closing stages of betting.
+\begin{table*}[htb]
+    \caption{Predictability of Close to End Returns}
+    \label{tab:res_gpm}
+        \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{\extracolsep{\fill}}}
+            \toprule
+            \InputTable{res_gpm}
+        \end{tabular*}
+    \begin{minipage}{\linewidth}Note. The table presents the results from the mixed linear regression model of the close-to-end returns on open-to-close returns. The fixed effects slope parameter \textit{RtrnOpnCls} is not statistically different from zero, providing evidence for rational price movements based on new information. We estimate the regression model using maximum likelihood and the optimizer fully converged.
+    \end{minipage}
+\end{table*}
+The results suggest that the null hypothesis---that prices move based on information and markets respond rationally---cannot be rejected at conventional significance levels. The 95\% confidence interval for the slope of \textit{RtrnOpnCls} ranges from -0.015 to 0.061, suggesting that the closing prices represent the conditional expectation of the match outcome. The constant term (\textit{Intercept}) indicates the estimate for the average bookmaker margin allocated to Player 1, which is expected to be equal to that of Player 2, given that the assignment of players to 1 or 2 is not systematic. In contrast, separating the sample into favorites and longshots is expected to yield a non-uniform allocation, as suggested by the favorite-longshot bias, providing an avenue for further exploration of this topic.
+
+        The inter-group variation in the intercepts and slopes (\textit{Bookies Var} and \textit{RtrnOpnCls Var}) is very small, indicating that the results do not differ strongly among bookmakers. These results contradict those of \citet{moskowitz2021}, who identifies a tendency for overreactions in the market based on a different dataset covering various kinds of sports and betting contracts.
+
+
+    \subsection{Relative Forecast Accuracy of Opening and Closing Prices}
+
+        Table~\ref{tab:res_rfa_re} presents the regression results from the AGS test in Equation~\ref{eq:ags_test}, which examines the statistical difference between the relative predictive abilities of opening and closing prices in forecasting match outcomes. This test investigates whether price movements from the open to the close correct biased opening prices or are merely noise. Table~\ref{tab:res_rfa_tot} in the appendix provides the AGS test results evaluated separately for each bookmaker.
+
+        \begin{table*}[htb]
+
+            \caption{Relative Forecast Accuracy of Opening and Closing Prices}
+            \label{tab:res_rfa_re}
+                \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{\extracolsep{\fill}}}
+                    \toprule
+                    \InputTable{res_rfa}
+                \end{tabular*}
+            \begin{minipage}{\linewidth}Note. The table presents the results from the mixed linear regression model implied by the AGS test to estimate the predictive abilities of the opening and closing price forecasts on match outcomes. We estimate the regression model using restricted maximum likelihood and the optimizer fully converged. The intercept $\beta_0$ (\textit{Intercept}) indicates a smaller mean forecast error for closing prices, while the slope $\beta_1$ (\textit{Exog}) suggests a larger forecast error variance for closing prices.
+            \end{minipage}
+        \end{table*}
+
+        The results indicate that the mean forecast error of the closing prices is significantly smaller than the mean forecast errors of the opening prices because $\beta_0$ (\textit{Intercept}) is significantly larger than zero, with confidence intervals ranging from 0.002 to 0.003. However, the slope $\beta_1$ (\textit{Exog}) is significantly smaller than zero, with confidence intervals ranging from -0.005 to -0.003, suggesting a larger forecast error variance for closing prices.
+
+        These findings suggest that price movements from the open to the close, driven by aggregated bettors, reduce bias in the betting process. However, this process also increases variance.
+        The inter-group variation in the intercepts and slopes (\textit{Bookies Var} and \textit{Exog Var}) is very small, indicating that the results do not differ significantly across bookmakers.
+
+    \subsection{Magnitude and Direction of Price Movements}
+
+        Table~\ref{tab:res_wp} presents the winning rates at different price change intervals, ordered by the magnitude of the change.
+        %
+        \begin{table*}[htb]
+            \caption{Winning Rates at Different Price Change Magnitudes}
+            \label{tab:res_wp}
+            \resizebox{\textwidth}{!}{
+                \begin{tabular}{crrrrrr}
+                    \toprule
+                    \InputTable{res_wp}
+                \end{tabular}
+                }
+            \begin{minipage}{\linewidth}Note. The  table presents winning rates for different price changes sorted by magnitudes. Specifically, we illustrate the price change interval, the average change within an interval, the average number of price movements, and the number of matches that fall in each interval. Further, we present the winning rates, the test-statistic testing if the winning rate is equal to 0.5, and the corresponding p-value.
+            \end{minipage}
+        \end{table*}
+        %
+        The interval with the largest negative price changes from the open to the close, ranging from -1 to -0.15, has an average price change of -0.192 calculated from 1,484 matches. This bin exhibits a winning rate of 0.3369, which is significantly smaller than 0.5. The winning rates monotonically increase with the magnitude of prices changes. For the interval with the largest positive price changes, ranging from 0.15 to 1, with an average change of 0.1927 calculated from 1,554 matches, the winning rate is 0.6345, which is significantly larger than 0.5.
+
+        Table~\ref{tab:res_wp_re} presents the results of the regression of the winning rates on average price change magnitudes per interval (Equation~\eqref{eq:win_rates}).
+        The intercept estimate $\beta_0$ (\textit{Intercept}) is not significantly different from one-half, suggesting that the unconditional winning rate is around 50\% and consistent with the expectation that bets are placed on equally likely outcomes. The slope estimate $\beta_1$ (\textit{AvgChange}) is significantly greater than zero, indicating a positive relationship between the magnitude of price changes and actual winning rates.
+
+        \begin{table*}[htb]
+            \caption{Relationship Between Winning Rates and Price Change Magnitudes}
+            \label{tab:res_wp_re}
+                \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{\extracolsep{\fill}}}
+                    \toprule
+                    \InputTable{res_wp_re}
+                \end{tabular*}
+            \begin{minipage}{\linewidth}Note. The table presents the results of the mixed linear regression model of actual winning rates on average price change magnitudes per interval. We estimate the model using restricted maximum likelihood and the optimizer fully converged.
+            \end{minipage}
+        \end{table*}
+
+        Figure \ref{fig:win_props_re} graphically illustrates the estimated random intercepts and slopes for the bookmakers, highlighting the common intercept around 0.5 and similar, yet slightly varying, slopes.
+        \begin{figure}[htb]
+            \centering
+            \caption{Estimated Random Intercepts and Slopes}
+            \begin{minipage}{0.49\linewidth}
+                \centering
+                \includegraphics[width=0.95\linewidth]{win_props_re.pdf}
+            \end{minipage}
+            \begin{minipage}{0.3\linewidth}
+                \centering
+                \raisebox{21pt}{\includegraphics[width=0.95\linewidth]{legend.pdf}}
+            \end{minipage}
+            \label{fig:win_props_re}
+            \begin{minipage}{\linewidth}Note. The figure presents the estimated random intercepts and slopes of the bookmakers from the regression of actual winning rates on average price changes magnitudes from the market open to close.
+            \end{minipage}
+        \end{figure}
+        %
+        These results imply that larger price changes from the open to the close are associated with higher winning rates for players whose prices increase, and lower winning rates for players whose prices decrease. If prices do not change, winning rates are approximately 0.5. The slight variations in slopes across bookmakers suggest that the price movements of some bookmakers are more informative for explaining match outcomes, with steeper slopes indicating greater explanatory power.
+
+	    It appears that the market identifies both under- and overvalued players, as well as the degree of the incorrect assessment. The market corrects this mispricing by forcing the bookmakers to adjust their prices in the appropriate direction and magnitude. These findings indicate that the influence of informed, strategic bettors is substantial and significantly influences market movements while reducing the impact of less informed and casual bettors.
+
+    \subsection{Learning vs.\ Noise Hypothesis: Unbiasedness Regressions}
+
+        So far, we have focused on opening and closing prices. For the following analyses, we examine the entire price series from opening to closing. This allows us to examine how information is incorporated into prices over time and to identify a learning process. For this analysis, we include only groups with time series featuring fewer than 20 price changes, as Oddsportal provides only the opening price and the last 20 updates before kickoff. For time series with 20 updates, we cannot be certain whether additional price changes occurred between the opening price and the first displayed update.
+
+        Figure~\ref{fig:unbiased_reg} presents the results of the unbiasedness regressions in Equation \eqref{eq:unbiasedness_reg}.
+        % , where we regress the difference in prices from the opening to the end onto the difference from the open to each time $t$, to examine the learning process throughout the betting period.
+        The upper panel of the figure displays the slope estimates, with the blue-shaded area representing the 95\% confidence intervals, while the lower panel illustrates the RMSE of the regressions over time.
+        \begin{figure}[htb]
+           \centering
+            \caption{Unbiasedness Regression Results}
+            \includegraphics[width=0.90\linewidth]{unbiased_reg.pdf}
+            \label{fig:unbiased_reg}
+            \begin{minipage}{\linewidth}Note. The figure presents the results of the unbiasedness regressions. The upper panel depicts the slope estimates over time, with the blue-shaded area displaying the 95\% confidence intervals. The lower panel depicts the RMSE for each point in time.
+            \end{minipage}
+        \end{figure}
+        Right after the open, the slope coefficients are significantly larger than 1, suggesting that there is neither evidence for learning nor for noise. At this time, intermediate prices start improving forecast accuracy but still exhibit bias, such that the learning hypothesis remains rejected. Then, the slope starts to approximate 1. At the 4th percentile time increment, the confidence bounds begin overlapping with the value of 1, providing evidence of learning up to the 12th percentile. Between the 12th and 30th percentile time increments, the confidence bounds no longer overlap with the value of 1, indicating a pause in learning. However, from the 30th to the 90th percentile, the confidence bounds once again overlap with 1, suggesting a resumption of learning. Just before the closing, the slope coefficients slightly dip below the threshold. Furthermore, the RMSE continuously declines from the open to the close, supporting the learning hypothesis.
+
+    \subsection{Learning Rate}
+
+        \subsubsection{Generalized Methods of Moments Estimation}
+
+            Figure \ref{fig:gmm_params} presents the bookmaker-specific GMM estimates of the learning rate $\gamma$, with the upper panel showing estimates based on first-stage GMM and the lower panel based on the CUE.
+            %
+            \begin{figure}[htb]
+               \centering
+                \caption{GMM Parameter Estimates}
+                \includegraphics[width=0.90\linewidth]{gmm_params.pdf}
+                \label{fig:gmm_params}
+                \begin{minipage}{\linewidth}Note. The figure presents the bookmaker-specific GMM estimates of the learning rate, with the upper panel showing estimates based on first-stage GMM and the lower panel based on the CUE.
+                \end{minipage}
+            \end{figure}
+            %
+            % Figures~\ref{fig:gmm_jstat,fig:gmm_pvalue} in the appendix illustrate the J-statistics and the corresponding p-values for first-stage GMM and the CUE, respectively.
+            %
+            The estimated learning rates based on CUE for the individual bookmakers range between \var{min_gamma_gmm} (\var{idxmin_gamma_gmm}) and \var{max_gamma_gmm} (\var{idxmax_gamma_gmm}), with an average learning rate across bookmakers of \var{avg_gamma_gmm}. The standard error for some bookmakers is relatively large, resulting in confidence intervals that overlap with zero.
+            Our estimated learning rates for the tennis sports betting market are inconsistent with the theoretical prediction of 0.5 by \citet{vives1995}, who examines how quickly private information about the value of a risky financial asset is incorporated into prices, and with the extension to 1.5 by \citet{germain1996}, who consider a scenario where agents continuously receive new private signals. Furthermore, \citet{biais1999} find an even higher learning rate of 2.7 with a relatively large standard error of 0.86 during the preopening period of the Paris Bourse.
+     %       However, these studies are constrained by the lack of a fundamental or terminal value for their assets, requiring the use of proxies---often the last available price---which could introduce bias.
+
+            Disregarding this limitation, the findings suggest that financial markets may process information significantly faster than sports betting markets, likely because they are more strongly driven by institutional traders, such as large firms, banks, and hedge funds, which diminishes the cumulative impact of noise traders. In contrast, our focus is on the soft market, which is likely dominated by noise trading.
+            %However, direct comparisons remain challenging due to the differing contexts and settings of the two markets.
+
+
+        \subsubsection*{Bayesian Estimation}
+
+            Figure~\ref{fig:post_gamma_tot} presents the posterior distributions for the overall average learning rate across bookmakers $\mu_{\gamma}$ obtained from the estimation procedures NUTS (left panel) and ADVI (right panel).
+            %
+            \begin{figure}[h]
+               \centering
+                \caption{Posterior for the Average Learning Rate}
+                \includegraphics[width=0.95\linewidth]{post_gamma_tot.pdf}
+                \label{fig:post_gamma_tot}
+                \begin{minipage}{\linewidth}Note. The figure presents the posterior distributions for the average learning rate $\mu_{\gamma}$ obtained from NUTS (left panel) and ADVI (right panel). The black bar indicates the 95\% highest density intervals (HDI).
+                \end{minipage}
+            \end{figure}
+            %
+            The posterior distributions closely resemble each other and align with the estimates obtained from GMM, supporting the validity of these results. Based on NUTS, the median is \var{gamma_med_nuts}, and the 95\% highest density intervals (HDI) range from \var{gamma_lower_nuts} to \var{gamma_upper_nuts}. We monitor convergence and stability using trace and density plots for NUTS %(Figures \ref{fig:traces_gamma_tot_1}, \ref{fig:traces_gamma_tot_2} in the appendix)
+            and track the mean, standard deviation, and ELBO for ADVI (Figure \ref{fig:tracker_advi} in the appendix).
+
+ %           Figure~\ref{fig:facetgrid_gamma_nuts_tot} in the appendix displays the bookmaker-specific posterior distributions for the learning rate $\gamma$, obtained from NUTS, while Figure~\ref{fig:facetgrid_gamma_advi_tot} in the appendix depicts them based on ADVI.
+            In line with the GMM results, the bookmaker-specific posterior distributions indicate significant heterogeneity, indicating that the individual bookmakers process information at different rates. We find a negative correlation (\var{corr_gamma_loss}) between bookmaker-specific learning rates and their RMSE for predicting match outcomes based on opening prices. This suggests that bookmakers with more accurate opening prices tend to have higher learning rates, indicating they also adapt more quickly to information released by the market between the open and the close of the market.
+
+            \begin{figure}[h]
+                \centering
+                \caption{Regression Plot Learning Rates and RMSE}
+                \includegraphics[width=0.65\linewidth]{scatter_gamma_loss.pdf}
+                \label{fig:scatter_gamma_loss}
+                \begin{minipage}{\linewidth}Note. The This figure presents the relationship between bookmaker-specific learning rates and their RMSE for predicting match outcomes based on opening prices.
+                \end{minipage}
+            \end{figure}
+
+            Figure~\ref{fig:scatter_gamma_loss} visually demonstrates this relationship in a regression plot, where we regress these individual learning rates on the RMSE. It is important to emphasize that we do not intend to suggest a structural relationship between these two metrics, as such an analysis would exceed the scope of this study.
+
+            Figure~\ref{fig:post_gamma_nuts_fav_udd} illustrates the average learning rates' posterior distributions for favorites and longshots. The orange vertical bar displays the median learning rate estimated based on the total sample (NUTS) and shows the percentage below and above this reference value. The results reveal a distinct difference in learning rates between these two groups, with favorites showing a significantly higher median learning rate (\var{gamma_fav}) compared to longshots (\var{gamma_udd}). The difference may be attributed to the favorite-longshot bias, where bettors inherently prefer long-shot bets and overestimate the chances of longshots. This behavioral tendency can slow the adjustment of prices for longshots compared to favorites.
+
+            \begin{figure}[h]
+                \centering
+                \caption{Posteriors for Learning Rates of Favorites vs. Longshots} \includegraphics[width=0.95\linewidth]{post_gamma_nuts_fav_udd.pdf}
+                \label{fig:post_gamma_nuts_fav_udd}
+                \begin{minipage}{\linewidth}Note. The figure shows the posterior distributions for the learning rates of favorites (left panel) and longshots (right panel).  The horizontal black bar indicates the 95\% highest density intervals (HDI), while the vertical orange bar shows the reference value represented by the median learning rate estimated from the total sample. Additionally, the percentage below and above this reference value is displayed.\end{minipage}
+            \end{figure}
+
+             Figure~\ref{fig:post_gamma_nuts_ivals} presents a further refinement of this analysis by dividing the matches into ten opening price percentile intervals: 0-10, 10-20, ..., 90-100, with the dotted line showing the reference value represented by the median learning rate estimated from the total sample (NUTS).
+
+            \begin{figure}[h]
+                \centering
+                \caption{Posteriors for Average Learning Rates Across Different Price Percentile Intervals}
+                \includegraphics[width=0.95\linewidth]{post_gamma_nuts_ivals.pdf}
+                \label{fig:post_gamma_nuts_ivals}
+                \begin{minipage}{\linewidth}Note. The  figure presents the posterior distributions of learning rates across ten opening price percentile intervals: 0-10, 10-20, ..., 90-100. The dotted line shows the reference value represented by the median learning rate estimated from the total sample.
+                \end{minipage}
+            \end{figure}
+
+             The results indicate that learning rates are very low and similar across the lower price percentile intervals (0-10 to 50-60), which rather represent the longshots. However, beyond these percentiles (i.e., those rather representing favorites), learning rates increase significantly, with the highest rates observed in the top percentile interval (90-100).
+            Learning rates appear to vary across different price ranges, with significantly lower rates observed for longshots, regardless of the extent of their longshot status. In contrast, for favorites, the intensity of their status seems to have a more pronounced impact, with stronger favorites tending to exhibit higher learning rates.
+
+            Finally, Figure~\ref{fig:post_gamma_nuts_pro_amat} displays the posterior distributions for the average learning rates obtained from separate estimations for the two competition levels: professionals and amateurs. The median learning rate for professionals (\var{gamma_pro}) is slightly higher than that for amateurs (\var{gamma_amat}), who exhibit greater dispersion. This suggests that bookmakers may integrate information more quickly and precisely in professional-level matches, which could be attributed to the higher unpredictability, lower availability of information, and smaller betting volumes in amateur matches. Another reason for the deviating learning rates might be a different share of rational bettors in each market.
+
+            \begin{figure}[h]
+               \centering
+                \caption{Posterior for Average Learning Rates by Competition Level}
+                \includegraphics[width=0.95\linewidth]{post_gamma_nuts_pro_amat.pdf}
+                \label{fig:post_gamma_nuts_pro_amat}
+                \begin{minipage}{\linewidth}Note. The figure presents the bookmaker-specific posteriors for $\mu_{\gamma}$ using professionals (left panel) and amateurs (right panel). The horizontal black bar indicates the 95\% highest density intervals (HDI), while the vertical orange bar shows the reference value represented by the median learning rate estimated from the total sample. Additionally, the percentage below and above this reference value is displayed.
+                \end{minipage}
+            \end{figure}
+
+
+            % Figure \ref{fig:facetgrid_gamma_nuts_pro_amat} presents the bookmaker-specific posterior distributions, comparing the posteriors for professionals (blue) to those for amateurs (orange).
+            % %
+            % \begin{figure}[htb]
+            %     \centering
+            %     \caption{Bookmaker-Specific Posteriors Professionals vs. Amateurs}
+            %     \includegraphics[width=0.99\linewidth]{facetgrid_gamma_nuts_pro_amat.pdf}
+            %     \label{fig:facetgrid_gamma_nuts_pro_amat}
+            %     \begin{minipage}{\linewidth}Note. The  figure presents the bookmaker-specific posterior distributions by comparing the posteriors for professionals (blue) to those for amateurs (orange).}
+            % \end{figure}
+            % %
+            % This comparison highlights the variability in learning rates and suggests that certain bookmakers may be more efficient at processing information in professional matches compared to amateur matches, or vice versa.
+
+
+\section{Discussion}
+
+    The findings of this study provide a comprehensive view of learning within the tennis sports betting market, revealing how prices evolve from opening to closing and the factors that influence this process. Learning, in this context, refers to how the market assimilates new information over time, gradually correcting initial biases and moving towards more accurate pricing.
+
+    One of the central contributions of this study is the detailed examination of pre-match learning throughout the betting period using longitudinal data. The results indicate that while prices at market opening are often noisy and biased, they become more accurate as the market approaches closing. By the closing, the market identifies and corrects both undervalued and overvalued players, appropriately adjusting for the magnitude of mispricing. This pattern suggests that the market undergoes a significant learning process, driven primarily by the actions of rational bettors who identify and exploit mispricings. These bettors force bookmakers to adjust their prices, thereby reducing biases and improving the accuracy of closing prices as unbiased estimates of match outcomes.
+
+    The rate of learning observed in this market is slower compared to traditional financial markets, likely due to the nature of the sports betting market, where information flow is less continuous and more event-driven. In contrast, financial markets are more heavily influenced by institutional traders, such as large firms, banks, and hedge funds, which contributes to faster information processing and a reduced impact from noise traders. However, direct comparisons are challenging. Learning rates in financial markets are often estimated using proxies, such as the last available price, due to the absence of a clear fundamental or terminal value for assets, which can introduce bias.
+
+    An important aspect of the learning process is the heterogeneity in learning rates across different market segments. The results show that favorites exhibit significantly higher learning rates compared to longshots, suggesting that the market assimilates information about favorites more quickly, likely due to the higher volume of stakes and greater attention these players receive.
+    In contrast, longshots, experience much slower learning rates, indicating that the market is less responsive to new information about these players.
+
+    Taking a more granular perspective, we find that these varying learning rates differ not only between favorites and longshots but also across different price ranges. Learning rates are significantly lower for longshots, as indicated by their lower prices, irrespective of the degree of their longshot status. Conversely, for favorites, the intensity of their status (i.e., the level of prices) has a more pronounced effect on learning rates, with stronger favorites tending to exhibit higher learning rates.
+
+    Finally, the observed differences in learning also extend to the competition among bookmakers. Bookmakers operating in more competitive environments tend to adjust their prices more rapidly, reflecting faster learning processes. This variation suggests that the market’s ability to learn and correct mispricings also depends on factors such as the level of competition.
+    For market participants, the implications of this research are manifold. For bookmakers, understanding the learning dynamics in the market can offer strategic advantages. For instance, reducing the implementation of large corrections as well as improving their risk management and their profitability. For bettors, the insights can enhance their betting strategies, enabling them to make more informed decisions.
+
+    However, we also acknowledge certain limitations. The focus on the tennis betting market, while providing a clear and controlled setting, may limit the generalizability of the findings to other markets with different structures and patterns.
+    While our study focuses on the tennis betting market, which offers a controlled and individualized setting, it is important to reflect on whether these findings can be generalized to other sports, particularly team sports like soccer, or even broader financial markets. While generalization is possible and expected to some extent, it ultimately depends on various underlying conditions.
+
+    A key factor influencing the generalizability to other sports is popularity. Soccer, for instance, is far more globally popular than tennis, drawing a larger and more diverse audience of both casual and professional bettors. This diversity could lead to different patterns of learning and information processing. For higher proportions of rational bettors, we expect bookmakers to adjust their opening prices more rapidly and accurately, resulting in faster convergence between opening and closing prices compared to tennis.
+    Another critical driver is the role of chance in determining match outcomes.
+    Tennis is an individual sport where the outcome largely depends on the skill level and performance of two players. Fewer external factors can affect the match, leading to a more predictable outcome based on rankings, form, and head-to-head records. While chance still plays a role (e.g., injuries, unforced errors), the better player tends to win more often.
+
+    In contrast, team sports like soccer inherently introduce more variability, where a multitude of variables---team strategies, lineup, weather conditions, and more---can affect outcomes. In low-scoring sports like soccer, where the outcome is more influenced by chance, we may observe lower learning rates, as bookmakers are less able to rely on past patterns to adjust their prices. This increased uncertainty might lead to divergences from the patterns observed in tennis.
+    Future research could expand this analysis to include other betting formats or team sports to validate and extend the insights gained.
+
+
+\section{Conclusion}
+
+    This study examines price formation and learning dynamics in the pre-match phase of the tennis sports betting market using longitudinal data from various bookmakers. The findings reveal that the market undergoes a significant learning process from opening to closing, driven by the actions of rational bettors and influenced by competition among bookmakers. Learning emerges not immediately at the beginning of the betting period but increases toward the middle, continuing almost until closing.
+    Learning rates show substantial variation across bookmakers and market segments. This heterogeneity suggests that the market’s ability to assimilate information and correct mispricings varies depending on the level of competition, match prominence, and price ranges. While learning occurs more slowly in this market compared to traditional financial markets, the mechanisms by which prices adjust and biases are corrected are nonetheless effective. These insights not only enhance our understanding of price formation in sports betting but also offer implications for the study of learning and information assimilation in other markets.
+
+
+%UNCOMMENT THE BELOW TWO LINES IN CASE YOU NEED AUTHOR YEAR FORMAT.
+\bibliographystyle{oup-abbrvnat}
+\bibliography{references}
+
+%% sample for biography with author's image
+% \begin{biography}{{\color{black!20}\rule{77pt}{57pt}}}{\author{Author Name.} This is sample author biography text. The values provided in the optional argument are meant for sample purposes. There is no need to include the width and height of an image in the optional argument for live articles. This is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text.}
+% \end{biography}
+
+% %% sample for biography without author's image
+% \begin{biography}{}{\author{Author Name.} This is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text this is sample author biography text.}
+% \end{biography}
+
+%%%%%%%%%%%%%%
+
+\newpage
+
+\begin{appendices}
+
+    \section{Additional Figures}
+    \label{appx:figures}
+
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Distribution of Implied Probabilities}
+        %     \includegraphics[width=0.5\linewidth]{dist_impl_probs.pdf}
+        %     \label{fig:dist_impl_probs}
+        %     \begin{minipage}{\linewidth}Note. The figure presents the distribution of implied probabilities across all matches, bookmakers, and time points.
+        %     \end{minipage}
+        % \end{figure}
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Distribution of Opening and Closing Implied Probabilities}
+        %     \includegraphics[width=0.5\linewidth]{violin_opn_cls.pdf}
+        %     \label{fig:violin_opn_cls}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the distribution of opening (blue) and closing (orange) prices across matches and bookmakers. The dashed lines indicate the first quartile, median, and third quartile, respectively.
+        %     \end{minipage}
+        % \end{figure}
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Distribution of Betting Periods (Open to Close)}
+        %     \includegraphics[width=0.5\linewidth]{hist_ts_dur.pdf}
+        %     \label{fig:hist_ts_dur}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the distribution of the betting periods from open to close based on all matches and bookmakers. Note that we only consider periods between 12 and 72 hours.\end{minipage}
+        % \end{figure}
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Distribution of Number of Price Movements}
+        %     \includegraphics[width=0.5\linewidth]{hist_price_mvts.pdf}
+        %     \label{fig:hist_price_mvts}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the number of price changes per match and bookmaker. Note that Oddsportal provides only the opening prices and the last 20 updates before kickoff. Hence, there are at most 21 observations per bookmaker. The limitation of 20 price changes at most explains the heaping at 20.\end{minipage}
+        % \end{figure}
+
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Number of Matches Offered by Each Bookmaker}
+        %     \includegraphics[width=0.99\linewidth]{dist_bookies.pdf}
+        %     \label{fig:dist_bookies}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the number of matches offered by each bookmaker, indicating how frequently each bookmaker provides odds.\end{minipage}
+        % \end{figure} 
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific J-Statistics}
+        %     \includegraphics[width=0.99\linewidth]{gmm_jstat.pdf}
+        %     \label{fig:gmm_jstat}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the bookmaker-specific J-statisitc from first-stage GMM (upper panel) and the CUE (lower panel).\end{minipage}
+        % \end{figure}
+
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific p-Values of J-Statistics}
+        %     \includegraphics[width=0.99\linewidth]{gmm_pvalue.pdf}
+        %     \label{fig:gmm_pvalue}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the p-values of the individual J-statisitcs from first-stage GMM (upper panel) and the CUE (lower panel). The dotted line intersects the y-axis at 0.05 to highlight the rejection area. For all bookmakers except Interwetten, the model (moment conditions) cannot be rejected at the 5\% significance level.\end{minipage}
+        % \end{figure}
+
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific Densities and Traces (I)}
+        %     \includegraphics[width=0.72\linewidth]{traces_gamma_tot_1.pdf}
+        %     \label{fig:traces_gamma_tot_1}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the first half of the bookmaker-specific posterior distributions (left panel) and traces (right panel) to monitor convergence and stability. Each color represents an individual chain.
+        %     \end{minipage}
+        % \end{figure}
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific Densities and Traces (II)}
+        %     \includegraphics[width=0.72\linewidth]{traces_gamma_tot_2.pdf}
+        %     \label{fig:traces_gamma_tot_2}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the second half of the bookmaker-specific posterior distributions (left panel) and traces (right panel) to monitor convergence and stability. Each color represents an individual chain.
+        %     \end{minipage}
+        % \end{figure}
+
+        \begin{figure}[h]
+            \centering
+            \caption{ADVI Tracker for the Variational Parameters}
+            \includegraphics[width=0.95\linewidth]{tracker_advi.pdf}
+            \label{fig:tracker_advi}
+            \begin{minipage}{\linewidth}Note. The  figure presents the ADVI tracker tracking the variational parameters to gain insights into the convergence and stability of the variational inference process.
+            \end{minipage}
+        \end{figure}
+        
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific Posteriors for Learning Rates (NUTS)}
+        %     \includegraphics[width=0.95\linewidth]{facetgrid_gamma_nuts_tot.pdf}
+        %     \label{fig:facetgrid_gamma_nuts_tot}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the bookmaker-specific posteriors for the learning rate obtained from NUTS.
+        %     \end{minipage}
+        % \end{figure}
+            
+        % \begin{figure}[h]
+        %     \centering
+        %     \caption{Bookmaker-Specific Posteriors for Learning Rates (ADVI)}
+        %     \includegraphics[width=0.95\linewidth]{facetgrid_gamma_advi_tot.pdf}
+        %     \label{fig:facetgrid_gamma_advi_tot}
+        %     \begin{minipage}{\linewidth}Note. The  figure presents the bookmaker-specific posteriors for the learning rate obtained from ADVI.
+        %     \end{minipage}
+        % \end{figure}
+
+
+\clearpage
+
+\section{Additional Tables}
+
+        \begin{table*}[htb]
+            
+            \caption{Bookmaker-Specific Relative Forecast Accuracy of Opening and Closing Prices}
+            \label{tab:res_rfa_tot}
+            \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrr@{\extracolsep{\fill}}}
+                \toprule
+                \InputTable{res_rfa_tot}
+            \end{tabular*}
+            \begin{minipage}{\linewidth}Note. The  table presents the results from the mixed linear regression model implied by the AGS test for each bookmaker, separately, to estimate the predictive abilities of the opening and closing price forecasts for match outcomes. We estimate the model using restricted maximum likelihood and the optimizer fully converged.
+            \end{minipage}
+        \end{table*}
+
+        \begin{table*}[htb]
+            
+            \caption{Results of Bayesian Estimation of the Learning Rate}
+            \label{tab:res_nuts}
+            \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrr@{\extracolsep{\fill}}}
+                \toprule
+                \InputTable{res_pm_mod}
+            \end{tabular*}
+            \begin{minipage}{\linewidth}Note. The  table presents the results from the Bayesian estimation of the learning rate parameters based on NUTS.
+            \end{minipage}
+        \end{table*}
+
+\clearpage
+
+    \section{Imputation of Initial Prices}
+    \label{appx:imputation}
+
+        For each match, we observe multiple bookmakers offering odds on the outcome, which we convert to implied probabilities, or prices. However, not all bookmakers provide their initial prices at the same time, resulting in different opening price timestamps and thus time series of varying lengths. While the end of the time series is defined by the kickoff time and is consistent across all bookmakers, the start varies. To create homogenous time series, we align the beginning with the earliest opening price timestamp across all bookmakers for that match. This process generates missing values for $K-1$ bookmakers prior to their initial price offering.
+
+        Since a simple backward-filling approach would ignore the dynamic patterns of the data, we impute these missing values---representing a fraction of \var{frac_missings} of the total sample---using a multivariate imputation strategy\footnote{We use scikit-learn's iterative imputer. This strategy assumes that the non-existing values can be consistently estimated based on time series patterns across matches and bookmakers in the dataset. The documentation is available at \url{https://scikit-learn.org/stable/modules/impute.html\#iterative-imputer}}.
+        The procedure employs a Bayesian Ridge regression model that incorporates prior distributions over the parameters to predict missing values by accounting for the relationships between multiple features. These features include the affected bookmaker's implied probabilities for other matches and the implied probabilities of other bookmakers for the same and different matches. In accordance with no-arbitrage conditions, we restrict the algorithm to ensure that the imputed values remain within the range between 0 and 1.
+
+        To evaluate the accuracy of the imputed values, we compare the performance of the proposed strategy against two other imputation methods---median imputation and linear extrapolation. 
+        %
+        \begin{figure}[htb]
+           \centering
+            \caption{RMSE Implied by Different Imputation Strategies}
+            \includegraphics[width=0.5\linewidth]{imput_loss.pdf}
+            \label{fig:imput_loss}
+            \begin{minipage}{\linewidth}Note. The  figure presents the RMSE implied by different imputation strategies, including median imputation, linear extrapolation, and the proposed multiple imputation.
+            \end{minipage}
+        \end{figure}
+        %
+        We use a simulation design in which a comparable proportion of observations at the start of randomly selected time series are artificially set to None. 
+        These missing values are then imputed using each of the imputation strategies. During the simulations, we vary the minimum number of price movements in the affected time series, setting thresholds at the 25th, 50th, and 75th percentiles of the total number of price movements in the dataset. This serves as a proxy for the level of variation within the time series. For each simulation, we compute the RMSE, as shown in Figure~\ref{fig:imput_loss}.
+                
+        We observe that across all evaluated percentiles, the median imputation strategy consistently produces the highest RMSE, followed by the linear extrapolation strategy. The proposed multiple imputation strategy yields the lowest RMSE for all percentiles.
+    
+
+    % \section{Statistical Properties of Time Series Data}
+    % \label{appx:time_series_properties}
+
+    %     To investigate the time series properties of our data, we calculate the returns and the square returns based on the cross-sectional mean from the first observation to the last. This approach avoids the need to test each time series separately and allows us to assess the general temporal pattern while minimizing idiosyncratic effects.
+            
+    %     Figure~\ref{fig:cs_mean_rtrn} depicts the cross-sectional mean returns and the squared cross-sectional mean returns from the first percentile time increment to the last. 
+    %     %
+    %     \begin{figure}[htb]
+    %        \centering
+    %         \caption{Cross-sectional Mean Returns and Square Returns Over Time}
+    %         \includegraphics[width=0.5\linewidth]{cs_mean_rtrn.pdf}
+    %         \label{fig:cs_mean_rtrn}
+    %         \begin{minipage}{\linewidth}Note. The  figure presents the cross-sectional mean returns and the squared cross-sectional mean returns of the time series. The mean at a specific time $t$ is calculated as the average value across all matches and bookmakers at that particular time point.
+    %         \end{minipage}
+    %     \end{figure}
+    %     %
+    %     The cross-sectional mean returns exhibit a sharp decline immediately after the opening, followed by a gradual upward trend that declines but persists until the end. The squared cross-sectional mean returns also show high initial variability, which smooths out in the later periods, indicating that the market is stabilizing over time.
+    %     Using these return series, we perform a variety of time series tests to thoroughly analyze the data's statistical properties.
+
+    %     \subsection*{Augmented Dickey-Fuller Test}
+                
+    %         First, we test the time series for a unit root by applying an augmented Dickey-Fuller test \citep{dickey1979}, which includes a constant, a linear trend, and a quadratic trend. This involves running the following regression:
+    %         %
+    %         \begin{equation*}
+    %             \Delta y_t = \alpha + \zeta_0 t + \zeta_1 t^2 + \phi y_{t-1} + \sum_{i=1}^P \delta_i \Delta y_{t-i} + \varepsilon_t,
+    %         \end{equation*}
+    %         %
+    %         where $y_t$ represents the cross-sectional mean return at time $t$, $\alpha$ is a constant term (drift), $\zeta_0$ is the coefficient on the linear time trend, $\zeta_1$ is the coefficient on the quadratic trend, $\phi$ is the coefficient of the lagged level of the time series (i.e., the process root), $\delta_j$ are the coefficients on the lagged differences $\Delta y_{t-i}$, which account for higher-order autocorrelation, and $P$ is the number of lagged difference terms included in the model. We determine the number of lags $P$ by using the Bayes-Schwarz information criterion (BIC) as proposed by \citet{schwarz1978}.
+            
+    %         The null hypothesis is that the time series has a unit root, while the alternative hypothesis is that the time series is (weakly) stationary. We obtain a test-statistic value of \var{adf_stat} and a corresponding p-value of \var{adf_p}, suggesting that we can reject the null hypothesis that the time series contains a unit root on conventional significance levels.
+            
+    %     \subsection*{Partial Autocorrelation Function}
+           
+    %         Second, we investigate the autocorrelation of the time series using the partial autocorrelation function (PACF). The PACF measures the correlation between two values in the time series while controlling for the influence of intermediate lags, allowing us to identify the direct effect of a past value on the current value.
+            
+    %         Figure~\ref{fig:pacf} illustrates the PACF of the cross-sectional return series (left panel) and squared return series (right panel) for multiple lags.
+    %         %
+    %         \begin{figure}[htb]
+    %            \centering
+    %             \caption{Partial Autocorrelation Function}
+    %             \includegraphics[width=0.99\linewidth]{pacf.pdf}
+    %             \label{fig:pacf}
+    %             \begin{minipage}{\linewidth}Note. The  figure depicts the PACF of the cross-sectional return series (left panel) and squared return series (right panel) for multiple lags. The blue-shaded area displays the 95\% confidence intervals.
+    %             \end{minipage}
+    %         \end{figure}
+    %         %
+    %         The PACF exhibits a significant effect of past values on current values up to the first lag for both time series. Moreover, the effect of past values decays over time and becomes non-significant after the first lag, indicating a low degree of persistence in the data.
+    
+    %     \subsection*{EGARCH Model}
+    
+    %         Third, we examine the volatility pattern of the squared return time series. Similar to asset returns in financial markets, price returns in the sports betting market may exhibit time-varying volatility and volatility clustering effects. To estimate the conditional volatility, we employ an exponential generalized autoregressive conditional heteroskedasticity (EGARCH) model, as introduced by \citet{nelson1991}. This model is particularly suited for capturing nonlinearities and asymmetries, allowing it to effectively model scenarios where negative shocks have a different impact on volatility than positive shocks.
+            
+    %         For modeling the mean, we use an autoregressive process with a constant term. We determine the number of lags using the significant lags indicated by the PACF for the square returns, which equals 1. This yields the following EGARCH model:           
+    %         %
+    %         \begin{gather*}
+    %             y_t= \alpha + \phi y_{t-1}+\varepsilon_t \\
+    %             \varepsilon_t=\sigma_t u_t \\
+    %             \ln \left(\sigma_t^2\right)=\mu+\rho\left(\left|\frac{\varepsilon_{t-1}}{\sigma_{t-1}}\right|-\sqrt{2 / \pi}\right)+\tau\frac{\varepsilon_{t-1}}{\sigma_{t-1}}+\psi\ln\left(\sigma_{t-1}^2\right),
+    %         \end{gather*}
+    %         %
+    %         where $y_t$ is the square return series, $\alpha$ is the constant term of the autoregressive process, $\phi$ is the autoregressive parameter, $\varepsilon_t$ the residual composed of the conditional standard deviation (volatility) $\sigma_t$ and an i.i.d. process $u_t$ with zero mean and unit variance. The intercept $\mu$ represents the average long-term volatility, $\rho$ measures the sensitivity of past shocks on current volatility, $\tau$ provides insights whether the time series has symmetrical or asymmetrical volatility behavior ($\tau > 0$ indicates that positive shocks bring on increased volatility, while $\tau < 0$ indicates that negative shocks bring on increased volatility), and $\psi$ describes the persistence of volatility over time, with higher values suggesting that past volatility has a lasting effect on current volatility.
+
+    %         Table~\ref{tab:res_egarch} presents the estimated parameters of the constant mean EGARCH model.
+    %         %
+    %         \begin{table*}[htb]
+                
+    %             \caption{Constant Mean EGARCH Model}
+    %             \label{tab:res_egarch}
+    %                 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrr@{\extracolsep{\fill}}}
+    %                     \midrule
+    %                     \InputTable{res_garch}
+    %                 \end{tabular*}
+    %             \begin{minipage}{\linewidth}Note. The  table presents the estimated parameters of the EGARCH model. The constant term $\alpha$ represents the predicted average return over the period, while $\phi$ is the autoregressive parameter estimate. The volatility model intercept $\mu$ represents the average long-term volatility, $\rho$ measures the sensitivity of past shocks on current volatility, $\tau$ accounts for the asymmetry in the impact of past shocks on volatility, and $\psi$ describes the persistence of volatility over time.
+    %             \end{minipage}
+    %         \end{table*}
+    %         %
+    %         The results confirm the presence of conditional heteroskedasticity, suggesting that past volatility has a positive lasting effect on current volatility ($\psi = 0.8434$). Additionally, the results provide evidence for asymmetry in the impact of past shocks on volatility, indicating that positive log returns or shocks may bring on increased volatility ($\tau = 0.4006$).
+            
+    \section{Bayesian Estimation -- Algorithms and Procedures}
+    \label{appx:algorithms}
+
+        The No-U-Turn sampler (NUTS), as proposed by \citet{hoffman2014}, is a recursive algorithm for continuous variables based on Hamiltonian mechanics, offering greater computational efficiency compared to other samplers like the Gibbs sampler. We utilize the Rust implementation, Nutpie, which is integrated into the PyMC probabilistic programming package, leveraging Numba as its computational backend.
+        
+        For the NUTS estimations, we increase the acceptance probability slightly to 0.85 from the default 0.8, ensuring smaller step sizes and reducing the likelihood of divergent trajectories in the samples. We run \var{n_chains} chains with \var{n_draws} iterations each, discarding an additional \var{n_tune} burn-in samples per chain. To monitor convergence, we use the Gelman-Rubin statistic $\hat{R}$ \citep{gelman1992,brooks1998} and dispay trace plots for the individual chains.
+        
+        Automatic differentiation variational inference (ADVI) is a deterministic approximation method that optimizes parameters---typically the mean and standard deviation---by iteratively updating them to minimize the difference between the variational distribution and the posterior. In ADVI, our goal is to find the parameters of the variational distribution that best approximate the posterior distribution by minimizing the Kullback-Leibler (KL) divergence between the true posterior and the variational approximation.
+        
+        For ADVI estimation, we use \var{vi_n_iter} iterations and \var{vi_n_draws} draws. The number of iterations reflects how many times the optimization algorithm updates the variational parameters during inference, while the number of draws indicates how many samples are taken from the variational distribution during each iteration to estimate the gradients of the objective function. We monitor the convergence of this process using a tracker that records changes in the objective function, such as the evidence lower bound (ELBO).
+
+
+\end{appendices}
+
+
+
+\end{document}

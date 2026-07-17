@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 This file creates descriptive statistics.
@@ -15,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 
 from pfd.helpers import save_values
@@ -36,11 +34,6 @@ cs.store(name="pfd_config", node=PFDConfig)
 
 # Function
 
-with initialize(
-    version_base=None, config_path="../conf", job_name="run_descriptives"
-):
-    cfg = compose(config_name="config")
-
 
 @hydra.main(config_path="../conf", config_name="config", version_base=None)
 def create_descriptives(cfg: PFDConfig) -> None:
@@ -51,7 +44,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
 
     # External Files
 
-    with open(f"{cfg.paths.acc}{cfg.files.clr_plt}", "r") as f:
+    with open(f"{cfg.paths.acc}{cfg.files.clr_plt}") as f:
         stata_colors = json.load(f)
 
     df = pd.read_hdf(path_or_buf=f"{cfg.paths.data_proc}data_desc.h5")
@@ -95,6 +88,7 @@ def create_descriptives(cfg: PFDConfig) -> None:
                     "Time",
                     "No. Price Changes",
                 ],
+                strict=True,
             )
         )
     )
@@ -238,25 +232,6 @@ def create_descriptives(cfg: PFDConfig) -> None:
         file_name=f"{cfg.paths.vals}{cfg.files.vals}",
         fmt=".2f",
     )
-
-    # fmt_cols = [
-    #     col for col in desc_num if col not in ["Time", "Num. Price Changes"]
-    # ]
-    # desc_num[fmt_cols] = desc_num.loc[:, fmt_cols].apply(NumFormat.format_col)
-
-    fmt_dict = {
-        col: NumFormat(my_format="{:.3f}").format_post for col in desc_num
-    }
-
-    # write_text_file(
-    #     file=f"{cfg.paths.tables}desc_num.tex",
-    #     body=mod_tex_tab(
-    #         tab=desc_num.style.format(
-    #             formatter=fmt_dict,
-    #             na_rep="",
-    #         ).to_latex()
-    #     ),
-    # )
 
     write_text_file(
         file=f"{cfg.paths.tables}desc_num.tex",

@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Dict
 
 import arviz as az
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -17,7 +14,7 @@ from pfd.utils import finalize_plot
 
 
 def plot_posteriors(
-    mod_trace: az.InferenceData | Dict[str, az.InferenceData] | list,
+    mod_trace: az.InferenceData | dict[str, az.InferenceData] | list,
     ref_vals: float | list | None,
     path: str,
     save: bool,
@@ -68,19 +65,18 @@ def plot_posteriors(
         finalize_plot(path=path, save=save)
 
     elif isinstance(mod_trace, list):
-
-        mod_trace = pd.DataFrame(
+        df_trace = pd.DataFrame(
             data=mod_trace,
             index=[f"{i * 10}-{(i + 1) * 10}" for i in range(0, 10)],
         ).T
-        mod_trace = mod_trace.melt(
+        df_trace = df_trace.melt(
             var_name="Price Percentile Interval",
             value_name="Average Learning Rate",
         )
 
         _, ax = plt.subplots()
         sns.boxplot(
-            data=mod_trace,
+            data=df_trace,
             x="Price Percentile Interval",
             y="Average Learning Rate",
             # inner="quartile",

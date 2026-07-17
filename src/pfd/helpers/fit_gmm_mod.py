@@ -1,9 +1,7 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -21,7 +19,7 @@ def fit_gmm_mod(
     start_params: np.ndarray,
     max_iter: int | str,
     bookie: str,
-) -> List[Dict[str, float]]:
+) -> list[dict[str, float]]:
     """
     Fit GMM model.
 
@@ -58,7 +56,7 @@ def fit_gmm_mod(
         n_per=n_per,
     )
 
-    res_tot: List[Dict[str, float]] = []
+    res_tot: list[dict[str, float]] = []
 
     for start_params_vals in start_params:
         if max_iter == 1:

@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -12,7 +10,7 @@ import pandas as pd
 # Function
 def _create_gmm_data(
     df: pd.DataFrame, n_per: int, incr: int
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Create GMM data.
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -36,7 +35,7 @@ def calc_win_props(df: pd.DataFrame, ival: list) -> list:
             (df["DltOpnCls"] > ival[0]) & (df["DltOpnCls"] <= ival[1])
         ].copy()
     else:
-        raise ValueError("Invalid interval: {}".format(ival))
+        raise ValueError(f"Invalid interval: {ival}")
 
     n_matches = df.shape[0]
     win_prop = df["Match"].mean()

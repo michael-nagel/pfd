@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from scipy.stats import norm
 
 from pfd.utils import finalize_plot
@@ -17,10 +14,10 @@ from pfd.utils import finalize_plot
 
 
 def plot_gmm_res(
-    res_gmm: Dict[str, list],
+    res_gmm: dict[str, list],
     bookies: list,
     edgecolor: str,
-    paths: List[str],
+    paths: list[str],
     save: bool,
 ) -> None:
     """

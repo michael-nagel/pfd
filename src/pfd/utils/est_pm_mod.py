@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
 # Imports
 import arviz as az
@@ -23,8 +22,8 @@ def est_pm_mod(
     vi_n_iter: int | None = None,
     vi_n_draws: int | None = None,
     *args: tuple,
-    **kwargs: Dict[str, Any],
-) -> Tuple[Any, Any, Any] | az.InferenceData:
+    **kwargs: dict[str, Any],
+) -> tuple[Any, Any, Any] | az.InferenceData:
     """
     Estimate PyMC model.
 
@@ -89,6 +88,7 @@ def est_pm_mod(
         compiled_model = nutpie.compile_pymc_model(model=model)
 
         trace = nutpie.sample(
+            *args,
             compiled_model=compiled_model,
             draws=n_draws,
             tune=n_tune,
@@ -96,7 +96,6 @@ def est_pm_mod(
             cores=n_cores,
             seed=seed,
             target_accept=targ_acpt,
-            *args,
             **kwargs,
         )
 

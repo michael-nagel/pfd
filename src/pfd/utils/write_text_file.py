@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 
 def write_text_file(
@@ -53,7 +52,7 @@ def write_text_file(
     with open(file, "w") as tf:
         tf.write(body)
 
-    with open(file, "r") as tf:
+    with open(file) as tf:
         content = tf.read().splitlines(True)
 
     with open(file, "w") as tf:

@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import List
 
 import numpy as np
 from statsmodels.sandbox.regression.gmm import GMM
@@ -12,7 +10,6 @@ from statsmodels.sandbox.regression.gmm import GMM
 
 
 class _GenMethMom(GMM):
-
     def __init__(
         self,
         endog,
@@ -21,7 +18,7 @@ class _GenMethMom(GMM):
         k_moms=None,
         k_params=None,
         missing="none",
-        **kwds
+        **kwds,
     ):
         super().__init__(
             endog, exog, instrument, k_moms, k_params, missing, **kwds
@@ -57,7 +54,7 @@ class _GenMethMom(GMM):
         ) * (exog[:, 2] - endog) ** 2
 
         # Additional moment conditions created by instruments
-        list_mom_conds: List[np.ndarray] = []
+        list_mom_conds: list[np.ndarray] = []
         for i in range(0, 7):
             list_mom_conds.append(mom_cond_1 * inst[:, i])
             list_mom_conds.append(mom_cond_2 * inst[:, i])

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from .create_descriptives import create_descriptives
 from .plot_facetgrid import plot_facetgrid

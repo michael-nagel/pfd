@@ -1,5 +1,0 @@
-    python3 -m venv pfd_venv
-
-    source pfd_venv/bin/activate
-
-    pip install git+https://github.com/michael-nagel/pfd.git

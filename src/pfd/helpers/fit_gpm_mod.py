@@ -1,20 +1,15 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
 import pandas as pd
-import statsmodels
 import statsmodels.formula.api as smf
-
-from pfd.utils import scale_vars
+import statsmodels.regression.mixed_linear_model as mlm
 
 # Function
 
 
-def fit_gpm_mod(
-    df: pd.DataFrame, exog_cols: list
-) -> statsmodels.regression.mixed_linear_model.MixedLMResultsWrapper:
+def fit_gpm_mod(df: pd.DataFrame, exog_cols: list) -> mlm.MixedLMResultsWrapper:
     """
     Fit general price movements model.
 

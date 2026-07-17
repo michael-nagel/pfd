@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -77,9 +76,7 @@ def shape_odds(df: pd.DataFrame, cols_base: list, side: str) -> pd.DataFrame:
         df["OddsMvt"].str.split(pat=r"(\d\d [^']{3}, \d\d:\d\d)\n").str[-1]
     )
     df["OddsMvt"] = df["OddsMvt"].str.split(pat="\n")
-    df["OddsMvt"] = df["OddsMvt"].map(
-        lambda x: [ele for ele in x if ele != ""]
-    )
+    df["OddsMvt"] = df["OddsMvt"].map(lambda x: [ele for ele in x if ele != ""])
 
     df[["DtOpnOdds", "OpnOdds"]] = df["OpnOdds"].str.split(
         pat="\n", n=1, expand=True, regex=False

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 This file crawls the data from the match links.
@@ -11,7 +10,6 @@ import json
 import re
 import time
 from pathlib import Path
-from typing import List
 
 import hydra
 import pandas as pd
@@ -47,12 +45,12 @@ def _crawl_data(cfg: PFDConfig) -> None:
 
     # External Files
 
-    with open(f"{cfg.paths.acc}{cfg.files.cred}", "r") as f:
+    with open(f"{cfg.paths.acc}{cfg.files.cred}") as f:
         creds = json.load(f)
 
     file = Path(f"{cfg.paths.data_raw}crawled_urls.txt")
     if file.is_file():
-        with open(f"{cfg.paths.data_raw}crawled_urls.txt", "r") as f:
+        with open(f"{cfg.paths.data_raw}crawled_urls.txt") as f:
             crawled_match_urls = f.read().splitlines()
             f.close()
     else:
@@ -95,9 +93,7 @@ def _crawl_data(cfg: PFDConfig) -> None:
         first_crawl = pd.Timestamp.now()
 
         while (
-            pd.Timedelta(
-                value=pd.Timestamp.now() - first_crawl
-            ).total_seconds()
+            pd.Timedelta(value=pd.Timestamp.now() - first_crawl).total_seconds()
             / 3600
         ) <= cfg.scraping.repeat_per:
             driver = login(
@@ -106,7 +102,7 @@ def _crawl_data(cfg: PFDConfig) -> None:
                 my_username=creds["username"],
                 my_password=creds["password"],
             )
-            match_urls_tot: List[str] = []
+            match_urls_tot: list[str] = []
 
             for tourn_url in tourn_urls:
                 driver.get(url=tourn_url + r"\results")
@@ -122,9 +118,7 @@ def _crawl_data(cfg: PFDConfig) -> None:
                     n_pages = driver.find_elements(
                         by=By.CSS_SELECTOR, value="#pagination"
                     )
-                    n_pages = [ele.text for ele in n_pages if ele.text != ""][
-                        0
-                    ]
+                    n_pages = [ele.text for ele in n_pages if ele.text != ""][0]
                     n_pages = n_pages.rsplit(sep="\n")[-1]
                 except:
                     n_pages = 1
@@ -341,9 +335,7 @@ def _crawl_data(cfg: PFDConfig) -> None:
                                         prices_lay_home = []
                                         prices_lay_away = []
 
-                                        for k in range(
-                                            0, len(prices_to_hover)
-                                        ):
+                                        for k in range(0, len(prices_to_hover)):
                                             ActionChains(
                                                 driver=driver
                                             ).move_to_element(
@@ -373,12 +365,8 @@ def _crawl_data(cfg: PFDConfig) -> None:
                                             else:
                                                 prices_lay_away.append(prices)
 
-                                        data["PriceBackHome"] = (
-                                            prices_back_home
-                                        )
-                                        data["PriceBackAway"] = (
-                                            prices_back_away
-                                        )
+                                        data["PriceBackHome"] = prices_back_home
+                                        data["PriceBackAway"] = prices_back_away
                                         data["PriceLayHome"] = prices_lay_home
                                         data["PriceLayAway"] = prices_lay_away
                             except:

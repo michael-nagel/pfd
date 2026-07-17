@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
 import numpy as np
 import pandas as pd
 import pymc as pm
+import pytensor.tensor as pt
 
 from pfd.utils import _create_gmm_data
 
@@ -35,7 +35,11 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
     endog, exog, inst = _create_gmm_data(df=df, n_per=n_per, incr=incr)
 
     bookie_idx, bookies = pd.factorize(df["Bookies"])
-    coords = {"bookmakers": bookies, "obs_id": np.arange(0, len(bookie_idx))}
+    coords = {
+        "bookmakers": bookies,
+        "obs_id": np.arange(0, len(bookie_idx)),
+        "moment": np.arange(14),
+    }
 
     with pm.Model(coords=coords) as model:
         # Mutable data
@@ -89,20 +93,19 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
             ((n_per - 2) / (n_per - 1)) ** (2 * gamma[bookie_idx])
         ) * (exog[:, 2] - endog) ** 2
 
-        mom_conds = []
-
-        for i in range(0, 7):
-            mom_conds.append(mom_cond_1 * inst[:, i])
-            mom_conds.append(mom_cond_2 * inst[:, i])
+        # Moment conditions x instruments
+        mom_cond = pt.stack([mom_cond_1, mom_cond_2], axis=1)
+        mom_conds = (inst[:, :, None] * mom_cond[:, None, :]).reshape(
+            (mom_cond.shape[0], 14)
+        )
 
         # Likelihood
-        for i, mu in enumerate(mom_conds, start=1):
-            pm.Normal(
-                name=f"moment_condition_{i}",
-                mu=mu,
-                sigma=sd_eps,
-                observed=np.zeros(shape=df.shape[0]),
-                dims="obs_id",
-            )
+        pm.Normal(
+            name="moment_conditions",
+            mu=mom_conds,
+            sigma=sd_eps,
+            observed=np.zeros(shape=(df.shape[0], 14)),
+            dims=("obs_id", "moment"),
+        )
 
     return model

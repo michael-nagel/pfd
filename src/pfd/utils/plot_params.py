@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -77,7 +76,7 @@ class PlotParams:
         ):  # 100%, 3x1 (6.4, 7.2), 2x1 (6.4, 4.8) and 1x2 (6.4, 2.6) plots
             factor = 0.5
         else:
-            raise ValueError("Invalid kind parameter: {}".format(kind))
+            raise ValueError(f"Invalid kind parameter: {kind}")
 
         params = {
             "legend.fontsize": self.legend_fontsize * factor,

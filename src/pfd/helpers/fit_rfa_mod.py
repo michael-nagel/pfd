@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -63,12 +62,8 @@ def fit_rfa_mod(df: pd.DataFrame, exog_cols: list, bookie: str) -> dict:
 
     else:
         n_matches = df[df["Bookies"] == bookie].shape[0]
-        rmse_opn = (
-            df.loc[df["Bookies"] == bookie, "FEOpn"] ** 2
-        ).mean() ** 0.5
-        rmse_cls = (
-            df.loc[df["Bookies"] == bookie, "FECls"] ** 2
-        ).mean() ** 0.5
+        rmse_opn = (df.loc[df["Bookies"] == bookie, "FEOpn"] ** 2).mean() ** 0.5
+        rmse_cls = (df.loc[df["Bookies"] == bookie, "FECls"] ** 2).mean() ** 0.5
 
         exog = df.loc[df["Bookies"] == bookie, exog_cols].copy()
 

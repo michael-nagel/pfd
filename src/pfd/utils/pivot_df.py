@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -41,6 +40,7 @@ def pivot_df(df: pd.DataFrame, exog_cols: list, n_per: int) -> pd.DataFrame:
             zip(
                 np.arange(0, n_per),
                 ["OddsMvt" + str(ele) for ele in np.arange(0, n_per)],
+                strict=True,
             )
         )
     )

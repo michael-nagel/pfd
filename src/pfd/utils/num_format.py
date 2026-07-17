@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -96,8 +95,7 @@ class NumFormat:
                 df = df.apply(pd.to_numeric, errors="coerce")
                 df = df.map("{:.0f}".format)
             elif (df_num.abs().dropna() >= 10).all() & ~(
-                df_num.abs().dropna().round(1)
-                != df_num.abs().dropna().round(0)
+                df_num.abs().dropna().round(1) != df_num.abs().dropna().round(0)
             ).all():
                 df = df.apply(pd.to_numeric, errors="coerce")
                 df = df.map("{:.1f}".format)

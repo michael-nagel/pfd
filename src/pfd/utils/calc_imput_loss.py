@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Callable, List, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -14,12 +13,12 @@ from sklearn.metrics import mean_squared_error
 
 def calc_imput_loss(
     df: pd.DataFrame,
-    odds_mvt_cols: List[str],
+    odds_mvt_cols: list[str],
     n_mvt: int,
     pctl: int,
     seed: int,
     imp_func: Callable[[pd.DataFrame, int], pd.DataFrame],
-) -> List[float]:
+) -> list[float]:
     """
     Calculate imputation loss.
 

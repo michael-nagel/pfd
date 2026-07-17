@@ -1,9 +1,8 @@
 # !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Any, Tuple
+from typing import Any
 
 import arviz as az
 import numpy as np
@@ -18,7 +17,7 @@ from pfd.utils import est_pm_mod
 
 def gen_res_obj(
     df: pd.DataFrame, est_method: str, subset: str, n_per: int, cfg: DictConfig
-) -> Tuple[Any, Any, Any] | az.InferenceData:
+) -> tuple[Any, Any, Any] | az.InferenceData:
     """
     Generate the result objects for ADVI and NUTS.
 
@@ -68,9 +67,7 @@ def gen_res_obj(
             vi_n_draws=cfg.sampling.vi_n_draws,
         )
 
-        np.save(
-            file=f"{cfg.paths.models}tracker_mean.npy", arr=tracker["mean"]
-        )
+        np.save(file=f"{cfg.paths.models}tracker_mean.npy", arr=tracker["mean"])
         np.save(file=f"{cfg.paths.models}tracker_std.npy", arr=tracker["std"])
         np.save(file=f"{cfg.paths.models}advi_hist.npy", arr=advi.hist)
 

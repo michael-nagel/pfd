@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 This file shapes the crawled data.
@@ -8,12 +7,11 @@ This file shapes the crawled data.
 # Imports
 
 import json
-from typing import Any, List
+from typing import Any
 
 import hydra
 import numpy as np
 import pandas as pd
-from hydra import compose, initialize
 from hydra.core.config_store import ConfigStore
 
 from pfd.helpers import save_values
@@ -23,11 +21,6 @@ from pfd.utils import Logger, PFDConfig, shape_odds
 
 cs = ConfigStore.instance()
 cs.store(name="pfd_config", node=PFDConfig)
-
-with initialize(
-    version_base=None, config_path="../conf", job_name="shape_data"
-):
-    cfg = compose(config_name="config")
 
 # Function
 
@@ -41,8 +34,8 @@ def shape_data(cfg: PFDConfig) -> None:
 
     # External Files
 
-    data: List[Any] = []
-    for line in open(f"{cfg.paths.data_raw}crawled_odds.json", "r"):
+    data: list[Any] = []
+    for line in open(f"{cfg.paths.data_raw}crawled_odds.json"):
         try:
             data.append(json.loads(line))
         except json.JSONDecodeError:
@@ -303,9 +296,7 @@ def shape_data(cfg: PFDConfig) -> None:
 
     df = pd.merge(
         left=df_bm_home,
-        right=df_bm_away[
-            ["Date", "Encounter", "Bookies", "Update", "OddsMvt"]
-        ],
+        right=df_bm_away[["Date", "Encounter", "Bookies", "Update", "OddsMvt"]],
         how="inner",
         on=["Date", "Encounter", "Bookies", "Update"],
     )
@@ -335,9 +326,7 @@ def shape_data(cfg: PFDConfig) -> None:
         save_values(
             key="crawl_dur", value=crawl_dur, file_name=values_path, fmt=".0f"
         )
-        save_values(
-            key="crawl_start", value=crawl_start, file_name=values_path
-        )
+        save_values(key="crawl_start", value=crawl_start, file_name=values_path)
         save_values(key="crawl_end", value=crawl_end, file_name=values_path)
 
         timestamps.to_hdf(

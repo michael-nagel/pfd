@@ -1,128 +1,109 @@
-[tool.poetry]
+[project]
 name = "pfd"
 version = "0.1.0"
 description = "Replication package for 'Price Formation Dynamics and Learning'"
-authors = ["Michael Nagel <michael.n.nagel@gmail.com>"]
-maintainers = ["Michael Nagel <m.nagel@uni-tuebingen.de>"]
+authors = [
+  { name = "Michael Nagel", email = "michael.n.nagel@gmail.com" },
+]
+maintainers = [
+  { name = "Michael Nagel", email = "m.nagel@uni-tuebingen.de" },
+]
 license = "MIT"
-readme = ["README.md", "LICENSE"]
-packages = [
-  {include = "pfd", from = "src"}
-]
-homepage = "https://taylor-francis-paper-url"
-repository = "https://repo-url"
-documentation = "https://python-poetry.org/docs"
-keywords = [
-  "gmm", 
-  "bayesian estimation"
-]
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+keywords = ["gmm", "bayesian estimation"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python :: 3",
-  "Operating System :: Microsoft :: Windows"
+  "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+  "arch==7.0.0",
+  "arviz==0.16.1",
+  "fake-useragent==1.4.0",
+  "fastprogress==1.0.3",
+  "h5py==3.10.0",
+  "hydra-core==1.3.2",
+  "matplotlib==3.8.2",
+  "numba==0.58.1",
+  "numpy==1.26.2",
+  "nutpie==0.9.1",
+  "omegaconf==2.3.0",
+  "pandas==2.2.1",
+  "pymc==5.10.1",
+  "scikit-learn==1.3.2",
+  "scipy==1.11.4",
+  "seaborn==0.13.0",
+  "selenium==4.16.0",
+  "statsmodels==0.14.0",
+  "tables==3.9.2",
 ]
 
-[tool.poetry.urls]
+[project.urls]
+Homepage = "https://taylor-francis-paper-url"
+Repository = "https://repo-url"
 Changelog = "https://repo-url/CHANGELOG.rst"
 
-[tool.poetry.dependencies]
-python = "~3.11"
-arviz = "0.16.1"
-fake_useragent = "1.4.0"
-matplotlib = "3.8.2"
-numba = "0.58.1"
-numpy = "1.26.2"
-nutpie = "0.9.1"
-pandas = "2.2.1"
-pymc = "5.10.1"
-requests = "2.31.0"
-scikit-learn = "1.3.2"
-scipy = "1.11.4"
-seaborn = "0.13.0"
-selenium = "4.16.0"
-statsmodels = "0.14.0"
-conda-lock = "2.5.1"
-sphinx-rtd-theme = "2.0.0"
-jinja2 = "3.1.3"
-h5py = "3.10.0"
-tables = "3.9.2"
-hydra-core = "1.3.2"
-stubs = "1.0.0"
-arch = "^7.0.0"
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-sugar>=1.1.1",
+    "ruff>=0.15.22",
+    "ty>=0.0.60",
+]
+docs = [
+    "esbonio>=2.1.0",
+    "sphinx>=9.0.4",
+    "sphinx-rtd-theme>=3.1.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-Sphinx = "^7.2.6"
-sphinx-rtd-theme = "^2.0.0"
-tox = "^4.11.4"
-pytest = "^7.4.4"
-pytest-sugar = "^0.9.7"
-flake8 = "^7.0.0"
-mypy = "^1.8.0"
-pytest-cov = "^4.1.0"
-esbonio = "^0.16.04"
-
-[mypy]
-ignore_missing_imports = false
-disallow_untyped_defs = false
-disallow_untyped_calls = false
-check_untyped_defs = true
-disallow_incomplete_defs = true
-warn_redundant_casts = true
-disallow_any_generics = false
-warn_unused_ignores = true
-
-[tool.mypy]
-disable_error_code = [
-    "assignment", 
-    "call-overload",
-    "operator", 
-    "attr-defined", 
-    "misc", 
-    "index", 
-    "union-attr"
-    ]
-
-[[tool.mypy.overrides]]
-module = "pandas"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "scipy.integrate"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "scipy.stats"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pymc"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "seaborn"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "statsmodels"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "sklearn"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "fake_useragent"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "nutpie"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "scipy"
-ignore_missing_imports = true
-
+[tool.uv]
+package = true
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pfd"]
+
+[tool.ruff]
+line-length = 80
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"src/pfd/data/_crawl_data.py" = ["E722"]
+"src/pfd/utils/login.py" = ["E722"]
+"docs/conf.py" = ["E402"]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+# Downgraded rather than fixed: the remaining diagnostics come from
+# incomplete/loose stubs in pymc, pytensor, arviz and pandas (e.g. the
+# `SequenceNotStr` protocol pandas expects for `columns=`/`index=`, or
+# pymc's untyped Distribution/MutableData API), not from bugs in this
+# code. The old mypy config disabled the equivalent categories
+# (assignment, attr-defined, misc, index, union-attr) project-wide for
+# the same reason; this mirrors that stance for `ty`.
+[tool.ty.rules]
+invalid-argument-type = "warn"
+unresolved-attribute = "warn"
+invalid-assignment = "warn"
+not-subscriptable = "warn"
+no-matching-overload = "warn"
+unknown-argument = "warn"
+missing-argument = "warn"
+invalid-return-type = "warn"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/pfd"]
+branch = true

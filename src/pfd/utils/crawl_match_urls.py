@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Any, List
+from typing import Any
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -11,7 +10,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 # Function
 
 
-def crawl_match_urls(driver: WebDriver, match_urls_tot: List[Any]) -> None:
+def crawl_match_urls(driver: WebDriver, match_urls_tot: list[Any]) -> None:
     """
     Crawl match urls.
 

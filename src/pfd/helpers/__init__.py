@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from .fit_gmm_mod import fit_gmm_mod
 from .fit_gpm_mod import fit_gpm_mod

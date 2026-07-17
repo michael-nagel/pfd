@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
-from typing import Dict
 
 import arviz as az
 import matplotlib.pyplot as plt
@@ -14,7 +12,7 @@ import seaborn as sns
 
 
 def plot_facetgrid(
-    mod_trace: az.InferenceData | Dict[str, az.InferenceData],
+    mod_trace: az.InferenceData | dict[str, az.InferenceData],
     param: str,
     color_palette: list,
     path: str,

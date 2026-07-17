@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -61,6 +60,6 @@ def enc_categ_var(
     colnames = list(df.columns)
     colnames = [colname for colname in colnames if colname.startswith(prefix)]
     new_colnames = [colname.replace(" ", "_") for colname in colnames]
-    df = df.rename(columns=dict(zip(colnames, new_colnames)))
+    df = df.rename(columns=dict(zip(colnames, new_colnames, strict=True)))
 
     return df

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Imports
 
@@ -9,7 +8,7 @@ import statsmodels.formula.api as smf
 # Function
 
 
-def bootstrap_std_error(df: pd.DataFrame, n_bootstraps: int) -> list:
+def bootstrap_std_error(df: pd.DataFrame, n_bootstraps: int) -> pd.DataFrame:
     """
     Bootstrap standard error.
 
@@ -22,8 +21,8 @@ def bootstrap_std_error(df: pd.DataFrame, n_bootstraps: int) -> list:
 
     Returns
     -------
-    list
-        List containing bootstrap coefficients.
+    pd.DataFrame
+        DataFrame containing bootstrap coefficients.
 
     """
 

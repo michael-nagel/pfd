@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # %% Imports
 
@@ -9,8 +8,9 @@ import arviz as az
 import numpy as np
 import pandas as pd
 
+from pfd.helpers import fit_gmm_mod, fit_gpm_mod, fit_rfa_mod
 from pfd.helpers.base import create_pm_mod
-from pfd.utils import est_pm_mod
+from pfd.utils import est_pm_mod, fit_mixed_lm
 
 # %% Class
 
@@ -47,6 +47,127 @@ class IntegrationTest(unittest.TestCase):
         )
 
         self.assertIsInstance(trace, az.InferenceData)
+
+    def test_fit_gmm_mod_returns_expected_metrics(self) -> None:
+        """
+        Check that fit_gmm_mod runs the data-prep -> GMM estimation
+        pipeline end to end and returns the expected metrics.
+        """
+        n_per = 30
+        n_obs = 100
+        rng = np.random.default_rng(42)
+        cols = [f"OddsMvt{i}" for i in [0, 5, 10, 15, 20, 25]]
+        df = pd.DataFrame({col: rng.uniform(0, 1, size=n_obs) for col in cols})
+        df["Bookies"] = "Pinnacle"
+        df["Match"] = rng.integers(0, 2, size=n_obs)
+
+        res = fit_gmm_mod(
+            df=df,
+            n_per=n_per,
+            incr=5,
+            start_params=[np.array([0.1])],
+            max_iter="cue",
+            bookie="Pinnacle",
+        )
+
+        self.assertEqual(len(res), 1)
+        for key in ["gamma", "std_gamma", "J_stat", "p_value"]:
+            self.assertIn(key, res[0])
+            self.assertIsInstance(res[0][key], float)
+
+    def test_fit_gpm_mod_returns_mixedlm_result(self) -> None:
+        """
+        Check that fit_gpm_mod fits the general price movements model
+        and recovers the sign of a known relationship.
+        """
+        rng = np.random.default_rng(0)
+        n = 60
+        df = pd.DataFrame(
+            {
+                "RtrnOpnCls": rng.normal(size=n),
+                "TsDur": rng.normal(size=n),
+                "Compet_Challenger_Men": rng.integers(0, 2, size=n),
+                "Compet_ITF_Men": rng.integers(0, 2, size=n),
+                "Compet_Misc": rng.integers(0, 2, size=n),
+                "Compet_WTA": rng.integers(0, 2, size=n),
+                "Bookies": np.tile(["Pinnacle", "Bet365", "Bwin"], n // 3),
+            }
+        )
+        df["RtrnClsEnd"] = 0.5 * df["RtrnOpnCls"] + rng.normal(
+            scale=0.1, size=n
+        )
+
+        res = fit_gpm_mod(df=df, exog_cols=[])
+
+        self.assertIn("RtrnOpnCls", res.params.index)
+        self.assertGreater(res.params["RtrnOpnCls"], 0)
+
+    def test_fit_rfa_mod_returns_expected_metrics(self) -> None:
+        """
+        Check that fit_rfa_mod returns the expected metrics both for
+        a single bookmaker (OLS) and across bookmakers (mixed model).
+        """
+        exog_cols = [
+            "Compet_Challenger_Men",
+            "Compet_ITF_Men",
+            "Compet_Misc",
+            "Compet_WTA",
+            "TsDur",
+        ]
+        rng = np.random.default_rng(1)
+        n = 60
+        df = pd.DataFrame(
+            {
+                "TsDur": rng.normal(size=n),
+                "Compet_Challenger_Men": rng.integers(0, 2, size=n),
+                "Compet_ITF_Men": rng.integers(0, 2, size=n),
+                "Compet_Misc": rng.integers(0, 2, size=n),
+                "Compet_WTA": rng.integers(0, 2, size=n),
+                "Bookies": np.tile(["Pinnacle", "Bet365", "Bwin"], n // 3),
+            }
+        )
+        df["FEOpn"] = rng.uniform(0.1, 0.5, size=n)
+        df["FECls"] = df["FEOpn"] * 0.5 + rng.normal(scale=0.02, size=n)
+
+        res_bookie = fit_rfa_mod(
+            df=df.copy(), exog_cols=exog_cols, bookie="Pinnacle"
+        )
+        res_all = fit_rfa_mod(df=df.copy(), exog_cols=exog_cols, bookie="All")
+
+        for res in (res_bookie, res_all):
+            for key in [
+                "alpha",
+                "beta",
+                "p_alpha",
+                "p_beta",
+                "rmse_opn",
+                "rmse_cls",
+            ]:
+                self.assertIn(key, res)
+
+    def test_fit_mixed_lm_returns_expected_metrics(self) -> None:
+        """
+        Check that fit_mixed_lm returns the expected coefficients.
+        """
+        rng = np.random.default_rng(2)
+        n = 60
+        df = pd.DataFrame(
+            {
+                "TsDur": rng.normal(size=n),
+                "Compet_Challenger_Men": rng.integers(0, 2, size=n),
+                "Compet_ITF_Men": rng.integers(0, 2, size=n),
+                "Compet_Misc": rng.integers(0, 2, size=n),
+                "Compet_WTA": rng.integers(0, 2, size=n),
+                "Bookies": np.tile(["Pinnacle", "Bet365", "Bwin"], n // 3),
+                "OddsMvt5": rng.normal(size=n),
+            }
+        )
+        df["Endog"] = rng.normal(size=n)
+
+        res = fit_mixed_lm(df=df, exog_var="OddsMvt5")
+
+        for key in ["beta_0", "beta_1", "std_beta_0", "std_beta_1", "rmse"]:
+            self.assertIn(key, res)
 
 
 if __name__ == "__main__":
