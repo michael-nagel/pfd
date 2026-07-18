@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pfd.visualization.plot_unbiased_reg_res &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -78,32 +76,31 @@
              
   <h1>Source code for pfd.visualization.plot_unbiased_reg_res</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="c1"># Imports</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">DictConfig</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">omegaconf</span><span class="w"> </span><span class="kn">import</span> <span class="n">DictConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span>
 
-<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">finalize_plot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pfd.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">finalize_plot</span>
 
 <span class="c1"># %% Function</span>
 
 
 <div class="viewcode-block" id="plot_unbiased_reg_res">
 <a class="viewcode-back" href="../../../pfd.visualization.html#pfd.visualization.plot_unbiased_reg_res.plot_unbiased_reg_res">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_unbiased_reg_res</span><span class="p">(</span>
-    <span class="n">res_ur</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_unbiased_reg_res</span><span class="p">(</span>
+    <span class="n">res_ur</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">DictConfig</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot unbiasedness regression results.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    res_ur : list</span>
-<span class="sd">        List that contains the unbiasedness regressions results.</span>
+<span class="sd">    res_ur : dict[str, list[float]]</span>
+<span class="sd">        Dict that contains the unbiasedness regressions results.</span>
 <span class="sd">    cfg : DictConfig</span>
 <span class="sd">        Dictionary containing config parameters.</span>
 <span class="sd">    path : str</span>
@@ -140,67 +137,6 @@
     <span class="p">)</span>
     <span class="n">finalize_plot</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span></div>
 
-
-    <span class="c1"># fig = plt.figure()</span>
-    <span class="c1"># intcp_ax = fig.add_subplot(221)</span>
-    <span class="c1"># rmse_ax = fig.add_subplot(222)</span>
-    <span class="c1"># slope_ax = fig.add_subplot(212)</span>
-    <span class="c1"># intcp_ax.plot(np.arange(0, len(res_ur[&quot;beta_0&quot;])), res_ur[&quot;beta_0&quot;])</span>
-    <span class="c1"># intcp_ax.fill_between(</span>
-    <span class="c1">#     x=np.arange(0, len(res_ur[&quot;beta_0&quot;])),</span>
-    <span class="c1">#     y1=np.array(res_ur[&quot;beta_0&quot;])</span>
-    <span class="c1">#     + norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_0&quot;]),</span>
-    <span class="c1">#     y2=np.array(res_ur[&quot;beta_0&quot;])</span>
-    <span class="c1">#     - norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_0&quot;]),</span>
-    <span class="c1">#     alpha=0.15,</span>
-    <span class="c1"># )</span>
-    <span class="c1"># intcp_ax.hlines(</span>
-    <span class="c1">#     y=0, xmin=0, xmax=len(res_ur[&quot;beta_0&quot;]) - 1, linestyles=&quot;dotted&quot;</span>
-    <span class="c1"># )</span>
-    <span class="c1"># intcp_ax.set(xlabel=&quot;&quot;, ylabel=&quot;Intercept&quot;)</span>
-    <span class="c1"># intcp_ax.set_xticks(</span>
-    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
-    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
-    <span class="c1"># )</span>
-    <span class="c1"># # intcp_ax.set_xticks(</span>
-    <span class="c1"># #     np.arange(0, len(res_ur[&quot;beta_0&quot;]))[::4],</span>
-    <span class="c1"># #     np.flip(np.arange(0, len(res_ur[&quot;beta_0&quot;])))[::4] * len_per + len_per,</span>
-    <span class="c1"># # )</span>
-    <span class="c1"># rmse_ax.plot(np.arange(0, len(res_ur[&quot;rmse&quot;])), res_ur[&quot;rmse&quot;])</span>
-    <span class="c1"># rmse_ax.set(xlabel=&quot;&quot;, ylabel=&quot;RMSE&quot;)</span>
-    <span class="c1"># rmse_ax.set_xticks(</span>
-    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
-    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
-    <span class="c1"># )</span>
-    <span class="c1"># # rmse_ax.set_xticks(</span>
-    <span class="c1"># #     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::4],</span>
-    <span class="c1"># #     np.flip(np.arange(0,</span>
-    <span class="c1"># len(res_ur[&quot;rmse&quot;])))[::4] * len_per + len_per,</span>
-    <span class="c1"># # )</span>
-    <span class="c1"># slope_ax.plot(np.arange(0, len(res_ur[&quot;beta_1&quot;])), res_ur[&quot;beta_1&quot;])</span>
-    <span class="c1"># slope_ax.fill_between(</span>
-    <span class="c1">#     x=np.arange(0, len(res_ur[&quot;beta_1&quot;])),</span>
-    <span class="c1">#     y1=np.array(res_ur[&quot;beta_1&quot;])</span>
-    <span class="c1">#     + norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_1&quot;]),</span>
-    <span class="c1">#     y2=np.array(res_ur[&quot;beta_1&quot;])</span>
-    <span class="c1">#     - norm.ppf(0.975) * np.array(res_ur[&quot;std_beta_1&quot;]),</span>
-    <span class="c1">#     alpha=0.15,</span>
-    <span class="c1"># )</span>
-    <span class="c1"># slope_ax.hlines(</span>
-    <span class="c1">#     y=1, xmin=0, xmax=len(res_ur[&quot;beta_1&quot;]) - 1, linestyles=&quot;dotted&quot;</span>
-    <span class="c1"># )</span>
-    <span class="c1"># slope_ax.set(xlabel=&quot;Percentile Time Increments&quot;, ylabel=&quot;Slope&quot;)</span>
-    <span class="c1"># slope_ax.set_xticks(</span>
-    <span class="c1">#     np.arange(0, len(res_ur[&quot;rmse&quot;]))[::6],</span>
-    <span class="c1">#     np.arange(pctl, 100 + pctl, pctl)[::6],</span>
-    <span class="c1"># )</span>
-    <span class="c1"># plt.ylim(bottom=0)</span>
-    <span class="c1"># # slope_ax.set_xticks(</span>
-    <span class="c1"># #     np.arange(0, len(res_ur[&quot;beta_1&quot;]))[::4],</span>
-    <span class="c1"># #     np.flip(np.arange(0,</span>
-    <span class="c1">#  len(res_ur[&quot;beta_1&quot;])))[::4] * len_per + len_per,</span>
-    <span class="c1"># # )</span>
-    <span class="c1"># finalize_plot(path=path, save=save)</span>
 </pre></div>
 
            </div>

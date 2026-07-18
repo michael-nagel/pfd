@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,19 +7,15 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pfd.models package &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=01f34227"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -102,6 +100,159 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
+<section id="module-pfd.models.bayesian_estimation">
+<span id="pfd-models-bayesian-estimation-module"></span><h2>pfd.models.bayesian_estimation module<a class="headerlink" href="#module-pfd.models.bayesian_estimation" title="Link to this heading"></a></h2>
+<p>This file estimates the learning rate using Bayesian methods.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.bayesian_estimation.estimate_bayesian_learning_rate">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.bayesian_estimation.</span></span><span class="sig-name descname"><span class="pre">estimate_bayesian_learning_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stata_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/bayesian_estimation.html#estimate_bayesian_learning_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.bayesian_estimation.estimate_bayesian_learning_rate" title="Link to this definition"></a></dt>
+<dd><p>Estimate the learning rate using Bayesian methods.</p>
+<p>This function estimates the bookmaker-specific learning rate using
+ADVI and NUTS, for the total sample as well as favorites/longshots,
+professionals/amateurs, and a 10x partition by opening odds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Wide-format, imputed estimation sample.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods of the time series.</p></li>
+<li><p><strong>rmse</strong> (<em>pd.Series</em>) – RMSE of the opening odds for each bookmaker.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+<li><p><strong>stata_colors</strong> (<em>list</em>) – Color palette.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>res_pm, metrics, gamma_med_nuts, gamma_lower_nuts,
+gamma_upper_nuts, gamma_fav, gamma_udd, gamma_pro, gamma_amat.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.bookmaker_accuracy">
+<span id="pfd-models-bookmaker-accuracy-module"></span><h2>pfd.models.bookmaker_accuracy module<a class="headerlink" href="#module-pfd.models.bookmaker_accuracy" title="Link to this heading"></a></h2>
+<p>This file analyzes bookmaker accuracy and general price movements.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.bookmaker_accuracy.analyze_bookmaker_accuracy">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.bookmaker_accuracy.</span></span><span class="sig-name descname"><span class="pre">analyze_bookmaker_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stata_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/bookmaker_accuracy.html#analyze_bookmaker_accuracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.bookmaker_accuracy.analyze_bookmaker_accuracy" title="Link to this definition"></a></dt>
+<dd><p>Analyze bookmaker accuracy and general price movements.</p>
+<p>This function calculates the accuracy of opening odds across
+bookmakers, general price movements from opening to closing odds,
+and the relative forecast accuracy of opening vs. closing lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Filtered and shaped estimation sample.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Exogenous variables.</p></li>
+<li><p><strong>bookies</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Bookmakers.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+<li><p><strong>stata_colors</strong> (<em>list</em>) – Color palette.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>rmse, df_oc, iqr_rtrns, tex_res_gpm, tex_res_rfa, df_res_rfa.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.filter_and_shape">
+<span id="pfd-models-filter-and-shape-module"></span><h2>pfd.models.filter_and_shape module<a class="headerlink" href="#module-pfd.models.filter_and_shape" title="Link to this heading"></a></h2>
+<p>This file filters and shapes the estimation sample.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.filter_and_shape.filter_and_shape_data">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.filter_and_shape.</span></span><span class="sig-name descname"><span class="pre">filter_and_shape_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/filter_and_shape.html#filter_and_shape_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.filter_and_shape.filter_and_shape_data" title="Link to this definition"></a></dt>
+<dd><p>Filter and shape the estimation sample.</p>
+<p>This function applies the margin/bookmaker/time-series-duration
+filters, determines favorites/longshots, takes the home or away
+perspective, and encodes the exogenous variables used throughout
+the rest of the estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Shaped data as produced by shape_data().</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>df, df_desc, bookies, exog_cols, n_obs, n_groups, is_amateur,
+is_pro.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.gmm_estimation">
+<span id="pfd-models-gmm-estimation-module"></span><h2>pfd.models.gmm_estimation module<a class="headerlink" href="#module-pfd.models.gmm_estimation" title="Link to this heading"></a></h2>
+<p>This file estimates the learning rate using GMM.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.gmm_estimation.estimate_gmm_learning_rate">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.gmm_estimation.</span></span><span class="sig-name descname"><span class="pre">estimate_gmm_learning_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stata_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/gmm_estimation.html#estimate_gmm_learning_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.gmm_estimation.estimate_gmm_learning_rate" title="Link to this definition"></a></dt>
+<dd><p>Estimate the learning rate using GMM.</p>
+<p>This function estimates the bookmaker-specific learning rate using
+continuously updated GMM (CUE) as well as a first-stage GMM
+estimate, both via multiprocessing across bookmakers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Wide-format, imputed estimation sample.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods of the time series.</p></li>
+<li><p><strong>bookies</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Bookmakers.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+<li><p><strong>stata_colors</strong> (<em>list</em>) – Color palette.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>gamma_stats_gmm, idxmin_gamma_gmm, idxmax_gamma_gmm.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.resample_and_impute">
+<span id="pfd-models-resample-and-impute-module"></span><h2>pfd.models.resample_and_impute module<a class="headerlink" href="#module-pfd.models.resample_and_impute" title="Link to this heading"></a></h2>
+<p>This file resamples the time series and imputes missing prices.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.resample_and_impute.resample_and_impute_data">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.resample_and_impute.</span></span><span class="sig-name descname"><span class="pre">resample_and_impute_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/resample_and_impute.html#resample_and_impute_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.resample_and_impute.resample_and_impute_data" title="Link to this definition"></a></dt>
+<dd><p>Resample the time series and impute missing initial prices.</p>
+<p>This function resamples each match/bookmaker time series to a
+common percentile-time grid using multiprocessing, reshapes the
+result to wide format, and imputes prices missing due to
+different opening timestamps across bookmakers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Filtered and shaped estimation sample.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Exogenous variables.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>df (wide, imputed), odds_mvt_cols, n_per, frac_missings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-pfd.models.run_estimation">
 <span id="pfd-models-run-estimation-module"></span><h2>pfd.models.run_estimation module<a class="headerlink" href="#module-pfd.models.run_estimation" title="Link to this heading"></a></h2>
 <p>This file runs the estimation procedure.</p>
@@ -109,6 +260,101 @@
 <dt class="sig sig-object py" id="pfd.models.run_estimation.run_estimation">
 <span class="sig-prename descclassname"><span class="pre">pfd.models.run_estimation.</span></span><span class="sig-name descname"><span class="pre">run_estimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pfd/models/run_estimation.html#run_estimation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.run_estimation.run_estimation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+</section>
+<section id="module-pfd.models.time_series_diagnostics">
+<span id="pfd-models-time-series-diagnostics-module"></span><h2>pfd.models.time_series_diagnostics module<a class="headerlink" href="#module-pfd.models.time_series_diagnostics" title="Link to this heading"></a></h2>
+<p>This file analyzes the statistical properties of the time series data.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.time_series_diagnostics.analyze_time_series_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.time_series_diagnostics.</span></span><span class="sig-name descname"><span class="pre">analyze_time_series_diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exog_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odds_mvt_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stata_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/time_series_diagnostics.html#analyze_time_series_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.time_series_diagnostics.analyze_time_series_diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Analyze the statistical properties of the resampled time series.</p>
+<p>This function computes cross-sectional (squared) returns, tests
+for stationarity (ADF), inspects the partial autocorrelation
+function, and fits a GARCH model on the significant lags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Wide-format, imputed estimation sample.</p></li>
+<li><p><strong>exog_cols</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Exogenous variables.</p></li>
+<li><p><strong>odds_mvt_cols</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Columns containing the odds movements.</p></li>
+<li><p><strong>n_per</strong> (<em>int</em>) – Number of periods of the time series.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+<li><p><strong>stata_colors</strong> (<em>list</em>) – Color palette.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>adf_stat, adf_p, tex_res_garch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.unbiasedness_regressions">
+<span id="pfd-models-unbiasedness-regressions-module"></span><h2>pfd.models.unbiasedness_regressions module<a class="headerlink" href="#module-pfd.models.unbiasedness_regressions" title="Link to this heading"></a></h2>
+<p>This file estimates the unbiasedness regressions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.unbiasedness_regressions.estimate_unbiasedness_regressions">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.unbiasedness_regressions.</span></span><span class="sig-name descname"><span class="pre">estimate_unbiasedness_regressions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odds_mvt_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Index</span></span></span><a class="reference internal" href="_modules/pfd/models/unbiasedness_regressions.html#estimate_unbiasedness_regressions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.unbiasedness_regressions.estimate_unbiasedness_regressions" title="Link to this definition"></a></dt>
+<dd><p>Estimate the unbiasedness regressions.</p>
+<p>This function estimates, for each time increment, whether the
+price at that increment is an unbiased predictor of the match
+outcome, using multiprocessing across time increments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Wide-format, imputed estimation sample.</p></li>
+<li><p><strong>odds_mvt_cols</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Columns containing the odds movements.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time increments (in percentiles) at which the price is not a
+significantly biased predictor of the match outcome.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Index</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pfd.models.winning_proportions">
+<span id="pfd-models-winning-proportions-module"></span><h2>pfd.models.winning_proportions module<a class="headerlink" href="#module-pfd.models.winning_proportions" title="Link to this heading"></a></h2>
+<p>This file analyzes the magnitude and direction of odds movements.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pfd.models.winning_proportions.analyze_winning_proportions">
+<span class="sig-prename descclassname"><span class="pre">pfd.models.winning_proportions.</span></span><span class="sig-name descname"><span class="pre">analyze_winning_proportions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_oc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bookies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><span class="pre">PFDConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><span class="pre">PlotParams</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stata_colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pfd/models/winning_proportions.html#analyze_winning_proportions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pfd.models.winning_proportions.analyze_winning_proportions" title="Link to this definition"></a></dt>
+<dd><p>Analyze the magnitude and direction of odds movements.</p>
+<p>This function calculates the winning proportions within intervals
+of opening-to-closing price changes, and estimates the relation
+between winning rates and the average price movements within
+those intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df_oc</strong> (<em>pd.DataFrame</em>) – DataFrame with one row per group (first observation), as
+produced by analyze_bookmaker_accuracy().</p></li>
+<li><p><strong>bookies</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Bookmakers.</p></li>
+<li><p><strong>cfg</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.config.PFDConfig" title="pfd.utils.config.PFDConfig"><em>PFDConfig</em></a>) – Config parameters.</p></li>
+<li><p><strong>plot_params</strong> (<a class="reference internal" href="pfd.utils.html#pfd.utils.plot_params.PlotParams" title="pfd.utils.plot_params.PlotParams"><em>PlotParams</em></a>) – Plotting parameters.</p></li>
+<li><p><strong>stata_colors</strong> (<em>list</em>) – Color palette.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>res_win_props, tex_res_wp_re, bootstr_std, bootstr_low,
+bootstr_up.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-pfd.models">

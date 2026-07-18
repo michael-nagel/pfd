@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pfd.models.time_series_diagnostics &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Nagel 2024 Replication Package
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../main_modules.html">Main Moduls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../list_objects.html">List of Tables, Figures, and Programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logic_subpackages.html">Logic of Subpackages</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pfd</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Nagel 2024 Replication Package</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pfd.models.time_series_diagnostics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pfd.models.time_series_diagnostics</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file analyzes the statistical properties of the time series data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Imports</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pylab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pylab</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">arch</span><span class="w"> </span><span class="kn">import</span> <span class="n">arch_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">arch.unitroot</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxNLocator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.graphics.tsaplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_pacf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.stattools</span><span class="w"> </span><span class="kn">import</span> <span class="n">pacf</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pfd.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">PFDConfig</span><span class="p">,</span> <span class="n">PlotParams</span><span class="p">,</span> <span class="n">finalize_plot</span>
+
+<span class="c1"># Function</span>
+
+
+<div class="viewcode-block" id="analyze_time_series_diagnostics">
+<a class="viewcode-back" href="../../../pfd.models.html#pfd.models.time_series_diagnostics.analyze_time_series_diagnostics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_time_series_diagnostics</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">exog_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">odds_mvt_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">n_per</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="n">PFDConfig</span><span class="p">,</span>
+    <span class="n">plot_params</span><span class="p">:</span> <span class="n">PlotParams</span><span class="p">,</span>
+    <span class="n">stata_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze the statistical properties of the resampled time series.</span>
+
+<span class="sd">    This function computes cross-sectional (squared) returns, tests</span>
+<span class="sd">    for stationarity (ADF), inspects the partial autocorrelation</span>
+<span class="sd">    function, and fits a GARCH model on the significant lags.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Wide-format, imputed estimation sample.</span>
+<span class="sd">    exog_cols : list[str]</span>
+<span class="sd">        Exogenous variables.</span>
+<span class="sd">    odds_mvt_cols : list[str]</span>
+<span class="sd">        Columns containing the odds movements.</span>
+<span class="sd">    n_per : int</span>
+<span class="sd">        Number of periods of the time series.</span>
+<span class="sd">    cfg : PFDConfig</span>
+<span class="sd">        Config parameters.</span>
+<span class="sd">    plot_params : PlotParams</span>
+<span class="sd">        Plotting parameters.</span>
+<span class="sd">    stata_colors : list</span>
+<span class="sd">        Color palette.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        adf_stat, adf_p, tex_res_garch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Reshape DataFrame back from wide to long</span>
+    <span class="n">df_garch</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+        <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Matchup&quot;</span><span class="p">,</span> <span class="s2">&quot;Bookies&quot;</span><span class="p">,</span> <span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">exog_cols</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">,</span>
+        <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;CumCount&quot;</span><span class="p">,</span>
+        <span class="n">value_vars</span><span class="o">=</span><span class="n">odds_mvt_cols</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Keep time series with &lt;20 odds updates (Oddsportal provides 20 updates</span>
+    <span class="c1"># at most such that we cannot be sure whether time series with 20 updates</span>
+    <span class="c1"># contain all updates)</span>
+    <span class="n">df_garch</span> <span class="o">=</span> <span class="n">df_garch</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;NumOddsMvt&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="c1"># Format data and calculate returns</span>
+    <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;CumCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;CumCount&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">pat</span><span class="o">=</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">,</span> <span class="n">repl</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;CumCount&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;CumCount&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_garch</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;Matchup&quot;</span><span class="p">,</span> <span class="s2">&quot;Bookies&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+    <span class="n">df_garch</span> <span class="o">=</span> <span class="n">df_garch</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GroupId&quot;</span><span class="p">,</span> <span class="s2">&quot;CumCount&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_returns</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">df</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">df_garch</span><span class="p">[</span><span class="s2">&quot;Return&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_garch</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;GroupId&quot;</span><span class="p">)[</span><span class="s2">&quot;OddsMvt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="n">calc_returns</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Calculate (squared) cross-sectional returns and plot</span>
+    <span class="n">cs_mean_rtrn</span> <span class="o">=</span> <span class="n">df_garch</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;CumCount&quot;</span><span class="p">)[</span><span class="s2">&quot;Return&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">cs_mean_rtrn_sq</span> <span class="o">=</span> <span class="n">cs_mean_rtrn</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">plot_params</span><span class="o">.</span><span class="n">set_rc_params</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig_small&quot;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">lns_1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_per</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">cs_mean_rtrn</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Returns&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">))</span>
+    <span class="n">ax_2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+    <span class="n">lns_2</span> <span class="o">=</span> <span class="n">ax_2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_per</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">cs_mean_rtrn_sq</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">stata_colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sq. Returns&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Percentile Time Increments&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Mean Returns&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax_2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Squared Mean Returns&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_per</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[::</span><span class="mi">5</span><span class="p">],</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">pctl</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">estimation</span><span class="o">.</span><span class="n">pctl</span><span class="p">)[::</span><span class="mi">5</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">lns</span> <span class="o">=</span> <span class="n">lns_1</span> <span class="o">+</span> <span class="n">lns_2</span>
+    <span class="n">labs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lns</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">lns</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center right&quot;</span><span class="p">)</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">cs_mean_rtrn.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ADF Test for Stationarity</span>
+    <span class="n">adf</span> <span class="o">=</span> <span class="n">ADF</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">cs_mean_rtrn</span><span class="p">,</span> <span class="n">lags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trend</span><span class="o">=</span><span class="s2">&quot;ctt&quot;</span><span class="p">,</span> <span class="n">max_lags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;bic&quot;</span>
+    <span class="p">)</span>
+    <span class="n">adf_stat</span><span class="p">,</span> <span class="n">adf_p</span> <span class="o">=</span> <span class="n">adf</span><span class="o">.</span><span class="n">stat</span><span class="p">,</span> <span class="n">adf</span><span class="o">.</span><span class="n">pvalue</span>
+
+    <span class="c1"># Generate partial autocorrelation function and plot</span>
+    <span class="n">pacf_values</span><span class="p">,</span> <span class="n">confint</span> <span class="o">=</span> <span class="n">pacf</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">cs_mean_rtrn_sq</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">signific_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">((</span><span class="n">confint</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">confint</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="o">|</span> <span class="p">((</span><span class="n">confint</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">confint</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">garch_lags</span> <span class="o">=</span> <span class="n">signific_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">garch_lags</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">garch_lags</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">pylab</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">plot_params</span><span class="o">.</span><span class="n">set_rc_params</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;fig_big&quot;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="n">plot_pacf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">cs_mean_rtrn</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">plot_pacf</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">cs_mean_rtrn_sq</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Returns&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Lags&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Autocorrelation&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Sq. Returns&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Lags&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">integer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">integer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">finalize_plot</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">figures</span><span class="si">}</span><span class="s2">pacf.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">save</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Estimate GARCH model using the significant lags from above</span>
+    <span class="n">mod_garch</span> <span class="o">=</span> <span class="n">arch_model</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">cs_mean_rtrn_sq</span><span class="p">,</span>
+        <span class="n">mean</span><span class="o">=</span><span class="s2">&quot;AR&quot;</span><span class="p">,</span>
+        <span class="n">lags</span><span class="o">=</span><span class="n">garch_lags</span><span class="p">,</span>
+        <span class="n">vol</span><span class="o">=</span><span class="s2">&quot;EGARCH&quot;</span><span class="p">,</span>
+        <span class="n">p</span><span class="o">=</span><span class="n">garch_lags</span><span class="p">,</span>
+        <span class="n">o</span><span class="o">=</span><span class="n">garch_lags</span><span class="p">,</span>
+        <span class="n">q</span><span class="o">=</span><span class="n">garch_lags</span><span class="p">,</span>
+        <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">res_garch</span> <span class="o">=</span> <span class="n">mod_garch</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s2">&quot;robust&quot;</span><span class="p">)</span>
+
+    <span class="n">param_rename</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Const&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">alpha$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Return[1]&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">phi$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;omega&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">mu$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;alpha[1]&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">rho$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gamma[1]&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">tau$&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;beta[1]&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">psi$&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">tex_res_garch</span> <span class="o">=</span> <span class="n">res_garch</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">as_latex</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">original</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">param_rename</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">tex_res_garch</span> <span class="o">=</span> <span class="n">tex_res_garch</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+    <span class="n">tex_res_garch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">tex_res_garch</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">textbf{&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tex_res_garch</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">bottomrule</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="n">tex_res_garch_p1</span> <span class="o">=</span> <span class="n">tex_res_garch</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">7</span><span class="p">]</span>
+    <span class="n">tex_res_garch_p2</span> <span class="o">=</span> <span class="n">tex_res_garch</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">9</span> <span class="p">:</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">tex_res_garch</span> <span class="o">=</span> <span class="n">tex_res_garch_p1</span> <span class="o">+</span> <span class="n">tex_res_garch_p2</span>
+
+    <span class="k">return</span> <span class="n">adf_stat</span><span class="p">,</span> <span class="n">adf_p</span><span class="p">,</span> <span class="n">tex_res_garch</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Michael Nagel.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

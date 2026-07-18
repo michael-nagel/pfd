@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pfd.features.shape_data &mdash; Nagel 2024 Replication Package 0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=01f34227"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -78,7 +76,6 @@
              
   <h1>Source code for pfd.features.shape_data</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file shapes the crawled data.</span>
@@ -86,27 +83,21 @@
 
 <span class="c1"># Imports</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">hydra</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">hydra</span> <span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">initialize</span>
-<span class="kn">from</span> <span class="nn">hydra.core.config_store</span> <span class="kn">import</span> <span class="n">ConfigStore</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydra</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydra.core.config_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigStore</span>
 
-<span class="kn">from</span> <span class="nn">pfd.helpers</span> <span class="kn">import</span> <span class="n">save_values</span>
-<span class="kn">from</span> <span class="nn">pfd.utils</span> <span class="kn">import</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">PFDConfig</span><span class="p">,</span> <span class="n">shape_odds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pfd.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_values</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pfd.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">PFDConfig</span><span class="p">,</span> <span class="n">shape_odds</span>
 
 <span class="c1"># Hydra Setup</span>
 
 <span class="n">cs</span> <span class="o">=</span> <span class="n">ConfigStore</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
 <span class="n">cs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;pfd_config&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">PFDConfig</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="n">initialize</span><span class="p">(</span>
-    <span class="n">version_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../conf&quot;</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="s2">&quot;shape_data&quot;</span>
-<span class="p">):</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
 
 <span class="c1"># Function</span>
 
@@ -114,7 +105,7 @@
 <div class="viewcode-block" id="shape_data">
 <a class="viewcode-back" href="../../../pfd.features.html#pfd.features.shape_data.shape_data">[docs]</a>
 <span class="nd">@hydra</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;../conf&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">version_base</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">shape_data</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">PFDConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">shape_data</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">PFDConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="c1"># Logging</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">init_logger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span>
@@ -122,8 +113,8 @@
 
     <span class="c1"># External Files</span>
 
-    <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_raw</span><span class="si">}</span><span class="s2">crawled_odds.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_raw</span><span class="si">}</span><span class="s2">crawled_odds.json&quot;</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
@@ -142,6 +133,9 @@
     <span class="n">crawl_dur</span> <span class="o">=</span> <span class="p">(</span><span class="n">timestamps</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span>
         <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span>
     <span class="p">)</span>
+
+    <span class="n">crawl_start</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B %Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">crawl_end</span> <span class="o">=</span> <span class="n">timestamps</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B %Y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
         <span class="n">subset</span><span class="o">=</span><span class="p">[</span>
@@ -379,6 +373,21 @@
     <span class="n">df_bm_home</span> <span class="o">=</span> <span class="n">shape_odds</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">cols_base</span><span class="o">=</span><span class="n">cols_base</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;Home&quot;</span><span class="p">)</span>
     <span class="n">df_bm_away</span> <span class="o">=</span> <span class="n">shape_odds</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">cols_base</span><span class="o">=</span><span class="n">cols_base</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;Away&quot;</span><span class="p">)</span>
 
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">left</span><span class="o">=</span><span class="n">df_bm_home</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">df_bm_away</span><span class="p">[[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span> <span class="s2">&quot;Encounter&quot;</span><span class="p">,</span> <span class="s2">&quot;Bookies&quot;</span><span class="p">,</span> <span class="s2">&quot;Update&quot;</span><span class="p">,</span> <span class="s2">&quot;OddsMvt&quot;</span><span class="p">]],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span> <span class="s2">&quot;Encounter&quot;</span><span class="p">,</span> <span class="s2">&quot;Bookies&quot;</span><span class="p">,</span> <span class="s2">&quot;Update&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;OddsMvt_x&quot;</span><span class="p">:</span> <span class="s2">&quot;OddsMvtHome&quot;</span><span class="p">,</span> <span class="s2">&quot;OddsMvt_y&quot;</span><span class="p">:</span> <span class="s2">&quot;OddsMvtAway&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;Payout&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="c1"># Call the function shape_prices</span>
     <span class="c1"># df_exng_back_home = shape_prices(df=df, price=&quot;PriceBackHome&quot;)</span>
     <span class="c1"># df_exng_back_away = shape_prices(df=df, price=&quot;PriceBackAway&quot;)</span>
@@ -396,6 +405,8 @@
         <span class="n">save_values</span><span class="p">(</span>
             <span class="n">key</span><span class="o">=</span><span class="s2">&quot;crawl_dur&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">crawl_dur</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.0f&quot;</span>
         <span class="p">)</span>
+        <span class="n">save_values</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;crawl_start&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">crawl_start</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
+        <span class="n">save_values</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;crawl_end&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">crawl_end</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">values_path</span><span class="p">)</span>
 
         <span class="n">timestamps</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
             <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">timestamps.h5&quot;</span><span class="p">,</span>
@@ -403,15 +414,20 @@
             <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;BmHome&quot;</span><span class="p">:</span> <span class="n">df_bm_home</span><span class="p">,</span> <span class="s2">&quot;BmAway&quot;</span><span class="p">:</span> <span class="n">df_bm_away</span><span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">):</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;w&quot;</span>
-            <span class="n">val</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
-                <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">shaped_data.h5&quot;</span><span class="p">,</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="c1"># for i, (key, val) in enumerate(</span>
+        <span class="c1">#     {&quot;BmHome&quot;: df_bm_home, &quot;BmAway&quot;: df_bm_away}.items()</span>
+        <span class="c1"># ):</span>
+        <span class="c1">#     mode = &quot;a&quot; if i &gt; 0 else &quot;w&quot;</span>
+        <span class="c1">#     val.to_hdf(</span>
+        <span class="c1">#         path_or_buf=f&quot;{cfg.paths.data_proc}shaped_data.h5&quot;,</span>
+        <span class="c1">#         key=f&quot;{key}&quot;,</span>
+        <span class="c1">#         mode=mode,</span>
+        <span class="c1">#     )</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span>
+            <span class="n">path_or_buf</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">data_proc</span><span class="si">}</span><span class="s2">shaped_data.h5&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="c1"># Execution Time and Log File Finish</span>
 

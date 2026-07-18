@@ -11,7 +11,11 @@ Main Moduls
 
 `run_estimation.py`
 
-- This program runs the estimation procedure.
+- This program orchestrates the estimation procedure by calling the
+  submodules of `pfd.models` (filtering/shaping, bookmaker accuracy,
+  winning proportions, resampling/imputation, time-series diagnostics,
+  unbiasedness regressions, GMM and Bayesian learning-rate estimation)
+  in sequence.
 
 - Last run on July, 2024.
 

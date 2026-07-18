@@ -1,0 +1,16 @@
+{
+    "index": 0.045,
+    "list_objects": 0.006,
+    "logic_subpackages": 0.011,
+    "main_modules": 0.007,
+    "modules": 0.005,
+    "pfd": 0.058,
+    "pfd.conf": 0.064,
+    "pfd.data": 25.659,
+    "pfd.features": 3.614,
+    "pfd.helpers": 0.484,
+    "pfd.helpers.base": 0.055,
+    "pfd.models": 3.247,
+    "pfd.utils": 2.12,
+    "pfd.visualization": 0.306
+}
