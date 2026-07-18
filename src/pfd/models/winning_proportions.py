@@ -137,7 +137,9 @@ def analyze_winning_proportions(
     random_effects = res_mod_win_props.random_effects
 
     # Bootstap to obtain correct standard error
-    bootstr_coefs = bootstrap_std_error(df=df_res_win_props, n_bootstraps=1000)
+    bootstr_coefs = bootstrap_std_error(
+        df=df_res_win_props, n_bootstraps=1000, seed=cfg.general.seed
+    )
     bootstr_std = bootstr_coefs.std()
     bootstr_low = fixed_effects["AvgChange"] - norm.ppf(0.975) * bootstr_std
     bootstr_up = fixed_effects["AvgChange"] + norm.ppf(0.975) * bootstr_std

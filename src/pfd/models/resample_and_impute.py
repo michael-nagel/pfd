@@ -152,6 +152,15 @@ def resample_and_impute_data(
     )
 
     # Imputation of Missing Initial Prices
+    #
+    # Tried running the three loss estimates below plus the final
+    # imputation concurrently (each is an independent, pure function
+    # of df/seed) since each triggers a slow sklearn IterativeImputer
+    # fit - but on this machine (6 cores, ~11GB RAM available to WSL)
+    # four concurrent IterativeImputer fits contend heavily for both
+    # CPU and memory (each fit alone uses several GB) and end up
+    # slower in wall-clock terms than just running them one at a time.
+    # Left sequential.
     perc = [25, 50, 75]
     loss = []
     for ele in perc:
