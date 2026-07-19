@@ -26,7 +26,10 @@ src/pfd/outputs/*
 # Unused and textual files
 *leftovers/
 publication/
-references/
+references/*
+!references/specs/
+!references/citation_map.md
+!references/spec_template.md
 reports/paper/
 reports/slides/
 reports/bibliographies/
