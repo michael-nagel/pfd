@@ -151,3 +151,73 @@ brooks1998 definierten dieselbe (korrekte) Formel?
   Implementierungen (statsmodels-Loglik vs. lme4-Loglik) nicht formal valide 
   wäre. Der direkte statsmodels-Original vs. lme4-Crossed-Vergleich bleibt als 
   informelle Zusatzinfo, ist aber kein sauberer Test.
+
+## Crossed Random Effects – match_var Interpretation (eq:resp_to_info)
+- match_var (1,1493) ist ~4 Größenordnungen größer als alle Bookies-
+  Varianzkomponenten. Ursache identifiziert (nicht Artefakt, nicht Bug): 
+  RtrnClsEnd = Match/ClsOdds - 1 (bookmaker_accuracy.py:84). Bei Match==0 ist 
+  RtrnClsEnd mathematisch IMMER exakt -1, unabhängig von ClsOdds oder 
+  Bookmaker - eine Eigenschaft jeder Return-Metrik auf eine binäre Wette 
+  (voller Verlust bei Niederlage), keine Besonderheit dieses Datensatzes.
+- Bestätigt über 3 unabhängige Wege: lme4-Fit (match_var), reine ANOVA-
+  Zerlegung (99,72% Between-Match-Varianz, 53% der Matches mit exakt 0 
+  Within-Match-Varianz), Code-Analyse der Formel.
+- Konsequenz für Interpretation im Paper/Reviewer-Antwort: Crossed-Effects-Fix 
+  bleibt notwendig und korrekt (R1-ii adressiert), ABER match_var NICHT als 
+  Evidenz für "Informations-Konvergenz zwischen Bookmakern" verkaufen - 
+  substanzieller Teil ist mathematische Trivialität der Return-Definition bei 
+  Verlust, nicht ökonomische Entdeckung. Echte bookmaker-abhängige Variation 
+  nur bei Match==1 (86.097 von 169.574 Zeilen) vorhanden.
+- Sensitivitäts-Fit auf Match==1-Teilmenge geplant, um zu prüfen ob match_var 
+  auch ohne die mechanische Komponente substanziell bleibt.
+- Zu prüfen: liegt dieselbe Struktur (Zielgröße deterministisch vom 
+  Match-Ausgang abhängig) auch bei eq:ags_test/eq:unbiasedness_reg vor?
+- Sensitivitäts-Fit (Match==1 only, n=86.097) bestätigt: match_var fällt von 
+  1,1493 auf 0,7265 (~37% mechanisch bedingt durch RtrnClsEnd≡-1 bei Match==0), 
+  bleibt aber weiterhin ~2 Größenordnungen über allen Bookies-Varianzkomponenten 
+  - R1-ii-Befund hält auch nach Bereinigung.
+- Nebenbefund: bookies_slope_var steigt in der Wins-only-Teilmenge um Faktor 
+  ~10 (0,000516→0,005130). Plausible Erklärung: Match==0-Zeilen sind für 
+  RtrnOpnCls-Slope uninformativ (RtrnClsEnd konstant -1, unabhängig von 
+  RtrnOpnCls), verdünnen dadurch die erkennbare Bookmaker-Slope-Heterogenität 
+  in der Gesamtstichprobe. Nicht weiter verifiziert, für spätere Robustheits-
+  Diskussion vormerken.
+- Symbolische Prüfung (keine exakte-Null-Kollaps-Struktur bei den Zielgrößen 
+  von eq:ags_test und eq:unbiasedness_reg) durchgeführt, empirische 
+  Bestätigung ausstehend/folgt.
+- Empirische Between/Within-Prüfung für die anderen beiden Zielgrößen 
+  (keine Modellschätzung, rein deskriptiv): fit_rfa_mod (Endog=FEOpn-FECls): 
+  82,53%/17,47% Between/Within, kein exakte-Null-Degenerationsmuster wie bei 
+  RtrnClsEnd - moderater, unproblematischer Match-Cluster-Effekt erwartet.
+  fit_mixed_lm (Endog=Match-OddsMvt0): 99,35%/0,65% Between/Within, fast so 
+  extrem wie RtrnClsEnd, aber NICHT durch dieselbe algebraische Degeneration 
+  verursacht (nur 0,5% der Matchup-Gruppen mit exakt 0 Within-Varianz statt 
+  53%). Plausible Erklärung: OddsMvt0 (Opening-Preis) ist zwischen 
+  Bookmakern bei Markteröffnung naturgemäß ähnlich, bevor sich Preise 
+  auseinanderentwickeln - ökonomisch substanzieller Befund über 
+  Preisbildung, nicht mathematische Trivialität. Sollte im Paper 
+  entsprechend anders eingeordnet werden als der RtrnClsEnd-Befund.
+- **Abschluss-Vermerk**: alle drei Modelle (gpm, rfa, unbiasedness_reg) 
+  vollständig in results/crossed_comparison_summary.csv (60 Zeilen) und 
+  results/crossed_comparison_coefs.csv (413 Zeilen) erfasst. Parallelisierung 
+  (spawn-Kontext, Pool-Initializer-Muster) validiert - exakte Übereinstimmung 
+  gegen sequenziellen Refit bestätigt, Details siehe Chat-Verlauf/
+  Commit-Historie. Offen für die Paper-Überarbeitung: match_icc (Anteil der Gesamtvarianz durch 
+  Matchup erklärt) wurde als Idee diskutiert, aber für keines der drei Modelle 
+  tatsächlich in results/crossed_comparison_summary.csv ergänzt - offene 
+  Entscheidung, ob das für die finale Interpretation/Reviewer-Antwort noch 
+  nachgeholt wird.
+
+## Imputation – Befunde aus Review-Revision
+- Look-Ahead-Leck bestätigt (sauberer a/b-Test): Match als Imputer-Feature 
+  erzeugt ausgangs-korrelierte Differenz (corr 0,56-0,88 in OddsMvt0-4, die 
+  60% der Imputation ausmachen), Absolutbetrag winzig (~0,0001), 
+  BayesianRidge-Koeffizient auf Match Rang 51/51. Entscheidung: Match aus 
+  Imputer-Features entfernt (kein inhaltlicher Grund, beseitigt Angriffsfläche).
+- Paper-Code-Diskrepanz: Appendix (Zeile 1100) beschreibt Features als 
+  "implied probabilities of other bookmakers for the same and different 
+  matches". Tatsächlich nutzt IterativeImputer die anderen Spalten DERSELBEN 
+  Zeile = die eigenen späteren Preise desselben Bookmakers (OddsMvt1..50) als 
+  Hauptprädiktoren (OddsMvt1 dominant, standardisierter Beitrag ~0,19). 
+  Appendix-Beschreibung muss korrigiert werden; inhaltlich relevant für 
+  R2-C2 (Rückwärts-Information innerhalb des Bookmakers).

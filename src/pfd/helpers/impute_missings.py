@@ -38,13 +38,15 @@ def impute_missings(df: pd.DataFrame, seed: int) -> pd.DataFrame:
         rm_categ_var=False,
     )
 
+    # Exclude the match outcome: it is not available at the imputed
+    # (earlier) time, so using it as a predictor would leak look-ahead.
+    feat_cols = [col for col in df.columns if col not in ("Bookies", "Match")]
+
     imputer = IterativeImputer(
         initial_strategy="median", min_value=0, max_value=1, random_state=seed
     )
 
-    df.loc[:, df.columns != "Bookies"] = imputer.fit_transform(
-        X=df.loc[:, df.columns != "Bookies"]
-    )
+    df.loc[:, feat_cols] = imputer.fit_transform(X=df[feat_cols])
 
     df = df.drop(
         labels=[col for col in df.columns if col.startswith("Bookie_")], axis=1
