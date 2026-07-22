@@ -1,0 +1,756 @@
+# Revision Log – JRSSA-Mar-2026-0082
+
+Erzählte Revisions-Chronik pro Reviewer-Kommentar. Zweck: interne
+Nachvollziehbarkeit der Bearbeitung UND Rohmaterial für das spätere
+Response-to-Reviewers-Dokument.
+
+Faktenbasis: `revision/reviewer_tracker.md` (kondensierte Kommentare) und
+`references/specs/open_questions.md` (Untersuchungsbefunde). Nichts wurde
+hinzuerfunden; fehlende Details sind mit **[zu ergänzen]** markiert.
+
+**Pflegeregeln:**
+- Einträge werden **nie gelöscht**.
+- Wird eine Maßnahme später gegenstandslos, wird sie **nicht entfernt**,
+  sondern im Feld **Superseded** als überholt markiert – mit Verweis auf den
+  ablösenden Eintrag/die ablösende Entscheidung und Datum. Die Historie
+  bleibt sichtbar.
+- Status-Werte: `offen` / `in Arbeit` / `umgesetzt` / `verifiziert` /
+  `superseded`.
+
+Reihenfolge: zuerst Kommentare mit echtem Arbeitsstand, danach leere
+Vorlagen für die noch nicht bearbeiteten Kommentare.
+
+---
+
+# Teil 1 – Kommentare mit Arbeitsstand
+
+## R1-ii – Crossed Random Effects (Bookmaker × Match)
+**Kommentar (kondensiert):** Random Effects nur für Bookmaker sind
+unzureichend, da Beobachtungen zusätzlich auf Match-Ebene geclustert sind
+(gleiches Match bei mehreren Bookmakern, gleicher Spielausgang). Gefordert
+werden crossed random effects für Bookmaker UND Match, mindestens
+cluster-robuste Inferenz auf Match-Ebene. Betroffen: eq:resp_to_info,
+eq:ags_test, eq:unbiasedness_reg. Von AE mitgetragen.
+
+**Stand vor Revision:** Alle drei Modelle nutzten ausschließlich ein
+bookmaker-Random-Effect (statsmodels MixedLM, durchgängig `reml=False`/ML).
+Der Match-Cluster wurde nicht modelliert.
+
+**Untersuchung:**
+- Toolchain: statsmodels MixedLM kann echte crossed random effects nicht
+  abbilden, wenn ein Faktor (Matchup) über die `groups`-Grenzen eines anderen
+  (Bookies) hinweg realisiert wird – `vc_formula`-Random-Effects werden pro
+  `groups`-Level separat gezogen, nicht gruppenübergreifend geteilt
+  (verifiziert gegen installierten statsmodels-0.14.0-Quellcode und Doku).
+- Folge: Umstieg auf R/lme4 2.0.6 via rpy2 3.6.7 für alle drei Modelle
+  (resp_to_info, ags_test "All"-Zweig, unbiasedness_reg).
+- Befund zu `match_var` in eq:resp_to_info: mit ~1,1493 ca. 4 Größenordnungen
+  über allen Bookies-Varianzkomponenten. Ursache identifiziert (kein Bug):
+  RtrnClsEnd = Match/ClsOdds − 1 ist bei Match==0 mathematisch immer exakt −1,
+  unabhängig von Bookmaker/ClsOdds – triviale Eigenschaft der Return-Metrik
+  auf eine binäre Wette (voller Verlust). Bestätigt über 3 Wege: lme4-Fit,
+  ANOVA-Zerlegung (99,72 % Between-Match; 53 % der Matches mit exakt 0
+  Within-Varianz), Formel-Analyse.
+- Sensitivitäts-Fit auf Match==1 (n=86.097): match_var fällt von 1,1493 auf
+  0,7265 (~37 % mechanisch), bleibt aber ~2 Größenordnungen über den
+  Bookies-Komponenten → R1-ii-Befund hält auch nach Bereinigung.
+- Deskriptive Between/Within-Prüfung der anderen beiden Zielgrößen:
+  fit_rfa_mod (FEOpn−FECls) 82,53 %/17,47 %, kein Degenerationsmuster;
+  fit_mixed_lm (OddsMvt0) 99,35 %/0,65 %, extrem aber ohne algebraische
+  Degeneration (nur 0,5 % Gruppen mit 0 Within-Varianz) – ökonomisch
+  substanziell (Opening-Preise bei Markteröffnung naturgemäß ähnlich), anders
+  einzuordnen als der RtrnClsEnd-Befund.
+- Nebenbefund: bookies_slope_var steigt in der Wins-only-Teilmenge um Faktor
+  ~10 (0,000516 → 0,005130); plausibel, weil Match==0-Zeilen für den
+  RtrnOpnCls-Slope uninformativ sind. Für spätere Robustheits-Diskussion
+  vorgemerkt, nicht weiter verifiziert.
+
+**Entscheidung:**
+- REML vs. ML: `REML=FALSE` für alle lme4-Fits, um Konsistenz mit dem
+  bestehenden ML-Schätzparadigma des Papers zu wahren. Bewusste Abweichung
+  vom Lehrbuch-Standard (REML wäre für einen validen LR-Test bei nur
+  geänderter Random-Effects-Struktur die übliche Wahl), in Kauf genommen für
+  Vergleichbarkeit mit dem Rest des Papers.
+- Für einen sauberen LR-Test (Original vs. Crossed) wird das
+  bookmaker-only-Modell zusätzlich in lme4 refittet (reine Kontrollrechnung,
+  kein Ersatz für den statsmodels-Code im Paper), da ein LR-Test über zwei
+  Implementierungen (statsmodels- vs. lme4-Loglik) nicht formal valide wäre.
+  Der direkte statsmodels-Original vs. lme4-Crossed-Vergleich bleibt als
+  informelle Zusatzinfo.
+- Interpretations-Leitplanke: match_var NICHT als Evidenz für
+  "Informations-Konvergenz zwischen Bookmakern" verkaufen – bei RtrnClsEnd ist
+  ein substanzieller Teil mathematische Trivialität der Return-Definition bei
+  Verlust; echte bookmaker-abhängige Variation nur bei Match==1.
+
+**Umsetzung:** Modellarbeit abgeschlossen. Alle drei Modelle (gpm, rfa,
+unbiasedness_reg) vollständig in `results/crossed_comparison_summary.csv`
+(60 Zeilen) und `results/crossed_comparison_coefs.csv` (413 Zeilen). rpy2 als
+Abhängigkeit ergänzt (Commit b65c974). Paper-Text / Reviewer-Antwort
+(Interpretation der drei Modelle, Einordnung von match_var) noch nicht
+geschrieben.
+
+**Beleg/Validierung:** Parallelisierung (spawn-Kontext, Pool-Initializer)
+gegen sequenziellen Refit auf exakte Übereinstimmung validiert. match_var-
+Ursache über 3 unabhängige Wege bestätigt (siehe Untersuchung). Symbolische
+Prüfung der anderen zwei Zielgrößen (kein exakte-Null-Kollaps) plus
+empirische Between/Within-Zerlegung.
+
+**Status:** in Arbeit (Modelle verifiziert, Paper-Interpretation offen)
+
+**Superseded:** —
+
+**Für Response-Dokument:** Wir haben die Modelle mit crossed random effects
+für Bookmaker und Match neu geschätzt (Umstieg auf R/lme4, da statsmodels
+gruppenübergreifende crossed effects nicht korrekt abbildet); die Ergebnisse
+liegen für alle drei betroffenen Gleichungen vor. Der starke Match-Cluster in
+eq:resp_to_info ist teilweise eine mechanische Eigenschaft der Return-Metrik
+bei verlorenen Wetten und werden wir in der Interpretation entsprechend
+zurückhaltend einordnen.
+
+**Offen / [zu ergänzen]:** match_icc (Anteil der Gesamtvarianz durch Matchup)
+wurde als Zusatzkennzahl diskutiert, aber für keines der drei Modelle in
+`crossed_comparison_summary.csv` ergänzt – Entscheidung offen. Formulierung
+der finalen Paper-Passagen [zu ergänzen].
+
+---
+
+## R2-C2 – Backward-Imputation / Look-Ahead-Leck
+**Kommentar (kondensiert):** Backward-Imputation-Strategie (S. 11, Appendix C)
+unklar erläutert. Falls spät einsteigende Bookmaker vor eigener Eröffnung
+Preise anderer Bookmaker beobachten ("Off-Market-Learning"), spiegeln
+zurückimputierte Opening-Odds evtl. nicht die tatsächliche Situation wider.
+Zwei Lernkanäle (Posting+Beobachten vs. Warten+Beobachten) sollten
+unterschieden werden; der Zeitpunkt des Markteintritts könnte selbst
+informativ sein, statt wegimputiert zu werden.
+
+**Stand vor Revision:** Der IterativeImputer (BayesianRidge) nutzte den
+Match-Ausgang als Feature. Der Appendix (Zeile 1100) beschreibt die
+Imputations-Features als "implied probabilities of other bookmakers for the
+same and different matches".
+
+**Untersuchung:**
+- Look-Ahead-Leck bestätigt per sauberem a/b-Test: Match als Imputer-Feature
+  erzeugt eine ausgangs-korrelierte Differenz (corr 0,56–0,88 in OddsMvt0–4,
+  die 60 % der Imputation ausmachen). Absolutbetrag der Differenz jedoch
+  winzig (~0,0001); BayesianRidge-Koeffizient auf Match liegt auf Rang 51/51.
+- Paper-Code-Diskrepanz aufgedeckt: Tatsächlich nutzt der IterativeImputer
+  primär die anderen Spalten DERSELBEN Zeile – d. h. die eigenen späteren
+  Preise desselben Bookmakers (OddsMvt1..50, OddsMvt1 dominant,
+  standardisierter Beitrag ~0,19) – nicht die Preise anderer Bookmaker wie im
+  Appendix beschrieben. Dieser Punkt ist inhaltlich relevant für R2-C2
+  (Rückwärts-Information innerhalb desselben Bookmakers).
+
+**Entscheidung:** Match aus den Imputer-Features entfernt – kein inhaltlicher
+Grund für seine Aufnahme, und die Entfernung beseitigt die Angriffsfläche
+(Look-Ahead), auch wenn der Effekt betragsmäßig winzig war. Die
+Appendix-Beschreibung der Features muss korrigiert werden.
+
+**Umsetzung:** Match aus dem IterativeImputer-Feature-Set entfernt
+(`impute_missings.py`, Commit a2b694e "Remove match outcome from imputation
+feature set (look-ahead fix)"). Korrektur der Appendix-Beschreibung
+(Zeile 1100) noch **nicht** vorgenommen [zu ergänzen].
+
+**Beleg/Validierung:** Sauberer a/b-Test (Leck bestätigt und quantifiziert:
+corr 0,56–0,88 auf OddsMvt0–4, Absolutbetrag ~0,0001). Downstream-Neulauf-
+Diagnose (Effekt der Feature-Entfernung auf nachgelagerte Ergebnisse) in
+Arbeit [zu ergänzen].
+
+**Status:** in Arbeit (Code-Fix umgesetzt; Appendix-Korrektur und
+Downstream-Diagnose offen)
+
+**Superseded:** —
+
+**Für Response-Dokument:** Wir haben die Imputation überprüft und den
+Match-Ausgang aus den Prädiktoren entfernt, um jeden Look-Ahead-Kanal
+auszuschließen (der gemessene Effekt war betragsmäßig vernachlässigbar). Wir
+werden außerdem die Appendix-Beschreibung präzisieren: Die zurückimputierten
+Opening-Odds stützen sich primär auf spätere Preise desselben Bookmakers, was
+für die von Referee 2 aufgeworfene Frage der bookmaker-internen
+Rückwärts-Information direkt relevant ist. Die konzeptionelle Frage der zwei
+Lernkanäle / Markteintritts-Zeitpunkt wird [zu ergänzen].
+
+**Offen / [zu ergänzen]:** Konzeptionelle Antwort auf die zwei Lernkanäle
+(Posting+Beobachten vs. Warten+Beobachten) und die Frage, ob der
+Markteintritts-Zeitpunkt selbst als Information behandelt statt wegimputiert
+werden sollte. Verweis: R2-C3/R3-2 (Timing) berühren dieselbe Datenbasis.
+
+---
+
+## R1-v – Zensierung durch Opening-Odds + letzte 20 Updates
+**Kommentar (kondensiert):** Oddsportal liefert nur Opening-Odds plus die
+letzten 20 Updates → mögliche Zensierung, v. a. bei aktiven Märkten. Die
+Beschränkung auf Zeitreihen mit <20 Preisänderungen könnte gerade die
+informativsten Matches entfernen. Gefordert: Anzahl verlorener Beobachtungen
+quantifizieren, included vs. excluded vergleichen, Robustheit zeigen. Von AE
+explizit priorisiert (AE-3).
+
+**Stand vor Revision:** Ein `NumOddsMvt<20`-Filter ist im Code vorhanden, im
+Paper aber nicht beschrieben. Die Imputation ist frontlastig (füllt frühe
+Preisbewegungen); das Closing wird nie imputiert.
+
+**Untersuchung:** Befund bislang qualitativ: undokumentierter
+`NumOddsMvt<20`-Filter identifiziert; Imputation frontlastig; Closing nie
+imputiert. Quantifizierung (Zahl verlorener Beobachtungen, included vs.
+excluded) noch nicht durchgeführt. [zu ergänzen]
+
+**Entscheidung:** [zu ergänzen – noch keine Umsetzung, nur Befund]
+
+**Umsetzung:** [zu ergänzen]
+
+**Beleg/Validierung:** [zu ergänzen]
+
+**Status:** offen (Befund identifiziert, noch keine Umsetzung)
+
+**Superseded:** —
+
+**Für Response-Dokument:** Wir dokumentieren das durch die Datenquelle
+(Opening + letzte 20 Updates) bedingte Zensierungsmuster und den bislang
+undokumentierten Filter transparent und werden included- vs.
+excluded-Stichproben vergleichen. [zu ergänzen: Quantifizierung, Robustheit]
+
+---
+
+## R2-C3 / R3-2 – Perzentil- vs. Absolutzeit, Opening-Zeitpunkt-Konfundierung
+**Kommentar (kondensiert):**
+- R2-C3: Perzentil-basiertes statt absolutes Timing verzerrt die
+  Interpretation – ein 18h-Fenster vs. 9h-Fenster gewichtet dieselbe absolute
+  Lernperiode (z. B. letzte Stunde vor Kickoff) unterschiedlich stark.
+  Absolute Zeit zumindest für Teile der Analyse erwägen.
+- R3-2: Opening-RMSE-Vergleiche zwischen Bookmakern sind durch stark
+  unterschiedliche Opening-Zeitpunkte konfundiert (48h vs. 6h vor Match =
+  unterschiedliche Informationsmengen); Pinnacles hohe Opening-RMSE evtl. nur
+  Artefakt früherer Marktteilnahme.
+
+**Stand vor Revision:** Analyse auf perzentil-basierter (homogenisierter)
+Zeitachse; Opening-RMSE über Bookmaker ohne Kontrolle des jeweiligen
+Opening-Zeitpunkts.
+
+**Untersuchung:**
+- R2-C3 (Perzentil- vs. Absolutzeit): In Diskussion, noch keine empirische
+  Prüfung dokumentiert. [zu ergänzen]
+- R3-2 (RMSE-Konfundierung): Eine mögliche zusätzliche Konfundierung durch
+  bookmaker-spezifische Margen wurde deskriptiv geprüft und **widerlegt** –
+  die Korrelation zwischen Median-Opening-Marge und rohem RMSE über die
+  Bookmaker ist NEGATIV (−0,34): die margenärmsten (sharp) Bookmaker
+  (Pinnacle, BetInAsia) haben gerade die HÖCHSTEN RMSE. Die Margen-
+  Konfundierungs-Hypothese scheidet damit als Erklärung aus; die RMSE-Anomalie
+  läuft über Timing (R3-2 im engeren Sinn: unterschiedliche Opening-Zeitpunkte),
+  nicht über die Marge. Details in open_questions.md (Abschnitt Margen/
+  Normalisierung). Die eigentliche Timing-Kontrolle (Opening-Zeitpunkt als
+  Kovariate/Matching) ist noch offen. [zu ergänzen]
+
+**Entscheidung:** Offen. Abgewogene Optionen:
+- (a) Kontinuierliche Spline-Zeitachse zugunsten von Unbiasedness.
+- (b) Diskrete Zeitachse mit expliziter Bias-Rechtfertigung für das GMM.
+Noch nicht entschieden.
+
+**Umsetzung:** [zu ergänzen]
+
+**Beleg/Validierung:** RMSE-Rangfolge und Margen-Kennzahlen gegen Paper-Zahlen
+validiert (fig:rmse-Extremränge exakt reproduziert); negative Margen-RMSE-
+Korrelation empirisch bestätigt. Timing-Kontrolle selbst noch nicht
+umgesetzt. [zu ergänzen]
+
+**Status:** offen (in Abwägung; Margen-Konfundierung geklärt/widerlegt)
+
+**Superseded:** —
+
+**Für Response-Dokument:** Wir werden die Konfundierung durch Opening-Zeitpunkt
+und die Perzentil-Achse adressieren und eine (kontinuierliche bzw. absolute)
+Zeitrepräsentation prüfen; die Wahl zwischen Unbiasedness-orientierter
+kontinuierlicher Achse und einer für das GMM diskreten Achse ist [zu
+ergänzen: finale Entscheidung]. Wir werden zudem darlegen, dass die
+Unterschiede in der Opening-Genauigkeit nicht durch bookmaker-spezifische
+Margen erklärt werden (die margenärmsten Bookmaker weisen die höchsten
+Forecast-Fehler auf), sodass die verbleibende Erklärung beim Timing der
+Markteröffnung liegt.
+
+---
+
+# Teil 2 – Leere Vorlagen (noch nicht bearbeitet)
+
+## R1-i / R3-3 – Bookmaker-Margen / normalisierte Wahrscheinlichkeiten
+**Kommentar (kondensiert):** Implied probabilities enthalten Bookmaker-Margen;
+Vergleiche sollten mit margin-bereinigten (normalisierten) Wahrscheinlichkeiten
+statt rohen inversen Odds erfolgen, mit Robustheit gegen alternative
+Margin-Removal-Methoden (R1-i). Inverse dezimale Odds werden als Forecasts
+behandelt, ohne die Marge (Summe >1) ausreichend zu berücksichtigen; Marge
+könnte über Zeit variieren (höher in unsichererer früher Phase, leicht
+prüfbar) (R3-3).
+**Stand vor Revision:** Implizite Wahrscheinlichkeiten werden als rohes
+Inverses der Dezimalquote der gewählten Seite gebildet (`filter_and_shape.py:117`,
+`OddsMvt = 1/dez_home`, einseitig), ohne Normalisierung auf Summe 1. Die Marge
+wird berechnet, aber nur als Filter (`0 ≤ Margin ≤ 0.15`) verwendet, nicht
+abgezogen. Die Away-Seite wird nach der Perspektivwahl (`:91-98`) verworfen.
+Alle Cross-Sections (OpnOdds/ClsOdds) und alle Zeitreihen (OddsMvt0..50)
+erben diese rohe Größe.
+**Untersuchung:** Diagnose rein deskriptiv, gegen Paper-Zahlen validiert
+(Table-5-Bins und fig:rmse-Rangfolge exakt reproduziert). Kernbefunde:
+- Marge: Opening-Median 7,82 %, Closing 7,61 %; schrumpft ~0,2 pp Open→Close
+  (bei 55,9 % der Gruppen) – systematisch, aber klein. Bookmaker-spezifisch
+  4,90 % (Pinnacle) bis 8,33 % (Interwetten), Spread ~3,4 pp.
+- Level-Effekt: rohes Preis-Level ~halbe Marge (~3,6 pp) zu hoch;
+  Normalisierung zentriert die Player-1-Opening-Wahrscheinlichkeit exakt auf
+  0,50 (roh: Median 0,5405) – relevant auch für R2-C1/R2-M5 (Intercept ~0,5).
+- Bewegungs-Effekt: raw↔norm Open-to-Close korrelieren 0,997; ~90 % echte
+  Belief-Änderung, ~10 % Margen-Änderung; die Netto-Abwärtsdrift der rohen
+  Bewegung ist vollständig Margen-Artefakt.
+- Robustheit: Table 5 behält Monotonie/Vorzeichen (~12 % Gruppen wechseln
+  Bin, Extrembins verlieren ~30 % Mitglieder, Top-Bin-WR 0,635→0,652);
+  RMSE-Rangfolge Spearman raw vs. norm 0,99, Extremränge stabil.
+- Level-vs-Differenz-Regel: Normalisierung materiell bei Größen gegen den
+  Ausgang ω (RtrnClsEnd, FEOpn/FECls/RMSE, GMM-Momentbedingungen,
+  Unbiasedness-Endog), vernachlässigbar bei Differenzen/Ratios gleichseitiger
+  Preise (RtrnOpnCls, DltOpnCls, GMM-Instrumente).
+- Konsistenz: GMM/Bayesian/Unbiasedness nutzen dieselbe rohe 1/dez-Größe wie
+  die Cross-Sections (Detail in open_questions.md, Abschnitt Margen/
+  Normalisierung).
+**Entscheidung:** Normalisierung geplant (margin-bereinigte, auf Summe 1
+normierte Wahrscheinlichkeiten statt roher inverser Quoten). Reihenfolge
+relativ zur Zeitachsen-Entscheidung (R2-C3/R3-2) noch offen: Die konsistente
+Normalisierung der Zeitreihen erfordert (1) Mitführen der Away-Seite durch
+`resample_and_impute` (aktuell verworfen), (2) Normalisierung pro Zeitpunkt,
+(3) Imputation der Frühwerte auf der normalisierten/zweiseitigen Größe – und
+Punkt (3) kollidiert mit der offenen Imputations-/Zeitachsen-Umstellung.
+**Umsetzung:** [zu ergänzen – noch keine Code-Änderung]
+**Beleg/Validierung:** Diagnose-Skripte reproduzieren Table-5-Bins (z. B. Bin
+[-1,-0.15]: n=1484, WR 0,3369) und die fig:rmse-Rangfolge (Pinnacle/BetInAsia/
+NordicBet als schlechteste) exakt gegen die Paper-Zahlen; Level-Shift ~halbe
+Marge und die 0,997-Korrelation empirisch bestätigt.
+**Status:** in Arbeit
+**Superseded:** —
+**Für Response-Dokument:** Wir werden auf margin-bereinigte, normalisierte
+Wahrscheinlichkeiten umstellen und die Robustheit gegen alternative
+Margin-Removal-Methoden zeigen. Unsere Diagnose zeigt, dass die Normalisierung
+die qualitativen Kernbefunde (Table-5-Monotonie, RMSE-Rangfolge) nicht
+verändert, aber einen systematischen Level-Aufschlag von ~halber Marge
+entfernt; wir werden die Normalisierung konsistent über Cross-Sections und
+Zeitreihen ziehen.
+
+## R1-iii / R2-C5 / R3-4 – Zuschreibung an "rational bettors"
+**Kommentar (kondensiert):** Die Zuschreibung von Preisbewegungen an "rational
+bettors" ist zu stark – alternative Ursachen (Bookmaker kopieren sharpe
+Bookmaker, Risikomanagement, Marginänderungen, Arbitrage, mechanische
+Algorithmen) (R1-iii). "Market learning is driven primarily by rational
+bettors" wird als Fakt dargestellt, obwohl der Bettertyp nicht beobachtet wird
+– als Inferenz kennzeichnen (R2-C5). Ergebnisse zeigen nur, dass sich
+verengende Preise häufiger gewinnen, nicht dass Bettor systematisch profitabel
+handeln konnten (Margen/Overround; Bezug Thaler & Ziemba 1988) (R3-4).
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R1-iv / R2-M3 – Klassifikation Sharp/Soft-Bookmaker
+**Kommentar (kondensiert):** Sharp/Soft-Klassifikation unklar – die Liste
+enthält Pinnacle/Betfair (typischerweise sharpe/Exchange-Märkte), obwohl das
+Paper sich auf den "soft bookmaker market" beschränkt; Klassifikation
+dokumentieren oder Robustheit ohne sharpe Bookmaker zeigen (R1-iv). Die
+Sharp/Soft-Charakterisierung (S. 3) ist zu vereinfachend – ein Bookmaker kann
+beide Rollen einnehmen (R2-M3).
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R1-vi – Plausibilität der GMM-Momentbedingungen (Biais-Annahmen)
+**Kommentar (kondensiert):** GMM-Momentbedingungen aus einem asymptotischen
+Finanzmarkt-Setting übernommen (Biais et al. 1999) – unklar, ob der
+Lernraten-Parameter dieselbe Interpretation in einem Finite-Horizon-Wettmarkt
+mit binärem Ausgang, irregulär beobachteten Preisen, Margen und zensierten
+Preispfaden hat. Plausibilität der Annahmen diskutieren.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** Aus `open_questions.md` liegen zwei einschlägige interne
+Befunde vor (noch nicht zu einer Reviewer-Antwort verarbeitet):
+- biais1999: Die eigenen Momentbedingungen lassen den Nuisance-Parameter K
+  (Varianz des Proxy-Fehlers φ) weg und schätzen nur γ (`k_params=1`).
+  Mögliche Rechtfertigung: terminale Größe ist der exakte Ausgang ω∈{0,1},
+  also φ≡0 und K=0 – im Paper aber nirgends benannt/begründet, obwohl der Text
+  ("Following biais1999 … seven instruments") eine direkte Übernahme
+  suggeriert. Zu klären: K=0 beabsichtigt und zu begründen, oder versehentlich
+  weggelassen?
+- hansen1996: Eigener Code nutzt Nelder-Mead direkt/ausschließlich auch für
+  die CUE-Schätzung – im Original nur Rückfalloption, nicht Primärmethode
+  (dort gradientenbasiertes Quasi-Newton mit mehreren Startwerten). Zu klären:
+  robust genug im 1-Parameter-Fall, oder gradientenbasierter Vergleich nötig?
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen (Befunde vorhanden, Bewertung/Umsetzung ausstehend)
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R1-vii – Überinterpretation der Unbiasedness-Regressionen / glatterer Koeffizientenpfad
+**Kommentar (kondensiert):** Die Unbiasedness-Regressionen (Fig. 3) werden zu
+stark interpretiert – die ökonomische Größenordnung des RMSE-Rückgangs ist
+moderat, und das "Phasen"-Narrativ beruht auf wiederholten punktweisen
+Konfidenzintervallen. Gefordert: formale Tests mit simultanen
+Konfidenzbändern oder ein glatteres dynamisches Modell des Koeffizientenpfads.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R1-viii – Favorite-Longshot-Bias direkt zeigen
+**Kommentar (kondensiert):** Favorite-Longshot-Ergebnisse plausibel, aber
+indirekt. Direkt zeigen: Favorite-Longshot-Bias in Opening-/Closing-Preisen,
+seine Verkleinerung über das Betting-Fenster und den Zusammenhang mit den
+geschätzten Lernraten.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R1-ix – Kausale Sprache abschwächen
+**Kommentar (kondensiert):** Kausale Sprache zu stark ("market identifies and
+corrects mispricing", "rational bettors force bookmakers to adjust").
+Vorsichtigere Formulierung gefordert – die Evidenz ist konsistent mit Price
+Discovery, aber nicht abschließend zu Mechanismus/Akteuren. Überschneidet mit
+R1-iii, R2-C5, R3-4.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-C1 – Spezifikation von "Equation 3" (eq:win_rates)
+**Kommentar (kondensiert):** Binäres Win/Loss als AV mit der Preisänderung als
+einziger UV weicht von der Standardpraxis ab. Empfehlung: den Opening-Preis
+zusätzlich als Kovariate (Baseline-Wahrscheinlichkeit) aufnehmen, sodass die
+Preisänderung zusätzliche Information testet. Der aktuelle Intercept ~0.5 ist
+unintuitiv, v. a. bei gemischter Favoriten/Longshot-Stichprobe.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-C4 – Mispricing- vs. Informations-Interpretation
+**Kommentar (kondensiert):** Preisbewegungen werden zu oft als
+Mispricing/Ineffizienz interpretiert (v. a. Eq. 3-Diskussion, Tables 5-6)
+statt als mögliche Reaktion auf neue Information zwischen Opening und Closing;
+besonders relevant bei großen Bewegungen (>10-15 % Implied-Prob-Änderung). Die
+Unterscheidung zwischen direkt Beobachtetem (Preisbewegung sagt Ausgang
+vorher) und Inferiertem (Mispricing-Korrektur vs. Informationsreaktion)
+schärfen.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-C6 – Signifikanz der bookmaker-spezifischen Slopes
+**Kommentar (kondensiert):** Zur Figur mit bookmaker-spezifischen Slopes
+("steeper slopes indicating greater explanatory power") fehlen
+Signifikanztests, ob sich die Slope-Parameter zwischen Bookmakern tatsächlich
+statistisch unterscheiden.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-C7 – Lernen als Kontinuum statt binär
+**Kommentar (kondensiert):** Lernen wird binär charakterisiert (β1>1 = "keine
+Evidenz für Lernen"). Tatsächlich zeigt jedes β1>0 etwas Lernen, β1=1
+vollständiges, β1>1 partielles Lernen (Unterreaktion) – nicht Abwesenheit von
+Lernen. Lernen als Kontinuum darstellen.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-C8 – Intuitive Interpretation der Lernraten-Größenordnungen
+**Kommentar (kondensiert):** Den Lernraten-Größenordnungen (z. B. 0.05 vs.
+0.03) fehlt eine intuitive Interpretation. Gewünscht: Vergleich zu anderen
+Wettmärkten oder Simulation/Umrechnung in eine interpretierbarere Metrik (z. B.
+"X % der Fehlbepreisung wird innerhalb Y Stunden korrigiert").
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R3-1 – Institutionelle Details der Odds-Bildung
+**Kommentar (kondensiert):** Der Hauptbefund (Closing-Preise informativer) ist
+in Märkten mit Informationsakkumulation konzeptionell wenig überraschend.
+Institutionelle Details fehlen (z. B. sharpe Bookmaker wie Pinnacle öffnen
+früher / mit niedrigeren Limits, andere folgen); Bookmaker werden zu
+symmetrisch behandelt.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R3-5 – Table 5 Benchmark / Sortierungsmechanismus
+**Kommentar (kondensiert):** Benchmark-Argument: Wenn Opening = p + e1 + e2 und
+Closing = p + e2 (e1 unabhängig von p entfernt), sollte eine Sortierung nach
+Revisionsgröße NICHT nach Winning-Probability sortieren (~50 % je Bin), obwohl
+Closing genauer ist. Die beobachtete große Spannweite (34 %-63 %) deutet auf
+Sortierung nach zugrundeliegender Wahrscheinlichkeit hin, nicht nur
+Rauschreduktion – Mechanismus/Benchmark unerklärt. Vorschlag: direkterer Test
+(Realized Outcomes vs. Opening/Closing-Probabilities bedingt auf initiales
+Probability-Level). Überschneidet mit R2-M9.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R3-6 – Informationsdiffusion zwischen Bookmakern (Reframing-Vorschlag)
+**Kommentar (kondensiert):** Größere Perspektive: Der Datensatz eignet sich für
+die Analyse des Informationsdiffusionsprozesses zwischen Bookmakern (welche
+Bookmaker führen Preisänderungen an, welche folgen mit Lag; Rolle sharper
+Bookmaker; Diffusionsgeschwindigkeit im Netzwerk; Zusammenhang Opening-Zeitpunkt
+und Forecast-Accuracy). Wird als vielversprechendere Stoßrichtung vorgeschlagen
+als generische Lern-Dynamik.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M1 – Contribution vor Literaturübersicht
+**Kommentar (kondensiert):** Das Intro enthält viel Literaturübersicht vor
+klarer Nennung des eigenen Beitrags. Contribution zuerst, dann Literatur.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M2 – Moskowitz-(2021)-Absatz kürzen
+**Kommentar (kondensiert):** Der Absatz zu Moskowitz (2021) / Sportwettenmärkte
+als Labor für Finanzmärkte (S. 2-3) ist evtl. verzichtbar/kürzbar, da in der
+Literatur etabliert.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M4 – Konkrete Zahlenbeispiele bei Metrik-Einführung
+**Kommentar (kondensiert):** Konkrete Zahlenbeispiele beim Einführen von
+Metriken (Close-to-End-Returns, Open-to-Close-Returns etc.) gewünscht.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M5 – "winning rate should exceed/fall below 0.5" nur im Aggregat
+**Kommentar (kondensiert):** Die Aussage "winning rate … should exceed/fall
+below 0.5" (S. 6) gilt nur im Aggregat, nicht für einzelne Wetten (Beispiel:
+20 %→30 %-Preis bleibt <50 %). Durchgängig klarer machen, wenn
+Durchschnittsannahmen gemeint sind.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M6 – Balanced-Book-Theory zu stark betont
+**Kommentar (kondensiert):** Balanced-Book-Theory wird zu stark betont (S. 6) –
+empirische Evidenz zeigt, dass viele Bookmaker nicht primär Buch-Balance
+anstreben, sondern Positionen halten, wenn sie die eigenen Preise für genauer
+halten. Durchgängig überdenken.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M7 – RMSE-Einordnung / durchschnittliche Posting-Zeit in Figure 1
+**Kommentar (kondensiert):** RMSE von 0.45 (S. 12) ohne intuitive
+Einordnung/Baseline. Figure 1 sollte zusätzlich die durchschnittliche
+Posting-Zeit zeigen (später postende Bookmaker profitieren evtl. nur von der
+Beobachtung der Konkurrenz).
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M8 – Table 7: Rauschen vs. systematischer Unterschied
+**Kommentar (kondensiert):** Zu Table 7 (Forecast-Error-Varianz-Unterschiede
+zwischen Bookmakern, z. B. 10Bet) mehr Intuition gewünscht: Rauschen durch
+Stichprobengröße oder systematisch? Fokus eher auf Aggregatergebnisse?
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M9 – Tables 5/6 + Eq. 3: Befund fast definitional
+**Kommentar (kondensiert):** Der Befund (größere positive Preisbewegung →
+höhere Winning Rate) ist wenig überraschend/fast definitional. Zusätzlich:
+"if prices do not change, winning rates are approximately 0.5" ist für
+Einzelwetten nicht korrekt (Favorit bei 0.70 bleibt bei 0.70). Analyse evtl.
+als konfirmatorisch statt Primärergebnis einordnen. Überschneidet mit R3-5.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M10 – Figure 6 (Lernrate vs. RMSE) entfernen
+**Kommentar (kondensiert):** Figure 6 (Lernrate vs. RMSE-Korrelation,
+corr_gamma_loss) entfernen – der Punkt lässt sich textlich genauso gut machen.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M11 – Mechanik des Lernens bei Favoriten vs. Longshots
+**Kommentar (kondensiert):** Mehr Intuition zu Richtung/Mechanik des Lernens
+bei Favoriten vs. Longshots gewünscht: Öffnen Märkte zu aggressiv/konservativ
+bei Favoriten, wie äußert sich Lernen konkret in der Preisbewegungsrichtung?
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M12 – Lernraten bei bereits effizientem Opening
+**Kommentar (kondensiert):** Wie sehen Lernraten aus, wenn der Markt bei
+Opening bereits nahe effizient ist? Eine niedrige Lernrate könnte weniger
+Ineffizienz statt langsamere Anpassung bedeuten – die Interpretation der
+Querschnittsbefunde entsprechend einordnen.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## R2-M13 – "more competitive" statt "higher level"
+**Kommentar (kondensiert):** "more competitive" (S. 22, Profi vs. Amateur) ist
+präziser als "higher level"/"higher caliber" – beide Ligen sind kompetitiv,
+der Unterschied ist das Spielniveau, nicht das Vorhandensein von Wettbewerb.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## AE-1 – Fußnote zu Pre-Match-Odds-Movements bei Oddsportal
+**Kommentar (kondensiert):** Pre-match odds movements sind laut AE gut
+dokumentiert kurz vor Spielende bei Oddsportal – verdient evtl. eine Fußnote
+bei der Beschreibung der Datenerhebung.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## AE-2 – Inkonsistenz Pre-Match vs. In-Play in der Literaturübersicht
+**Kommentar (kondensiert):** Inkonsistenz: Das Paper wertet in der
+Literaturübersicht eine andere Studie ab, weil deren Daten überwiegend In-Play
+seien, während das eigene Paper selbst explizit Pre-Match statt In-Play
+fokussiert.
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** [zu ergänzen]
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]
+
+## AE-3 – Priorität: alle Referees, Fokus auf Zensierung (R1-v)
+**Kommentar (kondensiert):** Ausdrückliche Priorität des AE: Kommentare aller
+Referees behandeln, mit besonderem Fokus auf die Zensierungs-Bedenken von
+Referee 1 (siehe R1-v).
+**Stand vor Revision:** [zu ergänzen]
+**Untersuchung:** Meta-Kommentar; die inhaltliche Bearbeitung läuft unter
+R1-v (Zensierung).
+**Entscheidung:** [zu ergänzen]
+**Umsetzung:** [zu ergänzen]
+**Beleg/Validierung:** [zu ergänzen]
+**Status:** offen
+**Superseded:** —
+**Für Response-Dokument:** [zu ergänzen]

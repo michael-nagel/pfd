@@ -221,3 +221,51 @@ brooks1998 definierten dieselbe (korrekte) Formel?
   Hauptprädiktoren (OddsMvt1 dominant, standardisierter Beitrag ~0,19). 
   Appendix-Beschreibung muss korrigiert werden; inhaltlich relevant für 
   R2-C2 (Rückwärts-Information innerhalb des Bookmakers).
+
+## Cross-Section – Code-vs-Paper-Diskrepanzen (Review-Revision)
+- REML vs. ML: Table-Notes (tex Z. 723, 761, 1076) behaupten "restricted 
+  maximum likelihood", Code fittet aber durchgängig reml=False (ML). Der 
+  Per-Bookmaker-AGS (Table 7) ist zudem sm.OLS mit cov_type="HC1", gar kein 
+  Mixed Model. Muss angeglichen werden (Text an Code oder umgekehrt) – 
+  betrifft auch die R1-ii-lme4-Arbeit, wo REML=FALSE bewusst gewählt wurde.
+- R2-C6-Verortung: Der Kommentar zitiert "steeper slopes indicating greater 
+  explanatory power" und verortet ihn beim AGS-Slope-Vergleich. Tatsächlich 
+  stammt diese Figur (fig:win_props_re, tex Z. 782) aus dem win_rates-Modell 
+  (Eq. 3, winning_proportions.py), nicht aus fit_rfa_mod (AGS). R2-C6 muss am 
+  win_rates-Modell beantwortet werden.
+
+## Margen/Normalisierung (R1-i/R3-3, R3-2)
+Diagnose (rein deskriptiv, gegen Paper-Zahlen validiert: Table 5 Bins und 
+fig:rmse-Rangfolge exakt reproduziert):
+- Ursprung ist eine einzige rohe Größe: filter_and_shape.py:117, 
+  OddsMvt = 1/dez_home (einseitig, nicht normalisiert). Away-Seite wird bei 
+  Perspektivwahl (:91-98) verworfen. Alle Cross-Sections (OpnOdds/ClsOdds) 
+  UND alle Zeitreihen (OddsMvt0..50) erben diese Größe.
+- Marge (Overround): Opening Median 7,82%, Closing 7,61%; schrumpft ~0,2pp 
+  Open→Close (bei 55,9% der Gruppen), systematisch aber klein. Bookmaker-
+  spezifisch: 4,90% (Pinnacle) bis 8,33% (Interwetten), Spread ~3,4pp.
+- Level-Effekt: rohes Preis-Level liegt ~halbe Marge (~3,6pp) zu hoch; 
+  Normalisierung zentriert Player-1-Opening-Wahrscheinlichkeit exakt auf 0,50 
+  (roh: Median 0,5405). Relevant auch für R2-C1/R2-M5 (Intercept um 0,5).
+- Bewegungs-Effekt: raw↔norm Open-to-Close korrelieren 0,997; ~90% echte 
+  Belief-Änderung, ~10% Margen-Änderung. Netto-Abwärtsdrift der rohen 
+  Bewegung ist vollständig Margen-Artefakt.
+- Table 5 robust: Monotonie/Vorzeichen erhalten, ~12% Gruppen wechseln Bin, 
+  Extrembins verlieren ~30% Mitglieder und werden "reiner" (Top-Bin-WR 
+  0,635→0,652). 
+- RMSE robust: Spearman raw vs. norm 0,99, Extremränge stabil.
+- WICHTIG für R3-2: Margen-RMSE-Korrelation über Bookmaker ist NEGATIV 
+  (−0,34) – margenärmste (sharp) Bookmaker (Pinnacle, BetInAsia) haben die 
+  HÖCHSTEN RMSE. R3s implizite Margen-Konfundierungs-Hypothese wird damit 
+  widerlegt; die RMSE-Anomalie erklärt sich über Timing (R3-2 eng), nicht 
+  über Marge.
+- Level-vs-Differenz-Regel: Normalisierung ist materiell bei Größen gegen 
+  den Ausgang ω (RtrnClsEnd, FEOpn/FECls/RMSE, GMM-Momentbedingungen, 
+  Unbiasedness-Endog), vernachlässigbar bei Differenzen/Ratios gleichseitiger 
+  Preise (RtrnOpnCls, DltOpnCls, GMM-Instrumente).
+- KONSISTENZ-BEDINGUNG: GMM/Bayesian/Unbiasedness nutzen dieselbe rohe 
+  1/dez-Größe wie die Cross-Sections. Konsistente Normalisierung erfordert: 
+  (1) Away-Seite durch resample_and_impute mitführen (aktuell verworfen), 
+  (2) pro Zeitpunkt normalisieren, (3) Imputation der Frühwerte auf der 
+  normalisierten/zweiseitigen Größe konsistent lösen. Punkt 3 kollidiert mit 
+  der offenen Imputations-/Zeitachsen-Umstellung – Reihenfolge beachten.

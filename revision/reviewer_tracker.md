@@ -1,0 +1,77 @@
+# Reviewer Tracker – JRSSA-Mar-2026-0082
+
+> Zugehörige Dateien: revision/revision_log.md (erzählte Chronik pro
+> Kommentar: Stand vorher → Untersuchung → Entscheidung → Umsetzung → Beleg,
+> plus Rohentwurf fürs Response-Dokument) und references/specs/
+> open_questions.md (technische Untersuchungsbefunde im Detail). Dieser
+> Tracker ist die Übersicht/Statusebene; die anderen beiden die Tiefe.
+
+Kondensierte, sachliche Zusammenfassung der Reviewer-Kommentare (keine 
+persönlichen Einschätzungen). Vollständiger Wortlaut in den Original-PDFs 
+(RSS-A_Report.pdf, Report_JRSSA-Mar-2026-0082.pdf). Section-/Gleichungs-
+zuordnungen wurden inhaltlich abgeglichen, nicht anhand der PDF-Nummerierung 
+– vor Bearbeitung gegenprüfen.
+
+## Associate Editor
+
+| ID | Kommentar | Kategorie | Betroffene Stelle | Status |
+|---|---|---|---|---|
+| AE-1 | Pre-match odds movements sind laut AE gut dokumentiert kurz vor Spielende bei Oddsportal – verdient evtl. eine Fußnote bei der Beschreibung der Datenerhebung. | Struktur | Datenabschnitt (Sample/Datenerhebung) | offen |
+| AE-2 | Inkonsistenz: Paper wertet in der Literaturübersicht eine andere Studie ab, weil deren Daten überwiegend In-Play seien ("focus on goals scored near half-time limits generalizability..."), während das eigene Paper selbst explizit Pre-Match statt In-Play fokussiert. | Interpretation | Literaturübersicht (Intro) | offen |
+| AE-3 | Ausdrückliche Priorität: Kommentare aller Referees behandeln, mit besonderem Fokus auf Zensierungs-Bedenken von Referee 1 (siehe R1-v). | Meta | — | offen |
+
+## Referee 1
+
+| ID | Kommentar | Kategorie | Betroffene Stelle | Status |
+|---|---|---|---|---|
+| R1-i | Implied probabilities enthalten Bookmaker-Margen; Vergleiche sollten mit margin-bereinigten (normalisierten) Wahrscheinlichkeiten statt rohen inversen Odds erfolgen; Robustheit gegen alternative Margin-Removal-Methoden zeigen. Überschneidet mit R3-3. | Daten | Durchgängig, v.a. RMSE-Vergleiche, Unbiasedness-Regressionen | offen |
+| R1-ii | Random Effects nur für Bookmaker unzureichend, da Beobachtungen zusätzlich auf Match-Ebene geclustert sind (gleiches Match bei mehreren Bookmakern, gleicher Spielausgang). Fordert crossed random effects für Bookmaker UND Match, mindestens cluster-robuste Inferenz auf Match-Ebene. Zusätzliche Abhängigkeit evtl. auch über Turniere/Spieler. | Modell | eq:resp_to_info, eq:ags_test, eq:unbiasedness_reg | Modellarbeit abgeschlossen, Interpretation für Paper/Reviewer-Antwort ausstehend |
+| R1-iii | Zuschreibung an "rational bettors" zu stark – Preisbewegungen könnten auch andere Ursachen haben (Bookmaker kopieren sharpe Bookmaker, Risikomanagement, Marginänderungen, Arbitrage, mechanische Algorithmen). Überschneidet mit R2-C5, R3-4. | Interpretation | Durchgängig, v.a. Diskussion/Conclusion | offen |
+| R1-iv | Klassifikation Sharp/Soft-Bookmaker unklar – Liste enthält Pinnacle/Betfair, typischerweise sharpe/Exchange-Märkte, obwohl Paper sich auf "soft bookmaker market" beschränkt. Klassifikation explizit dokumentieren oder Robustheit ohne sharpe Bookmaker zeigen. Überschneidet mit R2-M3. | Daten | Datenabschnitt / Bookmaker-Auswahl | offen |
+| R1-v | Oddsportal liefert nur Opening-Odds + letzte 20 Updates → mögliche Zensierung, v.a. bei aktiven Märkten. Beschränkung auf Zeitreihen mit <20 Preisänderungen könnte gerade die informativsten Matches entfernen. Anzahl verlorener Beobachtungen quantifizieren, included vs. excluded vergleichen, Robustheit zeigen. Von AE explizit priorisiert (AE-3). | Daten | Datenabschnitt / Sample-Restriktionen | offen |
+| R1-vi | GMM-Momentbedingungen aus asymptotischem Finanzmarkt-Setting übernommen (Biais et al. 1999) – unklar ob Lernraten-Parameter dieselbe Interpretation in einem Finite-Horizon-Wettmarkt mit binärem Ausgang, irregulär beobachteten Preisen, Margen und zensierten Preispfaden hat. Plausibilität der Annahmen diskutieren. | Modell | §Learning Rate, GMM-Abschnitt (biais1999-basiert) | offen |
+| R1-vii | Unbiasedness-Regressionen (Fig. 3) werden zu stark interpretiert – ökonomische Größenordnung des RMSE-Rückgangs eher moderat; Narrativ über "Phasen" des Lernens basiert auf wiederholten punktweisen Konfidenzintervallen. Formale Tests mit simultanen Konfidenzbändern oder glatteres dynamisches Modell des Koeffizientenpfads gefordert. | Modell/Interpretation | eq:unbiasedness_reg, zugehörige Figur | offen |
+| R1-viii | Favorite-Longshot-Ergebnisse plausibel, aber Evidenz indirekt. Direkt zeigen: Favorite-Longshot-Bias in Opening/Closing-Preisen, Verkleinerung über Betting-Fenster, Zusammenhang mit geschätzten Lernraten. | Daten/Modell | §Pro/Amateur bzw. Favorite/Longshot-Analyse | offen |
+| R1-ix | Kausale Sprache zu stark ("market identifies and corrects mispricing", "rational bettors force bookmakers to adjust"). Vorsichtigere Formulierung gefordert – Evidenz konsistent mit Price Discovery, aber nicht abschließend zu Mechanismus/Akteuren. Überschneidet mit R1-iii, R2-C5, R3-4. | Interpretation | Durchgängig | offen |
+
+## Referee 2 – Critical Comments
+
+| ID | Kommentar | Kategorie | Betroffene Stelle | Status |
+|---|---|---|---|---|
+| R2-C1 | Modellwahl in "Equation 3" (vermutlich eq:win_rates): binäres Win/Loss als AV mit Preisänderung als einziger UV weicht von Standardpraxis ab. Empfehlung: Opening-Preis zusätzlich als Kovariate aufnehmen (Baseline-Wahrscheinlichkeit), Preisänderung testet dann zusätzliche Information. Aktuelle Spezifikation mit Intercept ~0.5 unintuitiv, v.a. bei gemischter Favoriten/Longshot-Stichprobe. | Modell | eq:win_rates (vermutlich "Equation 3") | offen |
+| R2-C2 | Backward-Imputation-Strategie (S. 11, Appendix C) unklar erläutert. Falls spät einsteigende Bookmaker Preise anderer Bookmaker vor eigener Eröffnung beobachten ("Off-Market-Learning"), spiegelt zurückimputierte Opening-Odds evtl. nicht die tatsächliche theoretische Opening-Preis-Situation wider. Zwei mögliche Lernkanäle (Posting+Beobachten vs. Warten+Beobachten) sollten unterschieden werden, Zeitpunkt des Markteintritts selbst könnte informativ sein statt wegimputiert zu werden. | Daten | §Imputation (S. 11, Appendix C) | offen |
+| R2-C3 | Perzentil-basiertes statt absolutes Timing verzerrt Interpretation: ein 18h-Fenster vs. 9h-Fenster gewichtet dieselbe absolute Lernperiode (z.B. letzte Stunde vor Kickoff) unterschiedlich stark in Perzentilen. Absolute Zeit zumindest für Teile der Analyse in Erwägung ziehen. | Daten/Modell | §Zeitliche Homogenisierung / Perzentil-Zeitachse | offen |
+| R2-C4 | Preisbewegungen werden zu oft als Mispricing/Ineffizienz interpretiert (v.a. bei Eq. 3-Diskussion, Tables 5-6) statt als mögliche Reaktion auf neue Information zwischen Opening und Closing. Bei großen Bewegungen (>10-15% Implied-Prob-Änderung) besonders relevant. Unterscheidung zwischen direkt Beobachtetem (Preisbewegung sagt Ausgang vorher) und Inferiertem (Mispricing-Korrektur vs. Informationsreaktion) schärfen. | Interpretation | S. 15, Tables 5-6, Diskussion Eq. win_rates | offen |
+| R2-C5 | "Market learning is driven primarily by the actions of rational bettors" (S. 15, 21-22) wird als etablierter Fakt dargestellt, obwohl Bettertyp nicht direkt beobachtet wird. Als Inferenz über Mechanismus kennzeichnen, nicht als direkten Befund. Überschneidet mit R1-iii, R1-ix, R3-4. | Interpretation | S. 15, 21-22 | offen |
+| R2-C6 | Figur (bookmaker-spezifische Slopes, "steeper slopes indicating greater explanatory power") – keine Signifikanztests, ob sich Slope-Parameter zwischen Bookmakern tatsächlich statistisch unterscheiden. | Modell | §Magnitude and Direction of Price Movements, zugehörige Figur | offen |
+| R2-C7 | Lernen wird binär charakterisiert (β1>1 = "keine Evidenz für Lernen"). Jedes β1>0 zeigt etwas Lernen, β1=1 vollständiges Lernen, β1>1 partielles Lernen (Unterreaktion), nicht Abwesenheit von Lernen. Lernen als Kontinuum darstellen. | Interpretation | S. 16, §Learning Rate / eq:unbiasedness_reg-Diskussion | offen |
+| R2-C8 | Lernraten-Größenordnungen (z.B. 0.05 vs. 0.03) fehlt intuitive Interpretation. Zusätzlicher Kontext gewünscht: Vergleich zu anderen Wettmärkten, oder Simulation/Umrechnung in interpretierbarere Metrik (z.B. "X% der Fehlbepreisung wird innerhalb Y Stunden korrigiert"). | Interpretation/Struktur | §Learning Rate, Ergebnisdiskussion | offen |
+
+## Referee 2 – Minor Comments
+
+| ID | Kommentar | Kategorie | Betroffene Stelle | Status |
+|---|---|---|---|---|
+| R2-M1 | Intro enthält viel Literaturübersicht vor klarer Nennung des eigenen Beitrags. Contribution zuerst, dann Literatur. | Struktur | Introduction | offen |
+| R2-M2 | Absatz zu Moskowitz (2021) / Sportwettenmärkte als Labor für Finanzmärkte (S. 2-3) evtl. verzichtbar/kürzbar, da in der Literatur etabliert. | Struktur | Introduction, S. 2-3 | offen |
+| R2-M3 | Charakterisierung Sharp/Soft-Bookmaker (S. 3) zu vereinfachend – ein einzelner Bookmaker kann in beiden Rollen agieren (Sharp-Bettor-Action nutzen, um Linien für Recreational-Bettor zu setzen). Überschneidet mit R1-iv. | Interpretation | S. 3 | offen |
+| R2-M4 | Konkrete Zahlenbeispiele beim Einführen von Metriken (Close-to-End-Returns, Open-to-Close-Returns etc.) gewünscht. | Struktur | Definitionsabschnitte | offen |
+| R2-M5 | Aussage "winning rate... should exceed/fall below 0.5" (S. 6) gilt nur im Aggregat, nicht für einzelne Wetten (Beispiel: 20%→30%-Preis bleibt trotzdem <50%). Durchgängig klarer machen, wenn Durchschnittsannahmen gemeint sind. | Interpretation | S. 6 und durchgängig | offen |
+| R2-M6 | Balanced-Book-Theory wird zu stark betont (S. 6) – empirische Evidenz zeigt, dass viele Bookmaker nicht primär Buch-Balance anstreben, sondern Positionen halten, wenn sie eigene Preise für genauer halten. Durchgängig überdenken. | Interpretation | S. 6 und durchgängig | offen |
+| R2-M7 | RMSE von 0.45 (S. 12) ohne intuitive Einordnung/Baseline. Figure 1 sollte zusätzlich durchschnittliche Posting-Zeit zeigen (später postende Bookmaker profitieren evtl. nur von Beobachtung der Konkurrenz). | Struktur/Daten | S. 12, Figure 1 | offen |
+| R2-M8 | Table 7 (Forecast-Error-Varianz-Unterschiede zwischen Bookmakern, z.B. 10Bet) – mehr Intuition gewünscht: Rauschen durch Stichprobengröße oder systematisch? Fokus eher auf Aggregatergebnisse? | Interpretation | Table 7 | offen |
+| R2-M9 | Table 5/6 + Eq. 3: Befund (größere positive Preisbewegung → höhere Winning Rate) wenig überraschend/fast definitional. Zusätzlich: Aussage "if prices do not change, winning rates are approximately 0.5" nicht korrekt für Einzelwetten (Favorit bei 0.70 bleibt bei 0.70, nicht 0.5). Überschneidet mit R3-5 (Table 5). Analyse evtl. als konfirmatorisch statt Primärergebnis einordnen. | Struktur/Interpretation | Tables 5-6, eq:win_rates | offen |
+| R2-M10 | Figure 6 (Lernrate vs. RMSE-Korrelation) entfernen – Punkt lässt sich textlich genauso gut machen. | Struktur | Figure 6 (corr_gamma_loss) | offen |
+| R2-M11 | Mehr Intuition zu Richtung/Mechanik des Lernens bei Favoriten vs. Longshots gewünscht: öffnen Märkte zu aggressiv/konservativ bei Favoriten, wie äußert sich Lernen konkret in Preisbewegungsrichtung? | Interpretation | S. 22, Favorite/Longshot-Abschnitt | offen |
+| R2-M12 | Frage: Wie sehen Lernraten aus, wenn Markt bei Opening bereits nahe effizient ist? Niedrige Lernrate könnte weniger Ineffizienz statt langsamere Anpassung bedeuten – Interpretation der Querschnittsbefunde entsprechend einordnen. | Interpretation | §Learning Rate, Cross-Sectional-Diskussion | offen |
+| R2-M13 | "more competitive" (S. 22, Profi vs. Amateur) präziser als "higher level"/"higher caliber" – beide Ligen sind kompetitiv, Unterschied ist Spielniveau, nicht Wettbewerbsvorhandensein. | Struktur | S. 22 | offen |
+
+## Referee 3
+
+| ID | Kommentar | Kategorie | Betroffene Stelle | Status |
+|---|---|---|---|---|
+| R3-1 | Hauptbefund (Closing-Preise informativer, Preise werden über Zeit genauer) konzeptionell wenig überraschend in Märkten mit Informationsakkumulation. Institutionelle Details der Odds-Bildung fehlen (z.B. sharpe Bookmaker wie Pinnacle öffnen früher/niedrigere Limits, andere Bookmaker folgen). Bookmaker werden im Paper zu symmetrisch behandelt. | Interpretation/Konzept | Gesamtes Paper, Diskussion Institutional Detail | offen |
+| R3-2 | Opening-RMSE-Vergleiche zwischen Bookmakern konfundiert durch stark unterschiedliche Opening-Zeitpunkte (48h vs. 6h vor Match = unterschiedliche Informationsmengen). Pinnacles vergleichsweise hohe Opening-RMSE evtl. nur Artefakt früherer Marktteilnahme. | Daten | §Forecast Accuracy of Individual Bookmakers, Figure/RMSE-Analyse | offen |
+| R3-3 | Inverse dezimale Odds werden als Forecasts/Implied Probabilities behandelt, ohne Bookmaker-Margen ausreichend zu berücksichtigen (Summe >1 wegen Marge). Normalisierte statt roher inverser Odds verwenden. Überschneidet mit R1-i. Marge könnte selbst über Zeit variieren (höhere Marge in unsichererer früher Handelsphase, leicht prüfbar). | Daten | Durchgängig, Implied-Probability-Definition | offen |
+| R3-4 | Zuschreibung an "rational bettors, die Mispricing ausnutzen" nicht belegt – Ergebnisse zeigen nur, dass Preise, die sich später verengen, häufiger gewinnen, nicht dass Bettor systematisch profitabel handeln konnten (Margen/Overround beachten). Bezug zu Thaler & Ziemba (1988) "weak betting market efficiency" – Paper zeigt Forecast-Verbesserung, nicht Ausnutzbarkeit. Überschneidet mit R1-iii, R1-ix, R2-C5. | Interpretation | Durchgängig, v.a. Diskussion/Conclusion | offen |
+| R3-5 | Table 5: Benchmark-Argument – wenn Opening-Preis = p + e1 + e2 und Closing-Preis = p + e2 (e1 unabhängig von p entfernt), sollte Sortierung nach Revisionsgröße NICHT nach Winning-Probability sortieren (Erwartung: ~50% in jedem Bin), obwohl Closing-Preis genuinely genauer ist. Beobachtete große Spannweite (34%-63%) deutet auf starke Sortierung nach zugrundeliegender Wahrscheinlichkeit hin, nicht nur Rauschreduktion – Mechanismus/Benchmark nicht erklärt. Direkterer Test vorgeschlagen: Realized Outcomes vs. Opening/Closing-Probabilities bedingt auf initiales Probability-Level. Überschneidet mit R2-M9. | Modell/Interpretation | Table 5 (und Table 6), eq:win_rates-Zusammenhang | offen |
+| R3-6 | Größere Perspektive: Datensatz eignet sich für Analyse des tatsächlichen Informationsdiffusionsprozesses zwischen Bookmakern (welche Bookmaker führen Preisänderungen an, welche folgen mit Lag; Rolle sharper Bookmaker; Diffusionsgeschwindigkeit im Bookmaker-Netzwerk; Zusammenhang Opening-Zeitpunkt und Forecast-Accuracy-Entwicklung). Wird als vielversprechendere Stoßrichtung vorgeschlagen als generische Lern-Dynamik. | Konzept/Struktur | Gesamtausrichtung des Papers (großer Reframing-Vorschlag) | offen |
