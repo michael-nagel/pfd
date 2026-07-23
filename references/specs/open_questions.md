@@ -221,6 +221,21 @@ brooks1998 definierten dieselbe (korrekte) Formel?
   Hauptprädiktoren (OddsMvt1 dominant, standardisierter Beitrag ~0,19). 
   Appendix-Beschreibung muss korrigiert werden; inhaltlich relevant für 
   R2-C2 (Rückwärts-Information innerhalb des Bookmakers).
+- KORREKTUR (Stufe-B-Bericht): Die Einschätzung "Effekt vernachlässigbar" 
+  gilt NUR für den Absolutbetrag pro imputierter Zelle, NICHT downstream. 
+  Der Match-Fix verschiebt den β₁-Pfad der Unbiasedness-Regressionen um bis 
+  zu 0,19 (mittleres |Δ| 0,043); die Kreuzung von β₁=1 wandert von 48% 
+  (publizierte Figure 3) auf 56,7%. Signifikanzperzentile ändern sich von 31 
+  auf 28, mit anderer Zusammensetzung (frühe raus, späte rein). Mechanismus: 
+  OddsMvt0 ist zu 86% imputiert und steht auf beiden Seiten der Regression 
+  (Endog = Match − OddsMvt0, Exog = OddsMvt_t − OddsMvt0); eine systematisch 
+  ausgangskorrelierte Verschiebung hat dort Hebelwirkung weit über ihren 
+  Absolutbetrag hinaus. Tabellen 3–7, alle \var{}-Werte und die GMM-Lernraten 
+  bleiben dagegen unverändert (GMM-Änderung 8,9e−5, innerhalb der 
+  Nelder-Mead-Toleranz von 8,7e−5).
+- Inhaltliche Richtung: Der Look-Ahead täuschte frühe Effizienz vor. Nach dem 
+  Fix wird Unverzerrtheit spät im Betting-Fenster erreicht statt sofort – 
+  Price Discovery erscheint als Prozess, nicht als Zustand.
 
 ## Cross-Section – Code-vs-Paper-Diskrepanzen (Review-Revision)
 - REML vs. ML: Table-Notes (tex Z. 723, 761, 1076) behaupten "restricted 

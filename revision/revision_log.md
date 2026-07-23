@@ -152,8 +152,23 @@ feature set (look-ahead fix)"). Korrektur der Appendix-Beschreibung
 
 **Beleg/Validierung:** Sauberer a/b-Test (Leck bestätigt und quantifiziert:
 corr 0,56–0,88 auf OddsMvt0–4, Absolutbetrag ~0,0001). Downstream-Neulauf-
-Diagnose (Effekt der Feature-Entfernung auf nachgelagerte Ergebnisse) in
-Arbeit [zu ergänzen].
+Diagnose durchgeführt: Stufe-B-Bericht, frequentistischer Neulauf bis
+einschließlich GMM (`revision/snapshots/`). Da zwischen den publizierten
+Artefakten (29.11.2024) und heute drei weitere Commits `src/pfd/` verändert
+haben, die nie neu gerechnet wurden, wurde eine Kontrollstufe B0 eingezogen
+(heutiger Code, aber Match wieder im Imputer). B − B0 isoliert damit den
+Match-Fix, B0 − A misst die Code-Drift. B0 reproduziert die publizierten
+Signifikanzperzentile exakt (31, identische Menge) und alle Tabellen bis auf
+drei Bootstrap-Zellen, validiert also die Kontrolle. Ergebnis: Der Match-Fix
+wirkt ausschließlich auf die Unbiasedness-Regressionen (β₁-Kreuzung 48 % →
+56,7 %, max |Δβ₁| 0,19, Signifikanzperzentile 31 → 28); Tabellen 3–7,
+\var{}-Werte und GMM (beide Varianten, je Bookmaker) bleiben innerhalb
+numerischer Auflösung unverändert. Die Differenz in `bootstr_std`
+(0,0258 → 0,0249) stammt aus der Bootstrap-Parallelisierung (Commit 1067d77)
+und ist als Monte-Carlo-Rauschen verifiziert (5 Seeds × 1000 Resamples je
+Schema, Welch p = 0,51; Draw-Level-Test zeigt konsekutive Seeds so
+unkorreliert wie separierte), nicht als Effekt des Match-Fix.
+Appendix-Korrektur weiterhin offen [zu ergänzen].
 
 **Status:** in Arbeit (Code-Fix umgesetzt; Appendix-Korrektur und
 Downstream-Diagnose offen)
@@ -162,7 +177,13 @@ Downstream-Diagnose offen)
 
 **Für Response-Dokument:** Wir haben die Imputation überprüft und den
 Match-Ausgang aus den Prädiktoren entfernt, um jeden Look-Ahead-Kanal
-auszuschließen (der gemessene Effekt war betragsmäßig vernachlässigbar). Wir
+auszuschließen. Der Effekt auf die Tabellen 3–7, alle \var{}-Werte und die
+GMM-Lernraten ist vernachlässigbar (GMM-Änderung 8,9e−5, innerhalb der
+numerischen Toleranz des Optimierers). Auf den β₁-Pfad der
+Unbiasedness-Regressionen ist er dagegen NICHT vernachlässigbar: Die Kreuzung
+von β₁=1 verschiebt sich von 48 % (publizierte Figure 3) auf 57 %, mit
+maximaler Verschiebung von 0,19 (mittleres |Δ| 0,043). Figure 3 und die
+zugehörige Interpretation müssen entsprechend aktualisiert werden. Wir
 werden außerdem die Appendix-Beschreibung präzisieren: Die zurückimputierten
 Opening-Odds stützen sich primär auf spätere Preise desselben Bookmakers, was
 für die von Referee 2 aufgeworfene Frage der bookmaker-internen
