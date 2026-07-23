@@ -87,15 +87,15 @@ def filter_and_shape_data(
 
     df["IsFav"] = df["GroupId"].map(condition).astype(int)
 
-    # Take home/away perspective
+    # Take home/away perspective. Both raw sides are carried until the
+    # implied probability is formed below, because the margin-adjusted
+    # variant needs the opposite side at the same timestamp.
     if cfg.estimation.spec == "BmHome":
-        df = df.drop("OddsMvtAway", axis=1)
-        df = df.rename(columns={"OddsMvtHome": "OddsMvt"})
+        own_col, other_col = "OddsMvtHome", "OddsMvtAway"
         df["Match"] = df["Match"] + 1
         df.loc[df["Match"] == 2, "Match"] = 0
     else:
-        df = df.drop("OddsMvtHome", axis=1)
-        df = df.rename(columns={"OddsMvtAway": "OddsMvt"})
+        own_col, other_col = "OddsMvtAway", "OddsMvtHome"
 
     # Calculate the time series duration from open to close
     df["TsDur"] = (
@@ -113,8 +113,18 @@ def filter_and_shape_data(
     df["NumOddsMvt"] = df.groupby("GroupId")["GroupId"].transform("size")
     df["NumOddsMvt"] = df["NumOddsMvt"] - 1
 
-    # Calculate implied probabilities
-    df["OddsMvt"] = 1 / df["OddsMvt"]
+    # Calculate implied probabilities. Normalized divides out the
+    # bookmaker's margin by rescaling the two sides to sum to one; raw is
+    # the one-sided 1/decimal-odds used in the published version.
+    p_own, p_other = 1 / df[own_col], 1 / df[other_col]
+
+    impl_probs = (
+        p_own / (p_own + p_other) if cfg.estimation.normalize else p_own
+    )
+
+    # Rename in place so OddsMvt keeps the column position the raw side had
+    df = df.drop(other_col, axis=1).rename(columns={own_col: "OddsMvt"})
+    df["OddsMvt"] = impl_probs
 
     # Determine opening and closing odds
     df = df.assign(

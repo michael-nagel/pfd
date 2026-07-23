@@ -12,6 +12,7 @@ from pathlib import Path
 @dataclass
 class Estimation:
     spec: str
+    normalize: bool
     compets: None | list
     bm_quantile: float
     ts_dur: list
