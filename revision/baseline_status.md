@@ -138,3 +138,30 @@ sind:
 5. **Bayesian-Lauf auf neuer Baseline ausstehend.** Der Neulauf lief bislang
    nur frequentistisch bis einschließlich GMM. Die Bayesian-Schätzung ist auf
    der neuen Baseline noch nicht gerechnet.
+
+---
+
+## Tags und Referenzpunkte
+
+- **pre-revision-baseline** (`1067d77`): ACHTUNG – markiert NICHT den
+  publizierten Stand von November 2024, sondern einen Punkt danach
+  (Bootstrap-Parallelisierungs-Commit). Zwischen den publizierten Artefakten
+  und diesem Tag liegen drei Commits Code-Drift, die nie neu gerechnet wurden.
+  Bekannter Effekt: bootstr_std 0,0258 → 0,0249 (als Monte-Carlo-Rauschen
+  verifiziert, siehe `revision_log.md` R2-C2).
+  *Präzisierung:* Die Drift steckt im **Code**, nicht in den abgelegten
+  Zahlen – die committeten Artefakte unter `reports/` und `data/` sind an
+  diesem Tag byte-identisch zu `A_baseline` (`git diff pre-revision-baseline
+  HEAD -- reports data` war leer, siehe `A_baseline/MANIFEST.md`). Der
+  bootstr_std-Unterschied tritt erst auf, wenn man den Code dieses Tags neu
+  laufen lässt (Stufe B0), nicht in den dort liegenden Dateien.
+- **A_baseline** (Snapshot, kein Tag): die tatsächlich publizierten Artefakte
+  vom 29.11.2024. Das ist die korrekte Referenz für jede Vorher/Nachher-
+  Aussage gegenüber den Referees.
+- **B0_pre_fix** (Snapshot): heutiger Code, aber Match zurück im Imputer –
+  die Kontrollstufe, die Code-Drift von Match-Fix trennt.
+- **revision-baseline** (`e95ce5a`): neue Referenz, normalisierte Quoten +
+  Match-Fix. Ausgangspunkt für alle weiteren Änderungen.
+
+**Merksatz:** Für Aussagen an die Referees ist `A_baseline` die Referenz,
+nicht der Tag `pre-revision-baseline`.
