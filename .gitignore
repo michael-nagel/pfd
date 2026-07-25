@@ -34,6 +34,13 @@ reports/paper/
 reports/slides/
 reports/bibliographies/
 
+# Revision snapshots: track the textual evidence (CSV/MD/TeX/JSON),
+# exclude everything regenerable from it
+revision/snapshots/**/*.png
+revision/snapshots/**/*.pdf
+revision/snapshots/**/*.h5
+revision/snapshots/**/group_bookie_*.csv
+
 # Auxiliary files
 routine_cmds.rst
 to_do.rst

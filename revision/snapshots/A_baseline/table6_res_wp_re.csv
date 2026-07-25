@@ -1,0 +1,7 @@
+Row,Coef.,Std.Err.,z,P>|z|,[0.025,0.975]
+Intercept,0.505,0.003,159.179,0.000,0.499,0.511
+AvgChange,0.741,0.026,28.106,0.000,0.691,0.792
+NumMatches,0.000,0.000,0.478,0.632,-0.000,0.000
+Bookies Var,0.000,,,,,
+Bookies x AvgChange Cov,-0.000,,,,,
+AvgChange Var,0.006,0.060,,,,

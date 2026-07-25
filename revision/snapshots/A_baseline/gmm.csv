@@ -1,0 +1,6 @@
+key,value,segment
+avg_gamma_gmm,0.0332,all bookmakers (aggregate)
+min_gamma_gmm,0.0029,all bookmakers (aggregate)
+max_gamma_gmm,0.0741,all bookmakers (aggregate)
+idxmax_gamma_gmm,Dafabet,all bookmakers (aggregate)
+idxmin_gamma_gmm,GGBET,all bookmakers (aggregate)
