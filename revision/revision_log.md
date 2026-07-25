@@ -197,6 +197,115 @@ werden sollte. Verweis: R2-C3/R3-2 (Timing) berühren dieselbe Datenbasis.
 
 ---
 
+## R1-i / R3-3 – Bookmaker-Margen / normalisierte Wahrscheinlichkeiten
+**Kommentar (kondensiert):** Implied probabilities enthalten Bookmaker-Margen;
+Vergleiche sollten mit margin-bereinigten (normalisierten) Wahrscheinlichkeiten
+statt rohen inversen Odds erfolgen, mit Robustheit gegen alternative
+Margin-Removal-Methoden (R1-i). Inverse dezimale Odds werden als Forecasts
+behandelt, ohne die Marge (Summe >1) ausreichend zu berücksichtigen; Marge
+könnte über Zeit variieren (höher in unsichererer früher Phase, leicht
+prüfbar) (R3-3).
+**Stand vor Revision:** Implizite Wahrscheinlichkeiten werden als rohes
+Inverses der Dezimalquote der gewählten Seite gebildet (`filter_and_shape.py:117`,
+`OddsMvt = 1/dez_home`, einseitig), ohne Normalisierung auf Summe 1. Die Marge
+wird berechnet, aber nur als Filter (`0 ≤ Margin ≤ 0.15`) verwendet, nicht
+abgezogen. Die Away-Seite wird nach der Perspektivwahl (`:91-98`) verworfen.
+Alle Cross-Sections (OpnOdds/ClsOdds) und alle Zeitreihen (OddsMvt0..50)
+erben diese rohe Größe.
+**Untersuchung:** Diagnose rein deskriptiv, gegen Paper-Zahlen validiert
+(Table-5-Bins und fig:rmse-Rangfolge exakt reproduziert). Kernbefunde:
+- Marge: Opening-Median 7,82 %, Closing 7,61 %; schrumpft ~0,2 pp Open→Close
+  (bei 55,9 % der Gruppen) – systematisch, aber klein. Bookmaker-spezifisch
+  4,90 % (Pinnacle) bis 8,33 % (Interwetten), Spread ~3,4 pp.
+- Level-Effekt: rohes Preis-Level ~halbe Marge (~3,6 pp) zu hoch;
+  Normalisierung zentriert die Player-1-Opening-Wahrscheinlichkeit exakt auf
+  0,50 (roh: Median 0,5405) – relevant auch für R2-C1/R2-M5 (Intercept ~0,5).
+- Bewegungs-Effekt: raw↔norm Open-to-Close korrelieren 0,997; ~90 % echte
+  Belief-Änderung, ~10 % Margen-Änderung; die Netto-Abwärtsdrift der rohen
+  Bewegung ist vollständig Margen-Artefakt.
+- Robustheit: Table 5 behält Monotonie/Vorzeichen (~12 % Gruppen wechseln
+  Bin, Extrembins verlieren ~30 % Mitglieder, Top-Bin-WR 0,635→0,652);
+  RMSE-Rangfolge Spearman raw vs. norm 0,99, Extremränge stabil.
+- Level-vs-Differenz-Regel: Normalisierung materiell bei Größen gegen den
+  Ausgang ω (RtrnClsEnd, FEOpn/FECls/RMSE, GMM-Momentbedingungen,
+  Unbiasedness-Endog), vernachlässigbar bei Differenzen/Ratios gleichseitiger
+  Preise (RtrnOpnCls, DltOpnCls, GMM-Instrumente).
+- Konsistenz: GMM/Bayesian/Unbiasedness nutzen dieselbe rohe 1/dez-Größe wie
+  die Cross-Sections (Detail in open_questions.md, Abschnitt Margen/
+  Normalisierung).
+**Entscheidung:** Umgestellt auf margin-bereinigte, auf Summe 1 normierte
+Wahrscheinlichkeiten statt roher inverser Quoten – umgesetzt und als
+Referenz-Baseline gesetzt (Tag `revision-baseline`). Die drei
+Konsistenzbedingungen für eine durchgängige Normalisierung der Zeitreihen sind
+damit alle erfüllt: (1) Mitführen der Away-Seite durch `filter_and_shape` /
+`resample_and_impute` und (2) Normalisierung pro Zeitpunkt sind mit `dcd0f51`
+erledigt; (3) Imputation der Frühwerte auf der normalisierten/zweiseitigen
+Größe ergibt sich aus der neuen Baseline, da der Imputer nun auf der
+normalisierten `OddsMvt`-Größe arbeitet. Die ursprünglich offene
+Reihenfolgefrage gegenüber der Zeitachsen-Entscheidung (R2-C3/R3-2) ist damit
+gegenstandslos: Die Normalisierung steht fest, eine spätere Umstellung der
+Zeitachse setzt auf ihr auf.
+**Umsetzung:** Normalisierung implementiert: die implizite Wahrscheinlichkeit
+ist jetzt `p_norm = p_home / (p_home + p_away)` statt der rohen einseitigen
+inversen Dezimalquote, konsistent über Cross-Sections, GMM und
+Unbiasedness-Regressionen. Zwei Schritte: C1-Refactor (beide Quotenseiten
+werden durch `filter_and_shape` durchgereicht, `estimation.normalize`-Flag
+eingeführt, Default noch off) in Commit `dcd0f51`; Umstellung des
+Flag-Defaults auf `True` in Commit `e95ce5a`. **Ab `e95ce5a` / Tag
+`revision-baseline` ist die Normalisierung der neue Standard**, kein Override
+mehr – siehe `revision/baseline_status.md`.
+**Beleg/Validierung:** Vorab (Diagnose): Diagnose-Skripte reproduzieren
+Table-5-Bins (z. B. Bin [-1,-0.15]: n=1484, WR 0,3369) und die
+fig:rmse-Rangfolge (Pinnacle/BetInAsia/NordicBet als schlechteste) exakt gegen
+die Paper-Zahlen; Level-Shift ~halbe Marge und die 0,997-Korrelation empirisch
+bestätigt.
+Nach Umsetzung: Stufen-D-Vergleich C1 vs. C2 und volle 2×2-Matrix
+(Look-Ahead × Normalisierung), Quelle `revision/snapshots/compare_2x2.csv`,
+Bericht `revision/snapshots/STAGE_D_2x2_report.md`. Die Kernbefunde sind robust:
+- γ̄ (CUE) 0,0332 → 0,0320, idxmin (GGBET) / idxmax (Dafabet) unverändert.
+- RMSE-Rangfolge Spearman roh vs. normalisiert 0,992, Extremränge stabil.
+- Tabelle 6 (AvgChange) 0,7413 → 0,8206, weiterhin signifikant (Bootstrap-SE
+  0,0249 → 0,0307).
+Kompositionseffekt geprüft (Prüfkriterien vorab festgeschrieben in
+`revision/c2_check_spec.md`): Das df_oc-Sample wächst über den
+`|RtrnOpnCls| > 0`-Filter um netto **+3 089** Gruppen (3 367 neu hinzu,
+278 heraus). Die Aufschlüsselung nach Bookmaker
+(`revision/snapshots/diagnostics/c2_zeromove_by_bookie.csv`) widerlegt die
+Sorge aus der Prüfspezifikation, margenstarke Bookmaker könnten
+überproportional betroffen sein. Die Stichprobenverschiebung **läuft nicht
+entlang des Margenniveaus (Korrelation −0,28, schwach negativ)** – bewusst
+nicht als „nicht margenkorreliert" formuliert, das wäre nicht belegt. Das
+Vorzeichen ist die unkritische Richtung: wenn überhaupt, sind die
+*margenärmsten* Bookmaker stärker betroffen (Pinnacle +3,3 %, BetInAsia
++3,7 %), und die am stärksten betroffenen Bookmaker streuen über den gesamten
+Margenbereich (10Bet 6,94 % / +6,0 %; Betfair 7,79 % / +5,0 %; ComeOn 8,14 % /
++4,1 %), ohne monotones Muster. Der gemessene Effekt ist damit
+Messgrößenänderung, nicht Komposition. Beleg: `c2_zeromove_by_bookie.csv`
+(Median-Marge je Bookmaker gegen Netto-Anteil, Pearson und Spearman je −0,28).
+**Status:** umgesetzt (Baseline) – Code-seitig abgeschlossen und als
+Referenz-Baseline gesetzt; Paper-Zahlen und -Formulierungen noch anzupassen
+(offene Punkte in `revision/baseline_status.md`, Abschnitt NOCH OFFEN)
+**Superseded:** —
+**Für Response-Dokument:** Wir haben auf margin-bereinigte, normalisierte
+Wahrscheinlichkeiten umgestellt: implizite Wahrscheinlichkeiten werden jetzt
+als p/(p_home+p_away) gebildet, konsistent über Cross-Sections und
+Zeitreihen. Die qualitativen Kernbefunde bleiben unverändert – die
+Table-5-Monotonie hält, die RMSE-Rangfolge korreliert mit 0,99 (Spearman) mit
+der bisherigen, und die geschätzten Lernraten sind praktisch identisch
+(0,033 → 0,032, gleiche Extrembookmaker). Die Normalisierung entfernt einen
+systematischen Level-Aufschlag von ~halber Marge; dadurch wird die
+Winning-Rate-Achse bei Nulländerung exakt auf 0,50 zentriert (bisher ~0,54),
+was zugleich den von Referee 2 angemerkten unintuitiven Intercept adressiert
+(R2-C1/R2-M5), und der Zusammenhang in Tabelle 6 wird stärker (0,741 → 0,821).
+Materiell ändert sich die Interpretation der Unbiasedness-Regressionen: β₁
+liegt nach Normalisierung über den gesamten Beobachtungshorizont über 1, die
+bisher berichtete Unterschreitung spät im Wettfenster war ein Artefakt der
+Margenschrumpfung zwischen Opening und Closing. Wir berichten dies als
+partielles Lernen (Unterreaktion) im Sinne von R2-C7. Die Robustheit gegen
+alternative Margin-Removal-Methoden werden wir [zu ergänzen] zeigen.
+
+---
+
 ## R1-v – Zensierung durch Opening-Odds + letzte 20 Updates
 **Kommentar (kondensiert):** Oddsportal liefert nur Opening-Odds plus die
 letzten 20 Updates → mögliche Zensierung, v. a. bei aktiven Märkten. Die
@@ -289,64 +398,6 @@ Markteröffnung liegt.
 ---
 
 # Teil 2 – Leere Vorlagen (noch nicht bearbeitet)
-
-## R1-i / R3-3 – Bookmaker-Margen / normalisierte Wahrscheinlichkeiten
-**Kommentar (kondensiert):** Implied probabilities enthalten Bookmaker-Margen;
-Vergleiche sollten mit margin-bereinigten (normalisierten) Wahrscheinlichkeiten
-statt rohen inversen Odds erfolgen, mit Robustheit gegen alternative
-Margin-Removal-Methoden (R1-i). Inverse dezimale Odds werden als Forecasts
-behandelt, ohne die Marge (Summe >1) ausreichend zu berücksichtigen; Marge
-könnte über Zeit variieren (höher in unsichererer früher Phase, leicht
-prüfbar) (R3-3).
-**Stand vor Revision:** Implizite Wahrscheinlichkeiten werden als rohes
-Inverses der Dezimalquote der gewählten Seite gebildet (`filter_and_shape.py:117`,
-`OddsMvt = 1/dez_home`, einseitig), ohne Normalisierung auf Summe 1. Die Marge
-wird berechnet, aber nur als Filter (`0 ≤ Margin ≤ 0.15`) verwendet, nicht
-abgezogen. Die Away-Seite wird nach der Perspektivwahl (`:91-98`) verworfen.
-Alle Cross-Sections (OpnOdds/ClsOdds) und alle Zeitreihen (OddsMvt0..50)
-erben diese rohe Größe.
-**Untersuchung:** Diagnose rein deskriptiv, gegen Paper-Zahlen validiert
-(Table-5-Bins und fig:rmse-Rangfolge exakt reproduziert). Kernbefunde:
-- Marge: Opening-Median 7,82 %, Closing 7,61 %; schrumpft ~0,2 pp Open→Close
-  (bei 55,9 % der Gruppen) – systematisch, aber klein. Bookmaker-spezifisch
-  4,90 % (Pinnacle) bis 8,33 % (Interwetten), Spread ~3,4 pp.
-- Level-Effekt: rohes Preis-Level ~halbe Marge (~3,6 pp) zu hoch;
-  Normalisierung zentriert die Player-1-Opening-Wahrscheinlichkeit exakt auf
-  0,50 (roh: Median 0,5405) – relevant auch für R2-C1/R2-M5 (Intercept ~0,5).
-- Bewegungs-Effekt: raw↔norm Open-to-Close korrelieren 0,997; ~90 % echte
-  Belief-Änderung, ~10 % Margen-Änderung; die Netto-Abwärtsdrift der rohen
-  Bewegung ist vollständig Margen-Artefakt.
-- Robustheit: Table 5 behält Monotonie/Vorzeichen (~12 % Gruppen wechseln
-  Bin, Extrembins verlieren ~30 % Mitglieder, Top-Bin-WR 0,635→0,652);
-  RMSE-Rangfolge Spearman raw vs. norm 0,99, Extremränge stabil.
-- Level-vs-Differenz-Regel: Normalisierung materiell bei Größen gegen den
-  Ausgang ω (RtrnClsEnd, FEOpn/FECls/RMSE, GMM-Momentbedingungen,
-  Unbiasedness-Endog), vernachlässigbar bei Differenzen/Ratios gleichseitiger
-  Preise (RtrnOpnCls, DltOpnCls, GMM-Instrumente).
-- Konsistenz: GMM/Bayesian/Unbiasedness nutzen dieselbe rohe 1/dez-Größe wie
-  die Cross-Sections (Detail in open_questions.md, Abschnitt Margen/
-  Normalisierung).
-**Entscheidung:** Normalisierung geplant (margin-bereinigte, auf Summe 1
-normierte Wahrscheinlichkeiten statt roher inverser Quoten). Reihenfolge
-relativ zur Zeitachsen-Entscheidung (R2-C3/R3-2) noch offen: Die konsistente
-Normalisierung der Zeitreihen erfordert (1) Mitführen der Away-Seite durch
-`resample_and_impute` (aktuell verworfen), (2) Normalisierung pro Zeitpunkt,
-(3) Imputation der Frühwerte auf der normalisierten/zweiseitigen Größe – und
-Punkt (3) kollidiert mit der offenen Imputations-/Zeitachsen-Umstellung.
-**Umsetzung:** [zu ergänzen – noch keine Code-Änderung]
-**Beleg/Validierung:** Diagnose-Skripte reproduzieren Table-5-Bins (z. B. Bin
-[-1,-0.15]: n=1484, WR 0,3369) und die fig:rmse-Rangfolge (Pinnacle/BetInAsia/
-NordicBet als schlechteste) exakt gegen die Paper-Zahlen; Level-Shift ~halbe
-Marge und die 0,997-Korrelation empirisch bestätigt.
-**Status:** in Arbeit
-**Superseded:** —
-**Für Response-Dokument:** Wir werden auf margin-bereinigte, normalisierte
-Wahrscheinlichkeiten umstellen und die Robustheit gegen alternative
-Margin-Removal-Methoden zeigen. Unsere Diagnose zeigt, dass die Normalisierung
-die qualitativen Kernbefunde (Table-5-Monotonie, RMSE-Rangfolge) nicht
-verändert, aber einen systematischen Level-Aufschlag von ~halber Marge
-entfernt; wir werden die Normalisierung konsistent über Cross-Sections und
-Zeitreihen ziehen.
 
 ## R1-iii / R2-C5 / R3-4 – Zuschreibung an "rational bettors"
 **Kommentar (kondensiert):** Die Zuschreibung von Preisbewegungen an "rational
