@@ -6,7 +6,7 @@ defaults: # Entries below _self_ override the config in this file
 
 estimation:
   spec: BmHome # Which odds to use for analysis ["BmHome", "BmAway"]
-  normalize: False # Divide out the margin: p_own / (p_own + p_other)
+  normalize: True # Divide out the margin: p_own / (p_own + p_other)
   compets: null # Which competitions ["ATP", "WTA"] or null
   bm_quantile: 0.25  # Quantile selecting the bookmakers by the number of obs.
   ts_dur: [12, 72] # Min and max time series duration in hours
