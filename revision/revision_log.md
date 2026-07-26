@@ -139,6 +139,40 @@ same and different matches".
   standardisierter Beitrag ~0,19) – nicht die Preise anderer Bookmaker wie im
   Appendix beschrieben. Dieser Punkt ist inhaltlich relevant für R2-C2
   (Rückwärts-Information innerhalb desselben Bookmakers).
+- **Robustness-Check kontinuierliche Zeitachse** (ohne Imputation, ohne
+  Perzentil-Raster, echte Zeitstempel, varying-coefficient-GAM): reproduziert
+  den Baseline-β₁-Verlauf NICHT. Durchgehender Niveau-Versatz von −0,22; die
+  kontinuierliche Kurve liegt an keinem der 50 Perzentile über der Baseline.
+- **Kanalzerlegung** des Versatzes: Referenzpunkt +13 %, Gewichtung +16 %,
+  Forward-Fill +1 %, dasselbe GAM auf den Baseline-Daten +90 % → die Differenz
+  ist vollständig Datenbasis, nicht Schätzer. C3 vs. C4 lokalisiert sie: die
+  7,85 % imputierten Zellen tragen den kompletten Niveauunterschied.
+- **Masking-Test** (24.568 vollständig beobachtete Serien, künstlich maskiert
+  im empirischen Fehlmuster der Spät-Eröffner): auf ECHTEN Frühpreisen ist β₁
+  über das ganze Fenster flach (1,262 bei Perzentil 2 → 1,161 bei 99). Auf
+  imputierten Frühpreisen 2,460 → 1,199, mittlerer Versatz +0,263. Der steile
+  Abfall – die charakteristische Form der publizierten Figure 3 – entsteht
+  durch die Imputation.
+- **Mechanismus:** p₀ steht auf BEIDEN Seiten der Regression (Endog = ω − p₀,
+  Exog = p_t − p₀). Ein geteilter Messfehler verschiebt beide Seiten
+  gleichzeitig und erzeugt künstliche Kovarianz – kein gewöhnlicher
+  Errors-in-Variables-Fall (der würde attenuieren). Verstärkt durch die
+  systematische Schrumpfung der imputierten Werte um 23 % zur Mitte. Der
+  Effekt klingt mit der Distanz zum imputierten Block ab.
+- Die **Imputationsqualität isoliert betrachtet ist unauffällig** (RMSE 0,091,
+  Bias −0,0015, corr 0,913) – ein geringer Imputationsfehler schließt den
+  Downstream-Effekt also nicht aus.
+- **GMM dagegen ROBUST:** γ gepoolt 0,0305 (echt) vs. 0,0435 (imputiert), aber
+  dieser Versatz ist Hebelwirkung von 3,3 % der Serien (Blocklänge ≥ 22); ohne
+  diese +0,0002. Stützstellentausch OddsMvt0 → OddsMvt21 auf dem
+  Produktions-Frame: +1,5 %. Deterministische Kontrolle: wenn keine
+  Stützstelle imputiert ist, bewegt sich γ um exakt 0,0000.
+- **Struktureller Grund für die Asymmetrie:** OddsMvt0 geht ins GMM nur über
+  EIN Instrument ein (OddsMvt26 − OddsMvt0); die Momentbedingungen nutzen
+  OddsMvt46/41/36 (0–0,15 % imputiert). In der Unbiasedness-Regression steht
+  OddsMvt0 auf beiden Seiten.
+- **Cross-Sections nicht betroffen** (RMSE, Eq. 1/2, Tab. 5/6) – sie laufen auf
+  den echten Opening-/Closing-Preisen vor dem Resampling.
 
 **Entscheidung:** Match aus den Imputer-Features entfernt – kein inhaltlicher
 Grund für seine Aufnahme, und die Entfernung beseitigt die Angriffsfläche
@@ -169,9 +203,14 @@ und ist als Monte-Carlo-Rauschen verifiziert (5 Seeds × 1000 Resamples je
 Schema, Welch p = 0,51; Draw-Level-Test zeigt konsekutive Seeds so
 unkorreliert wie separierte), nicht als Effekt des Match-Fix.
 Appendix-Korrektur weiterhin offen [zu ergänzen].
+Belege der beiden Imputations-Robustness-Checks:
+`revision/snapshots/continuous_unbiasedness/` (Commit 5680d91) und
+`revision/snapshots/gmm_imputation_test/` (Commit bf9b97a), jeweils mit README,
+CSVs und Reproduktionsskripten. Der GMM-Harness reproduziert
+`C_normalized/gmm_by_bookie.csv` auf 7,6e−17.
 
-**Status:** in Arbeit (Code-Fix umgesetzt; Appendix-Korrektur und
-Downstream-Diagnose offen)
+**Status:** in Arbeit – Befund steht, Konsequenz für den
+Unbiasedness-Abschnitt des Papers noch zu entscheiden.
 
 **Superseded:** —
 
@@ -190,10 +229,18 @@ für die von Referee 2 aufgeworfene Frage der bookmaker-internen
 Rückwärts-Information direkt relevant ist. Die konzeptionelle Frage der zwei
 Lernkanäle / Markteintritts-Zeitpunkt wird [zu ergänzen].
 
+Ergänzend (Futur, da noch nicht umgesetzt): Wir werden darlegen, dass der
+Look-Ahead über den Match-Ausgang der kleinere Teil des Problems war; der
+wesentliche Befund ist, dass die zurückimputierten Frühpreise den β₁-Verlauf
+tragen, auf dem das Lern-Narrativ aufbaut. Die Learning-Rate-Schätzung (GMM)
+ist davon nachweislich nicht betroffen.
+
 **Offen / [zu ergänzen]:** Konzeptionelle Antwort auf die zwei Lernkanäle
 (Posting+Beobachten vs. Warten+Beobachten) und die Frage, ob der
 Markteintritts-Zeitpunkt selbst als Information behandelt statt wegimputiert
 werden sollte. Verweis: R2-C3/R3-2 (Timing) berühren dieselbe Datenbasis.
+Außerdem offen: wie der Unbiasedness-Abschnitt neu aufgesetzt wird – eigene
+Entscheidung, siehe nächster Schritt.
 
 ---
 
