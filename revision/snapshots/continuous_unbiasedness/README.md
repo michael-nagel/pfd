@@ -199,3 +199,156 @@ Abbildung: `masking_test_beta1.{pdf,png}`, Kurven in
   genommen nichts darüber, welcher der beiden Verläufe ökonomisch „richtig"
   ist – wohl aber, dass der publizierte Verlauf ohne die Imputation nicht
   besteht.
+
+---
+
+# Nachtrag 3 – Das vollständige 2×2: Imputation vs. Komposition
+
+Die Kompositions-Kontrolle in `entry_delay/` (Abschnitt 4) hatte gezeigt, dass
+die 24.568 vollständig beobachteten Serien ein höheres β₁ haben (1,200) als die
+Gesamtpopulation (1,006) – ohne jede Imputation. Damit stand die Frage offen,
+wie viel des Niveauversatzes zur Baseline überhaupt der Imputation zuzurechnen
+ist. Sie ist jetzt entschieden, weil die vierte Zelle vorliegt.
+
+## Das Design
+
+Zwei binäre Achsen, vier Zellen:
+
+|                            | **alle Serien** | **nur vollständig beobachtete** |
+|----------------------------|-----------------|---------------------------------|
+| **Baseline / imputiert** (Perzentil-Methode) | **A** | **B** — *neu* |
+| **kontinuierlich / echt** (varying-coefficient-GAM) | **C** | **D** |
+
+- Zeilen = Datenbasis + Schätzverfahren (resampeltes, imputiertes
+  Perzentil-Raster mit 50 Mixed-LM-Fits vs. echte Beobachtungen mit einem
+  gepoolten GAM).
+- Spalten = Serienmenge (alle Serien mit `NumOddsMvt<20` vs. die 24.568, die
+  über das ganze Fenster echt beobachtet sind).
+- **B war die fehlende Zelle.** Sie nutzt den Produktionsschätzer wörtlich –
+  dieselbe Restriktion `NumOddsMvt<20`, dieselbe Differenzierung gegen
+  `OddsMvt0`, dasselbe `Endog = Match − OddsMvt0`, dieselben 50
+  `fit_mixed_lm`-Aufrufe auf demselben imputierten Wide-Frame
+  (`C_normalized/wide_imputed.h5`). Es unterscheidet sich **ausschließlich die
+  Zeilenmenge**.
+
+**Reproduktionskontrolle:** Zelle A, mit demselben Harness neu gerechnet,
+reproduziert `C_normalized/beta1_curve.csv` auf max |Δβ₁| = 2,2e−16. Die
+Kandidatenmenge wird im Skript aus dem Fehlmuster **vor** der Imputation neu
+abgeleitet (kein Zwischen-Cache) und ergibt wieder exakt 24.568 Serien; deren
+NaN-Anteil vor der Imputation ist 0,00 % gegenüber 7,85 % über alle Serien.
+
+## Alle vier Zellen nebeneinander
+
+Quelle `compare_2x2_composition.csv`. Die Mittelwerte sind auf einem
+**gemeinsamen Träger** gebildet (Perzentile 2, 4, …, 98 – die Baseline-Punkte,
+die im GAM-Gitter 1–99 liegen), damit die 50- und 200-Punkt-Gitter vergleichbar
+sind; die nativen Mittel stehen daneben und weichen um ≤ 0,004 ab.
+
+| Kennzahl | **A** Baseline, alle | **B** Baseline, nur vollst. beob. | **C** kontinuierlich, alle | **D** kontinuierlich, nur vollst. beob. |
+|---|---:|---:|---:|---:|
+| Serien | 174.392 | 24.568 | 175.266 | 24.568 |
+| Gitterpunkte | 50 | 50 | 200 | 200 |
+| **β₁ Mittel (gem. Träger)** | **1,224** | **1,234** | **1,006** | **1,200** |
+| β₁ Mittel (nativ) | 1,220 | 1,233 | 1,006 | 1,200 |
+| β₁ min | 1,031 | 1,158 | 0,771 | 1,087 |
+| β₁ max | 2,592 | 1,308 | 1,289 | 1,299 |
+| β₁ am Anfang | 2,592 | 1,273 | 1,289 | 1,299 |
+| β₁ am Ende | 1,031 | 1,158 | 0,771 | 1,087 |
+| β₁ bei Perzentil 50 | 1,127 | 1,255 | 0,913 | 1,205 |
+| Anteil der Kurve > 1 | 100 % | 100 % | 44,9 % | 100 % |
+| # signif. Perzentile | 1 | 16 | – | – |
+
+Die Zeile „# signif. Perzentile" (β₁ nicht von 1 unterscheidbar) ist nur
+innerhalb der Baseline-Spalten vergleichbar und **nicht** als „unverzerrter"
+zu lesen: Zelle B hat ein Siebtel der Serien und damit breitere
+Konfidenzintervalle. Für die kontinuierlichen Zellen ist die Kennzahl nicht
+definiert (Splinegitter statt 50 Einzelregressionen).
+
+## Die Zerlegung
+
+|                          | alle Serien | nur vollst. beob. | **Kompositionseffekt** |
+|--------------------------|---:|---:|---:|
+| **Baseline / imputiert** | 1,224 | 1,234 | **−0,010** |
+| **kontinuierlich / echt**| 1,006 | 1,200 | **−0,195** |
+| **Methoden-/Imput.-effekt** | **+0,218** | **+0,034** | +0,184 (Interaktion) |
+
+Das 2×2 ist – anders als das Leak×Normalisierung-2×2 der Stufe D – **stark
+nicht-additiv**, und genau die Nicht-Additivität ist der Befund:
+
+- **Methodeneffekt ohne Imputation: B − D = +0,034** (16 % der Gesamtlücke).
+  Auf den vollständig beobachteten Serien, wo praktisch nichts zu imputieren
+  ist, stimmen die beiden Verfahren fast überein: 1,234 (Perzentil-Raster,
+  Mixed LM) gegen 1,200 (echte Zeitstempel, GAM). Resampling, Perzentil-Achse,
+  Referenzpunkt, Gewichtung und Schätzer zusammen tragen also nur +0,034. Das
+  bestätigt die Kanalzerlegung (Nachtrag 1) aus der anderen Richtung: der
+  Schätzer ist nicht die Ursache.
+- **Gesamtlücke: A − C = +0,218.** Davon sind 0,034 Methode; die verbleibenden
+  **+0,184 (84 %)** sind der Interaktionsterm – der Teil, der nur entsteht,
+  wo Imputation tatsächlich arbeitet.
+- **Der Kompositionseffekt ist eine Eigenschaft des Verfahrens, nicht der
+  Daten.** Auf den echten Beobachtungen beträgt er −0,195 (früh eröffnende
+  Serien haben ein höheres, flacheres β₁); unter der Baseline-Methode schrumpft
+  er auf −0,010, also **5 % des echten Werts**. Die Imputation löscht 95 % der
+  wahren Heterogenität zwischen früh und spät eröffnenden Serien.
+
+Der Mechanismus dahinter ist genau der aus Nachtrag 2: die Imputation ersetzt
+die Frühpreise der Spät-Einsteiger durch Werte, die sich wie die der
+Früh-Eröffner verhalten. Danach sehen alle Serien gleich aus – die Baseline
+misst auf allen 174.392 Serien dasselbe Niveau, das die echten Daten nur auf
+den 24.568 früh eröffnenden zeigen (1,224 vs. 1,234, praktisch identisch).
+
+**Größenordnungskontrolle:** Der Masking-Test (Nachtrag 2, within-sample auf
+denselben 24.568 Serien) bezifferte den Imputationseffekt auf +0,261 (echt
+1,223 → imputiert 1,484, auf gemeinsamem Träger gerechnet). Der hier
+unabhängig bestimmte Interaktionsterm liegt bei +0,184. Zwei
+methodisch getrennte Wege, gleiches Vorzeichen und gleiche Größenordnung. Dass
+der Masking-Wert höher liegt, ist erwartbar: der Test maskiert `OddsMvt0` bei
+100 % der Serien, in der Produktion sind es 86 %.
+
+**Konsistenzkontrolle B ↔ Masking-Test:** Zelle B (1,234; Ränder 1,273 →
+1,158) und `masking_beta1_true.csv` (1,223; Ränder 1,263 → 1,161) messen
+dasselbe Objekt auf zwei Wegen – Perzentil-Mixed-LMs auf dem
+Produktions-Frame gegen ein gepooltes GAM auf den unmaskierten Wahrheitswerten
+derselben Serien. Sie stimmen auf 0,011 überein.
+
+## Schätzerrobustheit von Zelle B
+
+`statsmodels` meldet bei Zelle B in 50 von 50 Fits „MLE on the boundary" und
+in 3 von 50 „RE covariance singular" – die Random-Effects-Varianz läuft an den
+Rand. Das ist **keine Eigenheit der restringierten Stichprobe**: Beide
+Stichproben enthalten dieselben 24 Bookmaker, und die Boundary-Warnung tritt im
+Produktionslauf über alle 174.392 Serien genauso auf (nachgeprüft an den
+Perzentilen 2, 50 und 100 – Boundary in allen drei Fällen, „singular"
+zusätzlich bei Perzentil 2). Es handelt sich also um eine Eigenschaft der
+Produktionsspezifikation, nicht um einen Defekt von Zelle B.
+
+Das Niveau hängt daran ohnehin nicht: dieselbe Spezifikation **ohne** Random
+Effects (reines OLS) ergibt für Zelle B mittleres β₁ = 1,218 statt 1,233,
+max |Δ| = 0,037, corr = 0,959
+(`beta1_baseline_fully_observed_convergence.csv`). Die Aussage des 2×2 ist
+gegen diese Wahl unempfindlich.
+
+## Dateien
+
+- `beta1_baseline_fully_observed.csv` – Zelle B, 50 Perzentile mit SE
+- `beta1_baseline_fully_observed_convergence.csv` – Konvergenzzensus und
+  OLS-Gegenrechnung für Zelle B
+- `compare_2x2_composition.csv` – alle vier Zellen, Kennzahlen nebeneinander
+- `beta1_2x2_composition_curves.csv` – die vier Kurven auf dem gemeinsamen
+  Träger
+- `composition_2x2.{pdf,png}` – Abbildung: vier Kurven + Zerlegung
+- `_composition_2x2.py`, `_composition_2x2_plot.py` – Reproduktionsskripte
+
+## Einschränkungen
+
+- Die Spalte „nur vollständig beobachtete" ist keine Zufallsstichprobe, sondern
+  **die früh eröffnenden Bookmaker** (100 % Verspätung 0). Das 2×2 trennt
+  Imputation und Komposition sauber, sagt aber nichts darüber, wie sich die
+  Imputation bei Spät-Einsteigern verhielte, wenn man deren Wahrheit kennen
+  würde – die kennt man nicht.
+- Die Zeilenachse bündelt Datenbasis *und* Schätzer. Zelle B zeigt, dass dieses
+  Bündel klein ist (+0,034), aber es ist nicht weiter aufgelöst; die
+  Einzelkanäle stehen in Nachtrag 1.
+- Alle Mittelwerte sind Niveaumaße über die Kurve. Die *Form* – der steile
+  Frühabfall der Baseline – ist in Nachtrag 2 behandelt und wird durch die
+  Niveauzerlegung nicht ersetzt.

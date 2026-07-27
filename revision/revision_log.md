@@ -173,6 +173,39 @@ same and different matches".
   OddsMvt0 auf beiden Seiten.
 - **Cross-Sections nicht betroffen** (RMSE, Eq. 1/2, Tab. 5/6) – sie laufen auf
   den echten Opening-/Closing-Preisen vor dem Resampling.
+- **Vollständiges 2×2 Imputation × Komposition** (vierte Zelle nachgerechnet:
+  Baseline-Perzentil-Methode auf denselben 24.568 vollständig beobachteten
+  Serien). Mittleres β₁ auf gemeinsamem Träger: Baseline/alle 1,224 –
+  Baseline/vollst. beob. 1,234 – kontinuierlich/alle 1,006 –
+  kontinuierlich/vollst. beob. 1,200. Daraus: Methodeneffekt **ohne**
+  Imputation (B−D) = +0,034, also 16 % der Gesamtlücke von +0,218; die
+  restlichen **84 % (+0,184)** sind der Interaktionsterm, der nur entsteht, wo
+  imputiert wird. Der Kompositionseffekt existiert nur in der echten
+  Datenansicht (−0,195) und schrumpft unter der Baseline-Methode auf −0,010
+  (5 %) – die Imputation löscht 95 % der wahren Heterogenität zwischen früh und
+  spät eröffnenden Serien. Größenordnungskontrolle: der within-sample
+  Masking-Test liefert unabhängig +0,261. Konsistenzkontrolle: Zelle B (1,234)
+  und `masking_beta1_true.csv` (1,223) messen dasselbe auf zwei Wegen und
+  stimmen auf 0,011 überein. Zelle A reproduziert `C_normalized/beta1_curve.csv`
+  auf 2,2e−16; ohne Random Effects (OLS) ändert sich Zelle B um 0,015.
+  → Damit ist die früher offene Zerlegung des Niveauversatzes in Imputations-
+  und Kompositionsanteil erledigt: sie ist überwiegend Imputation.
+- **Attenuations-Check der Verspätungsquartile** (vor inhaltlicher Deutung des
+  Q4-Abfalls auf β₁ = 0,482). Die Prämisse trifft zu: var(p_t − p_ref) fällt
+  monoton mit der Verspätung (Q1 0,00275 → Q4 0,00143, also 52 %), bei
+  praktisch konstanter var(Endog) (0,208–0,215); Q4 sitzt in längeren
+  Matchup-Fenstern (Median 37,6 h vs. 17,5 h), deckt davon aber nur 72 % ab
+  statt 94 %. Am Fensterende – wo der Abfall sitzt – ist der Varianzabstand
+  jedoch *kleiner* (Q4/Q1 = 0,579) als früh (0,434). Die Arithmetik schließt
+  Attenuation aus: ein gemeinsames σ²_u, das Q4 von 1 auf 0,482 drückt
+  (σ²_u = 0,00179), sagt für Q1 0,617 vorher – beobachtet 0,992, rund 12 SE
+  daneben; umgekehrt liefert das aus Q1 implizierte σ²_u = 0,000024 für Q4
+  β₁ = 0,986 statt 0,482. Der Varianzunterschied erklärt damit **~1 %** des
+  Q1→Q4-Abstands; σ²_u müsste in Q4 rund 75-mal größer sein. Zudem wirkt der
+  zweite Messfehlerkanal gegenläufig: `p_ref` steht auf beiden Seiten der
+  Regression, geteiltes Rauschen zieht β₁ **gegen 1**, kann 0,482 also nicht
+  erzeugen. Der Q4-Abfall ist als Befund belastbar; die Konfundierung mit
+  Bookmaker-Identität und Serienlänge bleibt davon unberührt offen.
 
 **Entscheidung:** Match aus den Imputer-Features entfernt – kein inhaltlicher
 Grund für seine Aufnahme, und die Entfernung beseitigt die Angriffsfläche
@@ -207,7 +240,13 @@ Belege der beiden Imputations-Robustness-Checks:
 `revision/snapshots/continuous_unbiasedness/` (Commit 5680d91) und
 `revision/snapshots/gmm_imputation_test/` (Commit bf9b97a), jeweils mit README,
 CSVs und Reproduktionsskripten. Der GMM-Harness reproduziert
-`C_normalized/gmm_by_bookie.csv` auf 7,6e−17.
+`C_normalized/gmm_by_bookie.csv` auf 7,6e−17. Das vollständige
+Imputation-×-Komposition-2×2 steht in
+`revision/snapshots/continuous_unbiasedness/README.md` (Nachtrag 3,
+Skript `_composition_2x2.py`; Zelle A reproduziert die Baseline auf 2,2e−16),
+der Attenuations-Check der Verspätungsquartile in
+`revision/snapshots/continuous_unbiasedness/entry_delay/README.md`
+(Abschnitt 5, Skript `_attenuation.py`).
 
 **Status:** in Arbeit – Befund steht, Konsequenz für den
 Unbiasedness-Abschnitt des Papers noch zu entscheiden.
@@ -233,7 +272,15 @@ Ergänzend (Futur, da noch nicht umgesetzt): Wir werden darlegen, dass der
 Look-Ahead über den Match-Ausgang der kleinere Teil des Problems war; der
 wesentliche Befund ist, dass die zurückimputierten Frühpreise den β₁-Verlauf
 tragen, auf dem das Lern-Narrativ aufbaut. Die Learning-Rate-Schätzung (GMM)
-ist davon nachweislich nicht betroffen.
+ist davon nachweislich nicht betroffen. Der naheliegende Gegeneinwand – der
+Unterschied komme aus der Stichprobenzusammensetzung, weil die vollständig
+beobachteten Serien früh eröffnende Bookmaker sind – ist über ein 2×2
+ausgeschlossen: auf denselben 24.568 Serien liegen beide Verfahren nur 0,034
+auseinander, 84 % der Gesamtdifferenz von 0,218 entstehen erst dort, wo
+imputiert wird. Zum Markteintritts-Zeitpunkt können wir zudem zeigen, dass er
+informativ ist (hochsignifikante Interaktion, β₁ hängt gemeinsam von Zeit und
+Verspätung ab) und dass der Abfall bei den Spät-Einsteigern keine
+Attenuation ist – die geringere Regressorvarianz erklärt davon ~1 %.
 
 **Offen / [zu ergänzen]:** Konzeptionelle Antwort auf die zwei Lernkanäle
 (Posting+Beobachten vs. Warten+Beobachten) und die Frage, ob der

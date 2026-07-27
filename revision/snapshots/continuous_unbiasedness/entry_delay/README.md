@@ -141,12 +141,113 @@ Spät-Einsteiger angewandt, deren wahres β₁ **niedriger** liegt, und ersetzt
 deren Frühwerte durch Werte, die sich wie die der Früh-Eröffner verhalten. Die
 zwei Effekte verstärken einander.
 
-**Offen und wichtig für die Formulierung der Response:** die Zerlegung des
-−0,220-Versatzes in Imputations- und Kompositionsanteil ist damit noch nicht
-sauber quantifiziert. Die naheliegende Rechnung – Masking-Test auf einer nach
-Verspätung *gewichteten* Stichprobe, oder Reweighting der vollständig
-beobachteten Serien auf die Verspätungsverteilung der Gesamtpopulation – ist
-nicht durchgeführt.
+Die Zerlegung des Versatzes in Imputations- und Kompositionsanteil ist
+inzwischen durchgerechnet – über die vierte Zelle des 2×2 (Baseline-Methode auf
+denselben 24.568 Serien). Ergebnis: der Kompositionseffekt existiert **nur** in
+der echten Datenansicht (−0,195), unter der Baseline-Methode verschwindet er
+(−0,010); 84 % der Gesamtlücke sind Imputation. Siehe `../README.md`,
+Nachtrag 3.
+
+## 5) Attenuations-Check – ist der Q4-Abfall auf 0,482 ein Varianzartefakt?
+
+Bevor aus dem Abfall der Spät-Einsteiger auf 0,482 eine inhaltliche Aussage
+(„Überreaktion") wird, muss die mechanische Alternative ausgeschlossen sein:
+klassischer Messfehler im Regressor dämpft die Steigung um die Reliabilität
+λ = var(x\*)/(var(x\*)+σ²_u). Hat Q4 einfach deutlich weniger Regressorvarianz,
+fällt β₁ schon deshalb.
+
+**Die Prämisse trifft zu – Q4 hat wirklich weniger Varianz.** Über alle
+Beobachtungen (Quelle `attenuation_by_quartile.csv`):
+
+| | var(Exog) | sd(Exog) | var rel. Q1 | mittl. \|p_t − p_ref\| | mittl. \|Endbewegung\| | var(Endog) |
+|---|---:|---:|---:|---:|---:|---:|
+| Q1 (zeitgleich) | 0,002748 | 0,0524 | 1,000 | 0,0379 | 0,0377 | 0,2079 |
+| Q2 | 0,002488 | 0,0499 | 0,906 | 0,0369 | 0,0391 | 0,2135 |
+| Q3 | 0,001988 | 0,0446 | 0,724 | 0,0328 | 0,0351 | 0,2153 |
+| Q4 (spät) | 0,001433 | 0,0379 | **0,521** | 0,0268 | 0,0284 | 0,2141 |
+| volle Stichprobe | 0,002182 | 0,0467 | 0,794 | 0,0337 | 0,0351 | 0,2127 |
+
+Die Regressorvarianz fällt monoton mit der Verspätung, auf knapp die Hälfte in
+Q4 – plausibel, denn wer spät einsteigt, startet bei einem schon informierten
+Referenzpreis, dem weniger Bewegung folgt. var(Endog) ist dagegen über alle
+Quartile praktisch konstant (0,208–0,215), es fehlt also nicht an
+Ausgangsvarianz, sondern an Preisbewegung.
+
+**Fensterlänge** (Quelle `window_length_by_quartile.csv`): Q4 sitzt in
+deutlich *längeren* Matchup-Fenstern (Median 37,6 h vs. 17,5 h in Q1), deckt
+davon aber nur 72 % ab statt 94 %. Eigene Fensterlänge und Beobachtungszahl
+sind dagegen quartilsübergreifend ähnlich – die geringere Varianz kommt nicht
+von kürzeren oder dünner besetzten Serien.
+
+| | Matchup-Fenster (h, Median) | eigenes Fenster (h, Median) | Anteil am Matchup-Fenster | NumOddsMvt (Median) | Beob./Serie (Median) |
+|---|---:|---:|---:|---:|---:|
+| Q1 | 17,50 | 16,40 | 0,939 | 6 | 6 |
+| Q2 | 20,57 | 18,75 | 0,912 | 7 | 7 |
+| Q3 | 20,58 | 17,92 | 0,875 | 7 | 7 |
+| Q4 | 37,58 | 21,85 | **0,722** | 6 | 6 |
+| volle Stichprobe | 21,25 | 18,08 | 0,863 | 6 | 6 |
+
+**Am Fensterende – dort, wo der Abfall sitzt – ist der Varianzunterschied
+kleiner, nicht größer.** Nach Fensterposition aufgelöst
+(`var_exog_by_position.csv`) liegt Q4/Q1 im ersten Dezil bei 0,434, im letzten
+Dezil aber bei **0,579**. Der Varianzabstand *schrumpft* also genau dort, wo
+β₁ auseinanderläuft:
+
+| X-Dezil | Q1 | Q2 | Q3 | Q4 | Q4/Q1 |
+|---|---:|---:|---:|---:|---:|
+| (0,0 – 0,1] | 0,00192 | 0,00168 | 0,00124 | 0,00084 | 0,434 |
+| (0,4 – 0,5] | 0,00276 | 0,00258 | 0,00189 | 0,00120 | 0,435 |
+| (0,8 – 0,9] | 0,00302 | 0,00291 | 0,00226 | 0,00152 | 0,502 |
+| **(0,9 – 1,0]** | 0,00288 | 0,00282 | 0,00235 | **0,00167** | **0,579** |
+
+### Die Arithmetik: Attenuation reicht nicht
+
+Am Fensterende (X > 0,9), gegen die beobachteten Randwerte der Quartilskurven:
+
+| | var(Exog) bei X>0,9 | rel. Q1 | β₁ Ende (SE) |
+|---|---:|---:|---:|
+| Q1 | 0,00288 | 1,000 | 0,992 (0,031) |
+| Q2 | 0,00282 | 0,976 | 0,867 (0,037) |
+| Q3 | 0,00235 | 0,813 | 0,654 (0,039) |
+| Q4 | 0,00167 | 0,579 | 0,482 (0,043) |
+
+Zwei Rechnungen, beide gegen die Attenuationsthese:
+
+1. **Vorwärts.** Damit Attenuation allein Q4 von einem wahren β₁=1 auf 0,482
+   drückt, wäre σ²_u = 0,00179 nötig – das 1,07-Fache der Q4-Regressorvarianz.
+   Dasselbe σ²_u auf die anderen Quartile angewandt sagt vorher:
+   Q1 0,617, Q2 0,611, Q3 0,567 – beobachtet sind 0,992, 0,867, 0,654.
+   Für Q1 liegt die Vorhersage **0,375 unter** dem beobachteten Wert, das sind
+   rund 12 Standardfehler. Ein gemeinsames σ²_u kann die Quartilsspreizung
+   nicht erzeugen: es sagt eine Spanne von 0,135 vorher, beobachtet sind 0,510.
+2. **Rückwärts.** Setzt man Q1 als (nahezu) unverzerrt an, folgt daraus
+   σ²_u = 0,000024. Auf Q4s geringere Varianz hochgerechnet ergibt das
+   β₁(Q4) = **0,986** – beobachtet 0,482. Vom Q1→Q4-Abstand von 0,510 erklärt
+   der Varianzunterschied damit 0,006, also **etwa 1 %**.
+
+Damit Attenuation die Sache trüge, müsste σ²_u in Q4 rund **75-mal größer**
+sein als das aus Q1 implizierte Niveau – das ist keine Attenuationsannahme
+mehr, sondern eine eigenständige inhaltliche Behauptung über die Preisqualität
+der Spät-Einsteiger, die dann selbst zu belegen wäre.
+
+### Warum die zweite Messfehlerquelle in die Gegenrichtung wirkt
+
+Die obige Rechnung modelliert Rauschen in `p_t` (idiosynkratisch, nur in
+`Exog`) – das ist der Kanal, der klassisch gegen 0 dämpft, also die
+konservative Variante. Rauschen im **Referenzpreis** `p_ref` wirkt umgekehrt:
+`p_ref` steht auf beiden Seiten (Endog = ω − p_ref, Exog = p_t − p_ref), ein
+geteilter Fehler u hebt Kovarianz *und* Varianz um var(u) an, sodass
+β₁ = (cov\* + var u)/(var\* + var u) **gegen 1** gezogen wird. Ein β₁ von 0,482
+kann dieser Kanal nicht erzeugen; er würde 0,482 im Gegenteil in Richtung 1
+verzerren. Der beobachtete Abfall ist unter Berücksichtigung beider Kanäle
+also eher unter- als überzeichnet.
+
+**Fazit:** Der Varianzunterschied ist real und musste geprüft werden, erklärt
+aber nur etwa 1 % des Q4-Abfalls. Der Abfall auf 0,482 ist damit als Befund
+belastbar, nicht als Attenuationsartefakt zu verwerfen. Die Interpretation als
+„Überreaktion" bleibt trotzdem eine Interpretation – siehe die
+Einschränkungen unten (Konfundierung mit Bookmaker-Identität und Serienlänge
+ist damit **nicht** ausgeräumt).
 
 ## Zur Interpretation der Kurvenform
 
@@ -184,4 +285,8 @@ als s(k=6)).
 - `beta1_delay_full.csv` – β₁ auf der vollen Stichprobe
 - `beta1_fully_observed.csv` – β₁ auf den 24.568 vollständig beobachteten
 - `beta1_interaction.csv` – β₁(X, D) des Interaktionsmodells auf dem Gitter
-- `_entry_delay.py`, `_entry_delay_plot.py` – Reproduktionsskripte
+- `attenuation_by_quartile.csv` – var(Exog), sd, mittlere absolute Bewegung
+- `window_length_by_quartile.csv` – Fensterlängen und Belegung je Quartil
+- `var_exog_by_position.csv` – var(Exog) je Quartil × X-Dezil
+- `_entry_delay.py`, `_entry_delay_plot.py`, `_attenuation.py` –
+  Reproduktionsskripte
