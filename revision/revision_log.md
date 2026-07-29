@@ -206,6 +206,25 @@ same and different matches".
   Regression, geteiltes Rauschen zieht β₁ **gegen 1**, kann 0,482 also nicht
   erzeugen. Der Q4-Abfall ist als Befund belastbar; die Konfundierung mit
   Bookmaker-Identität und Serienlänge bleibt davon unberührt offen.
+- **Within-Bookmaker-Test des Verspätungseffekts** (arbeitet die
+  Konfundierungs-Einschränkung ab). Erstens ist die Konfundierung mild:
+  **86,4 %** der Variation von log1p(Verspätung) sitzen *innerhalb* der
+  Bookmaker, nur 13,6 % zwischen ihnen; 22 von 24 Bookmakern haben alle vier
+  Verspätungsquartile mit ≥ 5 % besetzt (mittlerer HHI 0,308 gegen 0,250 bei
+  perfekter Streuung). Zweitens überlebt der Effekt die Within-Identifikation:
+  mit Bookmaker-FE, bookmakerspezifischer Steigung (`Exog:B`) und
+  within-zentrierter Verspätung bleibt der Interaktionsterm bei 24 edf
+  hochsignifikant, und **90 %** der Endspreizung bleiben erhalten (−0,350
+  gegen gepoolt −0,390); ohne `Exog:B` sind es 94 % (−0,366). β₁ wird dabei
+  über eine über alle Verspätungsstufen **feste** Bookmaker-Gewichtung
+  marginalisiert, damit kein Kompositionseffekt einläuft. Drittens, modellfrei:
+  Split je Bookmaker an der *eigenen* Median-Verspätung ergibt am Fensterende
+  bei **18 von 24** Bookmakern ein negatives Δ (Vorzeichentest p = 0,011,
+  t-Test p = 0,0008, gewichtetes Mittel −0,323) – konsistent mit dem
+  GAM-Wert. Bei den fünf Bookmakern mit der breitesten eigenen Verteilung ist
+  der Kontrast stärker (−0,478). **Grenze:** für das Kurven*mittel* trägt der
+  Within-Befund nicht (13 von 24, p = 0,42); belastbar ist nur der Endwert.
+  Die Konfundierung mit der Serienlänge bleibt unkontrolliert.
 
 **Entscheidung:** Match aus den Imputer-Features entfernt – kein inhaltlicher
 Grund für seine Aufnahme, und die Entfernung beseitigt die Angriffsfläche
@@ -246,7 +265,9 @@ Imputation-×-Komposition-2×2 steht in
 Skript `_composition_2x2.py`; Zelle A reproduziert die Baseline auf 2,2e−16),
 der Attenuations-Check der Verspätungsquartile in
 `revision/snapshots/continuous_unbiasedness/entry_delay/README.md`
-(Abschnitt 5, Skript `_attenuation.py`).
+(Abschnitt 5, Skript `_attenuation.py`), der Within-Bookmaker-Test ebendort
+(Abschnitt 6, Skript `_within_bookmaker.py`; M0 reproduziert das committete
+Interaktionsmodell auf edf/F exakt).
 
 **Status:** in Arbeit – Befund steht, Konsequenz für den
 Unbiasedness-Abschnitt des Papers noch zu entscheiden.
@@ -280,7 +301,10 @@ auseinander, 84 % der Gesamtdifferenz von 0,218 entstehen erst dort, wo
 imputiert wird. Zum Markteintritts-Zeitpunkt können wir zudem zeigen, dass er
 informativ ist (hochsignifikante Interaktion, β₁ hängt gemeinsam von Zeit und
 Verspätung ab) und dass der Abfall bei den Spät-Einsteigern keine
-Attenuation ist – die geringere Regressorvarianz erklärt davon ~1 %.
+Attenuation ist – die geringere Regressorvarianz erklärt davon ~1 %. Er ist
+auch kein Bookmaker-Effekt: 86 % der Verspätungsvariation liegen innerhalb der
+Bookmaker, und 90 % der Endspreizung überleben Bookmaker-Fixed-Effects; im
+bookmaker-eigenen Früh/Spät-Split zeigen 18 von 24 denselben Kontrast.
 
 **Offen / [zu ergänzen]:** Konzeptionelle Antwort auf die zwei Lernkanäle
 (Posting+Beobachten vs. Warten+Beobachten) und die Frage, ob der

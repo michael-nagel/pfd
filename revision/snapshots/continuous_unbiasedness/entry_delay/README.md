@@ -249,6 +249,140 @@ belastbar, nicht als Attenuationsartefakt zu verwerfen. Die Interpretation als
 Einschränkungen unten (Konfundierung mit Bookmaker-Identität und Serienlänge
 ist damit **nicht** ausgeräumt).
 
+## 6) Within-Bookmaker-Test – hält der Verspätungseffekt bei festem Bookmaker?
+
+Die Einschränkung unten („Verspätung und Bookmaker-Identität sind
+konfundiert") ist der ernsteste Einwand gegen Abschnitt 2/3: manche Bookmaker
+eröffnen systematisch früh, die Quartile könnten also verkappte
+Bookmaker-Gruppen sein. Dieser Test identifiziert den Effekt **within**
+Bookmaker – derselbe Bookmaker mal früh, mal spät eingestiegen.
+
+### a) Die Quartile sind keine Bookmaker-Gruppen
+
+Varianzzerlegung von log1p(Verspätung) über die 175.266 Serien:
+
+| | Varianz | Anteil |
+|---|---:|---:|
+| gesamt | 0,6798 | |
+| **between** Bookmaker | 0,0924 | **13,6 %** |
+| **within** Bookmaker | 0,5874 | **86,4 %** |
+
+Fast die gesamte Verspätungsvariation sitzt **innerhalb** der Bookmaker. Die
+Konfundierung ist real, aber mild – und der Within-Test damit gut
+identifiziert.
+
+Kreuztabelle (Zeilenanteile; vollständig in `bookie_delay_crosstab.csv`,
+sortiert nach n):
+
+| Bookmaker | n Serien | Median h | IQR h | Q1 | Q2 | Q3 | Q4 | HHI |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1xBet | 12.376 | 0,13 | 0,52 | 0,458 | 0,322 | 0,173 | 0,047 | 0,345 |
+| GGBET | 11.049 | 0,87 | 3,75 | 0,352 | 0,120 | 0,183 | 0,346 | 0,291 |
+| Marathonbet | 10.890 | 0,42 | 2,12 | 0,331 | 0,217 | 0,212 | 0,240 | 0,259 |
+| VOBET | 10.850 | 0,53 | 1,85 | 0,288 | 0,239 | 0,257 | 0,216 | 0,253 |
+| Pinnacle | 8.576 | 1,00 | 2,47 | 0,242 | 0,165 | 0,304 | 0,289 | 0,262 |
+| BetVictor | 5.427 | 1,78 | 4,50 | 0,126 | 0,203 | 0,228 | 0,444 | 0,306 |
+| Interwetten | 5.379 | 0,03 | 0,40 | 0,589 | 0,202 | 0,125 | 0,084 | 0,411 |
+| Vulkan Bet | 4.462 | 4,30 | 6,76 | 0,108 | 0,056 | 0,146 | 0,690 | 0,512 |
+| Dafabet | 3.549 | 5,97 | 20,42 | 0,047 | 0,039 | 0,157 | 0,758 | 0,603 |
+
+- **22 von 24** Bookmakern haben alle vier Quartile mit ≥ 5 % besetzt,
+  **17 von 24** mit ≥ 10 %.
+- Mittlerer HHI **0,308** gegen 0,250 bei perfekter Streuung.
+- Die Extreme sind erwartbar (Interwetten/1xBet fast immer sofort,
+  Dafabet/Vulkan Bet fast immer spät), aber selbst Dafabet hat 24 % seiner
+  Serien außerhalb von Q4.
+
+### b) GAM mit Verspätungs-Interaktion, gepoolt vs. within
+
+Drei Stufen auf denselben 1.292.338 Zeilen. `LD` = log1p(Verspätung),
+`DW` = `LD` minus dem Bookmaker-Mittel (within-zentriert, damit per
+Konstruktion orthogonal zur Bookmaker-Identität). β₁ wird in allen Stufen über
+die Bookmaker-Verteilung marginalisiert, mit **über alle Verspätungsstufen
+festen** Gewichten – so kann kein Kompositionseffekt in die Spreizung laufen.
+
+| Modell | Spezifikation | edf(te:Exog) | F | p |
+|---|---|---:|---:|---:|
+| M0 gepoolt | `te(X,LD) + te(X,LD,by=Exog)` | 26,20 | 471,8 | < 2e−16 |
+| **M1 within** | `+ B + Exog:B`, `DW` statt `LD` | **24,18** | **16,6** | **< 2e−16** |
+| M2 within | wie M1, ohne `Exog:B` | 25,45 | 460,9 | < 2e−16 |
+
+β₁ an den Verspätungsstufen (q10 … q90), Wert am Fensterende:
+
+| Stufe | M0 (roh) | M1 (within) | M2 (within) |
+|---|---:|---:|---:|
+| q10 | 0,947 | 0,957 | 0,950 |
+| q25 | 0,917 | 0,927 | 0,926 |
+| q50 | 0,775 | 0,784 | 0,794 |
+| q75 | 0,598 | 0,610 | 0,607 |
+| q90 | 0,556 | 0,607 | 0,583 |
+| **Spreizung q90 − q10** | **−0,390** | **−0,350** | **−0,366** |
+
+**Der Effekt hält.** Der Interaktionsterm bleibt mit ~24 effektiven
+Freiheitsgraden hochsignifikant, und **90 % (M1) bzw. 94 % (M2) der
+Endspreizung überleben** die Within-Identifikation. Dass M1s F von 471,8 auf
+16,6 fällt, ist erwartbar und kein Widerspruch: `Exog:B` absorbiert 24
+Freiheitsgrade bookmakerspezifischer Steigung, gegen die der Interaktionsterm
+dann antreten muss. M1 ist damit die konservative Fassung; M2 zeigt, dass die
+Rangfrage um `Exog:B` das Ergebnis nicht trägt.
+
+Die *Mittelwert*-Spreizung ist in beiden Within-Modellen sogar größer als
+gepoolt (−0,207 / −0,229 gegen −0,106, also 194 % / 215 %). Dieses Verhältnis
+ist jedoch instabil, weil M0s Mittelwert-Spreizung durch den nicht-monotonen
+q90-Wert klein ausfällt; belastbar ist die Endspreizung.
+
+### c) Modellfrei: Split an der eigenen Median-Verspätung
+
+Ohne GAM-Interaktion, ohne Verteilungsannahme: je Bookmaker die eigenen Serien
+an der **eigenen** Median-Verspätung teilen und für beide Hälften getrennt
+β₁ schätzen (gleiche Spezifikation wie Modell R, k=6). Alle 24 Bookmaker
+erfüllen die Mindestgröße, die Hälften sind je Bookmaker praktisch gleich groß.
+
+| | Anteil negativ | Vorzeichentest | t-Test | gew. Mittel | ungew. Median |
+|---|---:|---:|---:|---:|---:|
+| Δ am Fensterende | **18 / 24** | **p = 0,011** | **p = 0,0008** | **−0,323** | −0,270 |
+| Δ im Kurvenmittel | 13 / 24 | p = 0,42 | p = 0,074 | −0,183 | −0,191 |
+
+**Am Fensterende ist der Effekt eine bookmakerübergreifende Regularität**
+(18 von 24 Bookmakern negativ, gewichtet −0,323 – gut vereinbar mit M1s
+−0,350). **Im Kurvenmittel ist er es nicht**: 13 von 24 ist vom Zufall nicht
+zu unterscheiden. Das deckt sich mit b) und mit Abschnitt 2, wo der Mittelwert
+über die Quartile nicht monoton ist, der Endwert aber schon.
+
+Die fünf Bookmaker mit der breitesten eigenen Verteilung
+(`bookie_widest_delay.csv`):
+
+| Bookmaker | n früh/spät | Median h | sd log | β₁ früh (Ende) | β₁ spät (Ende) | Δ Ende |
+|---|---:|---:|---:|---:|---:|---:|
+| Dafabet | 1.775 / 1.774 | 5,97 | 1,140 | 1,054 | 0,795 | −0,259 |
+| Betfair | 1.768 / 1.761 | 0,97 | 0,974 | 1,114 | 0,975 | −0,139 |
+| GGBET | 5.530 / 5.519 | 0,87 | 0,958 | 0,988 | 0,625 | −0,364 |
+| BetVictor | 2.714 / 2.713 | 1,78 | 0,935 | 1,154 | 0,139 | −1,015 |
+| Vulkan Bet | 2.235 / 2.227 | 4,30 | 0,923 | 1,114 | 0,565 | −0,549 |
+
+Alle fünf zeigen am Ende das erwartete Vorzeichen; gewichtet liegt ihr
+Δ Ende bei **−0,478**, deutlich stärker als der Gesamtwert −0,323. Passend
+dazu korreliert Δ Ende schwach negativ mit der eigenen Verspätungsstreuung
+(r = −0,21): wer mehr eigene Variation hat, zeigt den Kontrast deutlicher.
+
+Die Streuung über Bookmaker ist allerdings groß (sd der Δ Ende = 0,333, von
+−1,015 bei BetVictor bis +0,294 bei Betway). Bei den dünn besetzten
+Bookmakern sind die Kurven entsprechend unsicher – Dafabets Spät-Kurve
+schwankt auf 1.774 Serien zwischen −1,3 und +3,0. **Interpretierbar sind
+Niveau und Randwerte, nicht die Wellen** (siehe unten); die Abbildung
+`within_bookmaker.{png,pdf}` skaliert die unteren Panels je Bookmaker
+einzeln, die y-Achsen sind dort also **nicht** vergleichbar.
+
+### Fazit
+
+Der Verspätungseffekt am Fensterende ist **nicht** durch Bookmaker-Identität
+erklärt: er überlebt Bookmaker-Fixed-Effects mit within-zentrierter
+Verspätung (90–94 % der Spreizung) und zeigt sich unabhängig davon in einem
+modellfreien Within-Split bei 18 von 24 Bookmakern. Damit ist die unten
+gelistete Konfundierungs-Einschränkung für den **Endwert** ausgeräumt. Nicht
+ausgeräumt ist sie für das Kurvenmittel, und die Konfundierung mit der
+Serienlänge (`NumOddsMvt`, `TsDur`) bleibt in allen Stufen unkontrolliert.
+
 ## Zur Interpretation der Kurvenform
 
 Wie in `../README.md` dokumentiert: bei k=6 ist die Zahl der Wendepunkte ein
@@ -265,8 +399,13 @@ als s(k=6)).
   wurde. Ein Bookmaker mit Verspätung 0 ist "der früheste im Datensatz", nicht
   notwendig "der früheste der Welt".
 - Verspätung und Bookmaker-Identität sind konfundiert (manche Bookmaker
-  eröffnen systematisch früh). Die Quartile sind **keine** bookmaker-bereinigten
-  Gruppen; ein Fit mit Bookmaker-Effekten ist nicht gerechnet.
+  eröffnen systematisch früh); die Quartile in Abschnitt 2 sind **keine**
+  bookmaker-bereinigten Gruppen. Für den **Endwert** ist dieser Einwand in
+  Abschnitt 6 abgearbeitet (86,4 % der Verspätungsvariation sind within
+  Bookmaker; 90–94 % der Endspreizung überleben Bookmaker-FE; 18 von 24
+  Bookmakern zeigen den Kontrast im eigenen Split). Für das **Kurvenmittel**
+  bleibt er offen: dort ist die Within-Evidenz mit 13 von 24 Bookmakern nicht
+  von Zufall zu unterscheiden.
 - Verspätung korreliert mechanisch mit der Serienlänge (`NumOddsMvt`,
   `TsDur`); auch dafür ist nicht kontrolliert.
 - Die Kausalrichtung ist nicht identifiziert: dass spätes Eintreten mit einem
@@ -288,5 +427,14 @@ als s(k=6)).
 - `attenuation_by_quartile.csv` – var(Exog), sd, mittlere absolute Bewegung
 - `window_length_by_quartile.csv` – Fensterlängen und Belegung je Quartil
 - `var_exog_by_position.csv` – var(Exog) je Quartil × X-Dezil
-- `_entry_delay.py`, `_entry_delay_plot.py`, `_attenuation.py` –
-  Reproduktionsskripte
+- `bookie_delay_crosstab.csv` – Bookmaker × Quartil, Streuungsmaße, HHI
+- `bookie_widest_delay.csv` – die 5 Bookmaker mit der breitesten eigenen
+  Verspätungsverteilung
+- `beta1_within_bookmaker_models.csv` – β₁(X) je Modell (M0/M1/M2) und
+  Verspätungsstufe
+- `beta1_within_bookmaker_summary.csv` – Kennzahlen je Modell und Stufe
+- `beta1_within_bookmaker_split.csv` – Within-Differenzen je Bookmaker
+- `beta1_within_bookmaker_curves.csv` – β₁-Kurven früh/spät je Bookmaker
+- `within_bookmaker.{png,pdf}` – Kreuztabelle, M0 vs. M1, fünf Einzel-Splits
+- `_entry_delay.py`, `_entry_delay_plot.py`, `_attenuation.py`,
+  `_within_bookmaker.py`, `_within_bookmaker_plot.py` – Reproduktionsskripte
