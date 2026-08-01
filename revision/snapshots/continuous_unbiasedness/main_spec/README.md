@@ -371,6 +371,83 @@ Mitte — die Aussage „Clusterung kostet rund den Faktor 3" bleibt.
 > Bootstrap die konservativere und wegen der Unbalanciertheit die
 > angemessenere Wahl.
 
+## 7) Randdiagnostik: Trim bei 48 h und das Artefakt der festen Basis
+
+Quellen: `edge_distribution.csv`, `edge_beta1_fullrange.csv`,
+`edge_beta1_by_k.csv`, `fixed_vs_penalised_trim.csv`, Skripte
+`_edge_diagnostics.py` und `_edge_plot.py`, Abbildung
+`main_spec_edge.{png,pdf}`. **Diagnostik für die Belege, nicht für den
+Haupttext.**
+
+### Datendichte über die Achse
+
+| Bin | Beobachtungen | Serien | Anteil | kumuliert von links |
+|---|---:|---:|---:|---:|
+| > 72 h | 1.923 | 744 | 0,15 % | 0,15 % |
+| 48–72 h | 36.387 | 11.728 | 2,82 % | 2,97 % |
+| 24–48 h | 174.795 | 49.483 | 13,54 % | 16,50 % |
+| 12–24 h | 325.960 | 111.006 | 25,25 % | 41,75 % |
+| 6–12 h | 244.708 | 100.656 | 18,95 % | 60,70 % |
+| 3–6 h | 164.780 | 81.786 | 12,76 % | 73,46 % |
+| 1–3 h | 173.715 | 90.036 | 13,45 % | 86,92 % |
+| < 1 h | 168.937 | 93.526 | 13,08 % | 100 % |
+
+### Der Knick links ist ein Artefakt der unpenalisierten festen Basis
+
+Die lme4-/Sandwich-/Bootstrap-Route braucht eine **feste** Basis (Abschnitt 4).
+Ohne Strafe schwingt sie am linken Rand aus; die **penalisierte**
+mgcv-Schätzung tut das nicht:
+
+| Stunden | feste Basis | SE | penalisiert (mgcv M_c) | SE |
+|---:|---:|---:|---:|---:|
+| 59,9 | 1,349 | 0,400 | 1,054 | 0,052 |
+| 52,2 | 0,952 | 0,285 | 1,071 | 0,044 |
+| 48,7 | 0,851 | 0,271 | 1,080 | 0,042 |
+| 45,5 | **0,825** | 0,257 | 1,089 | 0,040 |
+| 39,7 | 0,918 | 0,204 | 1,106 | 0,037 |
+| 34,6 | 1,079 | 0,146 | 1,114 | 0,036 |
+
+**Kernaussage:** Der Abfall auf 0,83 links ist **kein Befund**. Die
+penalisierte Schätzung ist dort **monoton** (1,054 → 1,150 bei 24 h), der
+Bereich enthält **< 3 % der Beobachtungen**, und der Ausschlag ist vom
+Konfidenzband ohnehin gedeckt (SE 0,26–0,40 gegen 0,03 in der Fenstermitte).
+
+Stabilität über k (Spannweite von β₁ für k = 6/10/20): innerhalb des
+1.–99.-Perzentil-Gitters Median **0,032**, links außerhalb Median **2,379**
+(max 4,417). k = 6 und k = 10 stimmen praktisch überall überein; nur k = 20
+oszilliert links und liefert jenseits von 72 h Unsinn (−0,89 bei 181 h,
+−3,35 bei 120 h).
+
+### Übereinstimmung fester vs. penalisierter Basis innerhalb des Trims
+
+Das ist die Zahl, mit der die feste Basis gerechtfertigt wird — beide Kurven
+liegen auf demselben Gitter, daher direkte Differenz:
+
+| Trim | Gitterpunkte | Median \|Δ\| | max \|Δ\| | p90 \|Δ\| | Datenanteil |
+|---:|---:|---:|---:|---:|---:|
+| **≤ 48 h** | 96 | **0,0159** | **0,2639** | 0,0585 | 97,0 % |
+| ≤ 36 h | 92 | 0,0155 | 0,0941 | 0,0385 | 91,2 % |
+| ≤ 24 h | 86 | 0,0152 | 0,0894 | 0,0284 | 83,5 % |
+
+Im Median stimmen die beiden Fassungen auf **0,016** überein. Die Abweichung
+konzentriert sich auf 36–60 h (Maximum 0,264 bei 45,5 h) und ist ab ~34 h
+verschwunden (0,043).
+
+> **Offener Punkt:** Die Hauptabbildung ist bei **48 h** getrimmt (97 % der
+> Beobachtungen, 24 h liegt komfortabel im Inneren). Das Maximum der
+> Basis-Diskrepanz liegt damit aber genau am neuen linken Rand. Ein Trim bei
+> **36 h** würde den Rest auf 0,094 drücken und immer noch 91 % der Daten
+> behalten — bewusst offen gelassen, nicht stillschweigend entschieden.
+
+### Was getrimmt wird und was nicht
+
+Das **Rechengitter** bleibt beim 1.–99. Perzentil (59,9–0,067 h), damit die
+bereits gerechneten Bootstrap-Replikate (`bootstrap_beta1_part{0,1}.npy`,
+2,5 h Rechenzeit) auf demselben Gitter gültig bleiben. Getrimmt wird bei
+**Auswertung und Darstellung** (`HMAX = 48` in `_main_spec_plot.py`) — die
+Schätzungen sind identisch, nur das Berichtsfenster ist enger. Die
+Stundenmarken (24 … 0,25 h) liegen ohnehin alle innerhalb.
+
 ## Fazit für R1-ii / R2
 
 Die Abhängigkeit der Serien innerhalb eines Matchups lässt sich hier über
@@ -404,7 +481,10 @@ Sandwich vollständig beantwortet.
 - `_cluster_bootstrap.py` — Cluster-Bootstrap zur Validierung des Sandwich
   (Aufruf: `_cluster_bootstrap.py <part> <n_rep>`, zwei Prozesse à 50)
 - `_bootstrap_compare.py` — Bootstrap-SEs gegen den Sandwich
-- `_main_spec_plot.py` — Abbildung
+- `_edge_diagnostics.py` — Datendichte über die Achse, β₁ über den vollen
+  beobachteten Bereich für k = 6/10/20
+- `_edge_plot.py` — Randdiagnostik-Abbildung
+- `_main_spec_plot.py` — Hauptabbildung (Trim `HMAX = 48`)
 - `feasibility_scaling.csv` — Laufzeit/Speicher je Teilstichprobe
 - `ladder_{summary,beta1,marks,k_sensitivity}.csv` — Stufenreihe (mgcv)
 - `lme4_{gate,main_summary,varcomp,beta1,marks,k_sensitivity}.csv` — lme4
@@ -416,6 +496,16 @@ Sandwich vollständig beantwortet.
 - `bootstrap_part{0,1}.csv` — SE und Mittel je Teillauf
 - `bootstrap_vs_sandwich{,_marks}.csv` — Bootstrap gegen Sandwich gegen
   modellbasiert auf demselben Gitter
-- `main_spec.{png,pdf}` — β₁ über Stunden vor Anpfiff mit Cluster-Band,
-  daneben die Perzentil-Baseline auf identischer y-Achse
-  (**gitignoriert**, aus `_main_spec_plot.py` regenerierbar)
+- `edge_distribution.csv` — Beobachtungen und Serien je Stunden-Bin
+- `edge_beta1_fullrange.csv` — β₁ über 0,017–181 h für k = 6/10/20
+  (penalisiert)
+- `edge_beta1_by_k.csv` — β₁ an ausgewählten Stunden je k, mit Fallzahlen
+- `fixed_vs_penalised_trim.csv` — Übereinstimmung beider Basen im Trim
+- `main_spec.{png,pdf}` — Hauptabbildung: β₁ über Stunden vor Anpfiff bis
+  48 h mit Bootstrap-Band (primär), Sandwich und modellbasiertem Band, dazu
+  die penalisierte mgcv-Kurve als dünne Referenz; daneben die
+  Perzentil-Baseline auf identischer y-Achse
+- `main_spec_edge.{png,pdf}` — Randdiagnostik: voller beobachteter Bereich
+  für k = 6/10/20 mit markierten Trim-Zonen, darunter die Datendichte
+
+  (alle PNG/PDF **gitignoriert**, aus den `_*_plot.py` regenerierbar)
