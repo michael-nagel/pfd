@@ -1,0 +1,3 @@
+sd_bookies_int,sd_bookies_slope,cor_bookies,cov_bookies,sd_matchup,sd_resid,beta1_obs_mean,beta1_end,se_end,secs,peak_gb,conv,warnings
+0.00017144390324941628,0.7596285545883928,-0.39004506635705594,-5.079700608087779e-05,0.44005907851189335,0.01503629559185435,0.4663889649199258,0.38832086043530056,0.1550652553594397,266.07652401924133,3.8479042053222656,keine,"Some predictor variables are on very different scales: consider rescaling. 
+You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability."

@@ -112,6 +112,47 @@ wurde als Zusatzkennzahl diskutiert, aber für keines der drei Modelle in
 `crossed_comparison_summary.csv` ergänzt – Entscheidung offen. Formulierung
 der finalen Paper-Passagen [zu ergänzen].
 
+**Nachtrag 2026-08-01 – kontinuierliche Fassung: Cluster-robust statt
+Match-RE.** Beleg: `revision/snapshots/continuous_unbiasedness/main_spec/`.
+Die Hauptspezifikation der *kontinuierlichen* Unbiasedness-Regression
+(`X = log(Stunden bis Anpfiff)`, Kovariaten, Bookmaker-Intercept + -Slope)
+wurde gerechnet; der Match-Intercept erweist sich hier als der **falsche**
+Weg, die R1-ii-Forderung zu erfüllen.
+
+- **Absorption, exakt derselbe Mechanismus wie bei RtrnClsEnd oben:**
+  `Endog = Match − p_ref` ist innerhalb einer Serie konstant, **99,83 %** der
+  Varianz liegen auf Matchup-Ebene (ANOVA, Serienebene; 99,81 % auf
+  Beobachtungsebene). Ein Match-RE absorbiert damit praktisch die abhängige
+  Variable (sd 0,440 von 0,459), die Residual-sd fällt auf 0,015. Für die
+  Within-Match-Identifikation bleiben **1,1 % der `p_ref`-Varianz**
+  (Within-sd 0,0197 gegen 0,1900 insgesamt).
+- **Folge:** die Fassung mit `(1|Matchup)` ist im Niveau zwar stabil
+  (β₁ = 0,466 für k = 6/10/20), aber in der Kovarianzstruktur entartet –
+  Bookmaker-Intercept sd 0,00017 (bei k = 10 meldet lme4 `boundary (singular)
+  fit`), Bookmaker-Slope 6× der Wert ohne Match-RE, β₁-SE über das gesamte
+  Gitter konstant 0,155. β₁ = 0,466 gegen 0,988 ohne Match-RE ist ein
+  **Wechsel des Schätzobjekts**, kein Präzisionsgewinn.
+- **Empfohlene Fassung: CR1-Cluster-Sandwich auf Matchup-Ebene** – exakt die
+  im Kommentar genannte Minimalvariante („mindestens cluster-robuste Inferenz
+  auf Match-Ebene"). Punktschätzer unverändert
+  (`max |β₁(OLS) − β₁(lme4)| = 0,006`), SEs **3,02× modellbasiert** und
+  6,34× iid. Inferenziell materiell: β₁ ist danach nur am fernen Rand
+  (darüber) und anpfiffnah (darunter) von 1 verschieden, **im mittleren
+  Bereich nicht**.
+- **Querprüfung gegen die R1-ii-Fits:** `match_var` 0,19365 hier gegen
+  0,19316 in `crossed_mixed_lm_single_test.csv`, `bookies_cov` −5,0797e−05
+  gegen −5,073e−05 – die Komponenten reproduzieren.
+- **Toolchain-Nebenbefund:** mgcv kann den Match-RE nicht tragen (20.741
+  Level, dichte Behandlung, gemessen ~p³ → ~25 h, Speicheruntergrenze ~17 GB
+  gegen 11,4 GB) und erlaubt ohnehin nur **unabhängige** REs (`bs="re"` ist
+  „simple independent"; `xt`/`paraPen` nehmen nur feste Präzisionsmatrizen).
+  Daher Spline-Basis via `smoothCon` explizit gebaut und in `lmer` gesteckt –
+  gleiche Toolchain wie oben, korrelierte REs inkl. `bookies_cov` verfügbar.
+- **Offen:** Bootstrap-Validierung des Sandwich (B = 100, Cluster =
+  Matchup) lief zum Commit-Zeitpunkt noch; begründet, weil die Cluster stark
+  unbalanciert sind (1–24 Bookmaker je Matchup, Median 7) und die
+  CR1-Skalarkorrektur das nicht sieht.
+
 ---
 
 ## R2-C2 – Backward-Imputation / Look-Ahead-Leck
