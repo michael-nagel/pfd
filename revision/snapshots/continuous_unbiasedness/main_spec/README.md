@@ -321,9 +321,55 @@ die asymptotische Fassung dessen, was der Bootstrap approximiert; ein
 Bootstrap-Vorteil bestünde vor allem bei wenigen Clustern (Faustregel < 50).
 
 Eine unabhängige Bestätigung mit **B = 100** (zwei Prozesse à 50 Replikate,
-`_cluster_bootstrap.py`) ist begründet, weil die Cluster stark unbalanciert
-sind (1–24 Bookmaker je Matchup) und die CR1-Korrektur davon nichts sieht.
-**Sie lief zum Zeitpunkt dieses Commits noch — Ergebnisse folgen separat.**
+`_cluster_bootstrap.py`) war trotzdem begründet, weil die Cluster stark
+unbalanciert sind (1–24 Bookmaker je Matchup, Median 7) und die
+CR1-Korrektur ein **Skalar** ist, der davon nichts sieht.
+
+### 6a) Bootstrap-Validierung (B = 100) — Ränder bestätigt, Mitte 10–22 % weiter
+
+Quellen: `bootstrap_vs_sandwich.csv`, `bootstrap_vs_sandwich_marks.csv`,
+`bootstrap_beta1_part{0,1}.npy`, Skripte `_cluster_bootstrap.py` und
+`_bootstrap_compare.py`. Durchlauf: 2 × 50 Replikate, **1 singulärer Fit,
+0 Fehler**, 145,3 bzw. 151,9 min.
+
+| SE-Verhältnis Bootstrap / CR1-Sandwich | |
+|---|---:|
+| Median | **1,109** |
+| Mittel | 1,077 |
+| Spanne | 0,849–1,225 |
+
+| Stunden | β₁ | SE Sandwich | **SE Bootstrap** | SE modellbasiert | Verhältnis B/S | Bootstrap-Perzentil-CI | 1 enthalten? |
+|---:|---:|---:|---:|---:|---:|---|---|
+| 24,5 | 1,244 | 0,1148 | 0,1143 | 0,0322 | **1,00** | [1,070 · 1,495] | nein (darüber) |
+| 12,3 | 1,090 | 0,0886 | 0,1015 | 0,0286 | 1,15 | [0,910 · 1,317] | **ja** |
+| 5,8 | 0,933 | 0,0840 | 0,1028 | 0,0285 | **1,22** | [0,740 · 1,158] | **ja** |
+| 2,9 | 0,835 | 0,0896 | 0,1087 | 0,0294 | 1,21 | [0,631 · 1,060] | **ja** |
+| 0,97 | 0,758 | 0,0926 | 0,1080 | 0,0300 | 1,17 | [0,558 · 0,961] | nein (darunter) |
+| 0,25 | 0,768 | 0,0926 | 0,0942 | 0,0342 | 1,02 | [0,603 · 0,938] | nein (darunter) |
+
+**Der Sandwich stimmt an beiden Rändern praktisch exakt** (Verhältnis 1,00 bei
+24,5 h und 1,02 bei 0,25 h) und **unterschätzt die Streuung in der
+Fenstermitte um 10–22 %**. Das ist genau das erwartete Muster bei
+unbalancierten Clustern: wo die Schätzung überwiegend von Matchups mit vielen
+Bookmakern getragen wird, greift eine skalare Korrektur zu kurz. Die
+Abweichung ist real, aber moderat — 41 von 100 Gitterpunkten liegen mehr als
+15 % auseinander.
+
+**Bootstrap-Bias vernachlässigbar:** Median der Differenz (Mittel der
+Replikate − Punktschätzer) −0,0027, maximaler |Bias| 0,0505.
+
+**Die inhaltlichen Schlüsse sind identisch.** Das Muster der Perzentil-CIs
+deckt sich Punkt für Punkt mit dem Sandwich: β₁ ist bei 24 h signifikant
+**über** 1, bei 1 h und 0,25 h signifikant **unter** 1, und bei 12 h / 6 h /
+3 h **nicht von 1 zu unterscheiden**. Der SE-Faktor gegenüber der
+modellbasierten Inferenz steigt lediglich von ~3,0 auf **3,3–3,6** in der
+Mitte — die Aussage „Clusterung kostet rund den Faktor 3" bleibt.
+
+> **Berichtet werden die Bootstrap-SEs als Primärinferenz**, der Sandwich als
+> Kontrolle. Er bleibt die schnelle, analytische Fassung (Sekunden statt
+> 2,5 h) und ist an den Rändern nicht zu unterscheiden; in der Mitte ist der
+> Bootstrap die konservativere und wegen der Unbalanciertheit die
+> angemessenere Wahl.
 
 ## Fazit für R1-ii / R2
 
@@ -334,9 +380,12 @@ Die Abhängigkeit der Serien innerhalb eines Matchups lässt sich hier über
    um aus 1,1 % der `p_ref`-Varianz zu identifizieren — Ergebnis sind
    entartete Varianzkomponenten und ein schwach identifiziertes
    β₁ = 0,466 ± 0,155.
-2. Der Cluster-Sandwich berücksichtigt dieselbe Abhängigkeit, lässt den
+2. Cluster-robuste Inferenz berücksichtigt dieselbe Abhängigkeit, lässt den
    Populationsschätzer β₁ = 0,988 unangetastet und beziffert den Preis des
-   bisherigen Ignorierens: **3× die modellbasierten SEs**.
+   bisherigen Ignorierens: **rund 3× die modellbasierten SEs** (Sandwich
+   3,0×; Bootstrap 3,3–3,6× in der Fenstermitte). Berichtet werden die
+   Bootstrap-SEs, der Sandwich als Kontrolle — beide führen zu denselben
+   Schlüssen.
 
 **Wichtige Unterscheidung für den Text:** cluster-robuste Inferenz behebt
 **Abhängigkeit**, nicht **Konfundierung**. Sollte der Einwand lauten, dass
@@ -353,12 +402,20 @@ Sandwich vollständig beantwortet.
   k-Sensitivität (lme4)
 - `_cluster_inference.py` — ANOVA-Absorption, `p_ref`-Streuung, CR1-Sandwich
 - `_cluster_bootstrap.py` — Cluster-Bootstrap zur Validierung des Sandwich
+  (Aufruf: `_cluster_bootstrap.py <part> <n_rep>`, zwei Prozesse à 50)
+- `_bootstrap_compare.py` — Bootstrap-SEs gegen den Sandwich
 - `_main_spec_plot.py` — Abbildung
 - `feasibility_scaling.csv` — Laufzeit/Speicher je Teilstichprobe
 - `ladder_{summary,beta1,marks,k_sensitivity}.csv` — Stufenreihe (mgcv)
 - `lme4_{gate,main_summary,varcomp,beta1,marks,k_sensitivity}.csv` — lme4
 - `absorption_anova.csv`, `pref_within_between.csv` — Absorptionsrechnung
 - `cluster_robust_{beta1,marks}.csv` — β₁ mit CR1-Band, drei SE-Varianten
+- `bootstrap_beta1_part{0,1}.npy` — die 2 × 50 β₁-Kurven der Replikate
+  (je 40 KB, committet, damit der Vergleich ohne 2,5 h Neurechnung
+  reproduzierbar bleibt)
+- `bootstrap_part{0,1}.csv` — SE und Mittel je Teillauf
+- `bootstrap_vs_sandwich{,_marks}.csv` — Bootstrap gegen Sandwich gegen
+  modellbasiert auf demselben Gitter
 - `main_spec.{png,pdf}` — β₁ über Stunden vor Anpfiff mit Cluster-Band,
   daneben die Perzentil-Baseline auf identischer y-Achse
   (**gitignoriert**, aus `_main_spec_plot.py` regenerierbar)
