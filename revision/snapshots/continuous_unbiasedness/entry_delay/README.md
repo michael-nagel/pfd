@@ -380,8 +380,83 @@ erklärt: er überlebt Bookmaker-Fixed-Effects mit within-zentrierter
 Verspätung (90–94 % der Spreizung) und zeigt sich unabhängig davon in einem
 modellfreien Within-Split bei 18 von 24 Bookmakern. Damit ist die unten
 gelistete Konfundierungs-Einschränkung für den **Endwert** ausgeräumt. Nicht
-ausgeräumt ist sie für das Kurvenmittel, und die Konfundierung mit der
-Serienlänge (`NumOddsMvt`, `TsDur`) bleibt in allen Stufen unkontrolliert.
+ausgeräumt ist sie für das Kurvenmittel. Die Konfundierung mit der
+Serienlänge ist in Abschnitt 7 abgearbeitet.
+
+## 7) Serienlänge – Konfundierer ausgeräumt, Modellstufen bewusst nicht gerechnet
+
+Quellen: `series_length_correlations.csv`, `series_length_collinearity.csv`,
+`series_length_gam_terms.csv`, `beta1_series_length_{models,summary}.csv`,
+Skript `_series_length.py`.
+
+### a) TsDur *ist* die eigene Fensterlänge
+
+`corr(TsDur, eigene Fensterlänge in h) = 1,000000` – dieselbe Variable, in
+`filter_and_shape.py:176` lediglich z-standardisiert. Die in den
+Einschränkungen getrennt geführten Größen „TsDur" und „eigene Fensterlänge"
+sind also eine einzige.
+
+### b) Die vermutete mechanische Korrelation existiert praktisch nicht
+
+| gegen log1p(Verspätung) | Pearson gesamt | Spearman gesamt | Pearson within | Spearman within |
+|---|---:|---:|---:|---:|
+| TsDur = eigene Fensterlänge | **+0,092** | +0,135 | **+0,118** | +0,153 |
+| NumOddsMvt | −0,075 | −0,032 | −0,054 | −0,014 |
+| log(NumOddsMvt) | −0,081 | −0,032 | −0,059 | −0,014 |
+| eigener Anteil am Matchup-Fenster | **−0,666** | −0,658 | **−0,638** | −0,624 |
+| Matchup-Fensterlänge (h) | +0,368 | +0,375 | +0,372 | +0,366 |
+
+Das Vorzeichen widerspricht der Vermutung: **Spät-Einsteiger haben eher
+längere eigene Fenster, nicht kürzere.** Was die Verspätung wirklich
+mitträgt, ist ihr *Anteil* am Matchup-Fenster (−0,64) – und der ist eine
+Umformulierung der Verspätung selbst, kein Längenmaß.
+
+### c) Kollinearitätsprüfung: beide Effekte sind getrennt identifiziert
+
+| Regressorsatz | R² gesamt | R² within | VIF within | Rest-sd rel. |
+|---|---:|---:|---:|---:|
+| TsDur | 0,0085 | 0,0139 | 1,014 | 0,993 |
+| log(NumOddsMvt) | 0,0065 | 0,0035 | 1,004 | 0,998 |
+| **TsDur + log(NumOddsMvt)** | 0,0189 | **0,0212** | **1,022** | **0,989** |
+| + eigener Anteil | 0,4895 | 0,4635 | 1,864 | 0,732 |
+
+**Within-Bookmaker erklärt die Serienlänge 2,1 % der Verspätungsvariation
+(VIF 1,02); 98,9 % überleben das Partialling-out.** Damit ist der
+Konfundierer ausgeräumt, bevor überhaupt ein Kontrollmodell nötig wird.
+
+### d) Warum T1/T1n/T1t, M1x und der längenkontrollierte Split NICHT gerechnet wurden
+
+Bewusste Entscheidung, kein offener Posten:
+
+1. **Der Konfundierer ist über c) erledigt.** Bei R² = 0,021 und VIF = 1,02
+   kann ein Längen-Kontrollterm den Verspätungseffekt rechnerisch kaum
+   verschieben – es gibt fast keine gemeinsame Variation, die er absorbieren
+   könnte.
+2. **Die additive te+te-Fassung ist nicht identifiziert** und daher kein
+   brauchbarer Kontrollweg: zwei `te(X, ·)`-Flächen enthalten beide den
+   vollen X-Marginaleffekt. Gemessen (`series_length_gam_terms.csv`, M1n/M1t):
+   mgcvs Concurvity `observed` 0,989 bzw. 0,997 für die Niveauterme, die SE
+   von β₁ am Fensterende springt von 0,030 auf 0,381, und β₁-Startwerte
+   steigen auf 1,55–2,06 gegen M1s 1,32. **M1nt (drei Flächen) war exakt
+   rangdefizient** – `concurvity()` scheiterte mit `singular matrix in
+   'backsolve'`, das Modell lieferte im Mittel *negative* β₁ und hat auf
+   dieser Maschine den Speicher gesprengt und die WSL-VM neu starten lassen.
+   Die `ti()`-Zerlegung (T1n/T1t/T1nt) und die 3-fach-Fläche (M1x) wären der
+   korrekt identifizierte Ersatz – für einen bereits ausgeräumten
+   Konfundierer aber unverhältnismäßig.
+3. **Der Verspätungsbefund ist ohnehin nur am Randwert belastbar** (Abschnitt
+   6c: 18 von 24 Bookmakern am Fensterende, p = 0,011; im Kurvenmittel 13 von
+   24, p = 0,42). Eine weitere Zerlegung würde die Aussage nicht tragfähiger
+   machen.
+
+**`_series_length.py` bleibt vollständig liegen** – mit `ti()`-Stufen und
+längenkontrolliertem Split, M1nt bereits entfernt – falls ein Referee
+ausdrücklich danach fragt. Es ist lauffähig, nur nicht ausgeführt.
+
+> Die drei GAM-CSVs enthalten deshalb nur **M1, M1n und M1t**; T1*, M1x und
+> der Split fehlen dort erwartungsgemäß. `series_length_correlations.csv` und
+> `series_length_collinearity.csv` sind vollständig – sie tragen die
+> Entscheidung.
 
 ## Zur Interpretation der Kurvenform
 
@@ -406,8 +481,11 @@ als s(k=6)).
   Bookmakern zeigen den Kontrast im eigenen Split). Für das **Kurvenmittel**
   bleibt er offen: dort ist die Within-Evidenz mit 13 von 24 Bookmakern nicht
   von Zufall zu unterscheiden.
-- Verspätung korreliert mechanisch mit der Serienlänge (`NumOddsMvt`,
-  `TsDur`); auch dafür ist nicht kontrolliert.
+- ~~Verspätung korreliert mechanisch mit der Serienlänge~~ – **ausgeräumt,
+  siehe Abschnitt 7**: within Bookmaker erklärt die Serienlänge nur 2,1 % der
+  Verspätungsvariation (VIF 1,02), und die Korrelation mit `TsDur` hat sogar
+  das umgekehrte Vorzeichen (+0,118). Die Kontrollmodelle wurden deshalb
+  bewusst nicht gerechnet; `_series_length.py` liegt bereit.
 - Die Kausalrichtung ist nicht identifiziert: dass spätes Eintreten mit einem
   Start-β₁ näher an 1 einhergeht, ist mit Off-Market-Learning konsistent, aber
   auch mit Selektion (wer wartet, ist ein anderer Bookmaker-Typ).
@@ -436,5 +514,15 @@ als s(k=6)).
 - `beta1_within_bookmaker_split.csv` – Within-Differenzen je Bookmaker
 - `beta1_within_bookmaker_curves.csv` – β₁-Kurven früh/spät je Bookmaker
 - `within_bookmaker.{png,pdf}` – Kreuztabelle, M0 vs. M1, fünf Einzel-Splits
+- `series_length_correlations.csv` – Korrelation Verspätung × Längenmaße,
+  gesamt und within Bookmaker (vollständig)
+- `series_length_collinearity.csv` – R², VIF und Rest-sd nach
+  Partialling-out (vollständig; trägt die Entscheidung in Abschnitt 7d)
+- `series_length_gam_terms.csv`, `beta1_series_length_{models,summary}.csv` –
+  edf/F, Concurvity und β₁ der drei te-Stufen **M1, M1n, M1t**; T1*, M1x und
+  der längenkontrollierte Split wurden bewusst nicht gerechnet
 - `_entry_delay.py`, `_entry_delay_plot.py`, `_attenuation.py`,
   `_within_bookmaker.py`, `_within_bookmaker_plot.py` – Reproduktionsskripte
+- `_series_length.py` – Serienlängen-Kontrolle, lauffähig aber **nicht
+  ausgeführt** (Abschnitt 7d); enthält die `ti()`-Stufen, die 3-fach-Fläche
+  und den längenkontrollierten Split, M1nt ist entfernt
