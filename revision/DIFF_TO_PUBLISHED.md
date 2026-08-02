@@ -2,7 +2,7 @@
 
 - **Stufe:** `C_normalized`
 - **Referenz:** `revision/snapshots/A_baseline` (publizierter Stand; NICHT der Tag `pre-revision-baseline`, zwischen beiden liegen drei Commits Code-Drift)
-- **Erzeugt:** 2026-08-02 09:09 UTC von `revision/compare_to_published.py`
+- **Erzeugt:** 2026-08-02 09:38 UTC von `revision/compare_to_published.py`
 
 ## 1) values (20 Schlüssel vergleichbar, 22 von dieser Stufe nicht erzeugt)
 
@@ -21,7 +21,11 @@
 
 **10 von 20 geändert, 10 unverändert (nicht aufgelistet).**
 
-Nicht erzeugt von dieser Stufe: `crawl_start`, `crawl_end`, `crawl_dur`, `n_bm_tot`, `n_matches_tot`, `gamma_med_nuts`, `gamma_lower_nuts`, `gamma_upper_nuts`, `corr_gamma_loss`, `ts_dur_med`, `n_chains`, `n_draws`, `n_tune`, `n_cores`, `targ_acpt`, `hdi`, `vi_n_iter`, `vi_n_draws`, `gamma_fav`, `gamma_udd`, `gamma_pro`, `gamma_amat`
+### Nicht erzeugt von dieser Stufe (22) — kein Datenverlust, sondern Herkunft
+
+- **Config-Wert (Sampling-Einstellung, kein Rechenergebnis; `cfg.sampling.*` über `helpers/gen_res_obj.py`)** (8): `hdi`, `n_chains`, `n_cores`, `n_draws`, `n_tune`, `targ_acpt`, `vi_n_draws`, `vi_n_iter`
+- **Bayesian-Block nicht gerechnet (NUTS/ADVI in den Stufen abgeschaltet; `models/bayesian_estimation.py`)** (8): `corr_gamma_loss`, `gamma_amat`, `gamma_fav`, `gamma_lower_nuts`, `gamma_med_nuts`, `gamma_pro`, `gamma_udd`, `gamma_upper_nuts`
+- **vorgelagerte Stufe, nicht Teil der Schätzpipeline (`features/shape_data.py`, `visualization/create_descriptives.py`)** (6): `crawl_dur`, `crawl_end`, `crawl_start`, `n_bm_tot`, `n_matches_tot`, `ts_dur_med`
 
 ## 2) Tabellen 3-7
 

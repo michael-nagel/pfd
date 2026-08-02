@@ -44,6 +44,38 @@ TABLES = [
     ("7", "res_rfa_tot", "Relative Forecast Accuracy by Bookmaker"),
 ]
 
+# Warum ein publizierter \var{}-Wert in einer Stufe fehlt. Ohne diese
+# Aufschlüsselung liest sich die Zusammenfassung wie ein Datenverlust,
+# obwohl die meisten Keys gar nicht aus der Schätzpipeline stammen.
+MISSING_REASONS = [
+    ("Config-Wert (Sampling-Einstellung, kein Rechenergebnis; "
+     "`cfg.sampling.*` über `helpers/gen_res_obj.py`)",
+     {"n_chains", "n_draws", "n_tune", "n_cores", "targ_acpt", "hdi",
+      "vi_n_iter", "vi_n_draws"}),
+    ("Bayesian-Block nicht gerechnet (NUTS/ADVI in den Stufen abgeschaltet; "
+     "`models/bayesian_estimation.py`)",
+     {"gamma_med_nuts", "gamma_lower_nuts", "gamma_upper_nuts", "gamma_fav",
+      "gamma_udd", "gamma_pro", "gamma_amat", "corr_gamma_loss"}),
+    ("vorgelagerte Stufe, nicht Teil der Schätzpipeline "
+     "(`features/shape_data.py`, `visualization/create_descriptives.py`)",
+     {"crawl_start", "crawl_end", "crawl_dur", "n_bm_tot", "n_matches_tot",
+      "ts_dur_med"}),
+]
+UNKNOWN_REASON = "im Stage-Output nicht vorhanden (Grund nicht zugeordnet)"
+
+
+def classify_missing(keys):
+    """Fehlende Keys nach Grund gruppieren; Rest landet unter UNKNOWN."""
+    rest, groups = set(keys), []
+    for label, members in MISSING_REASONS:
+        hit = sorted(rest & members)
+        if hit:
+            groups.append((label, hit))
+            rest -= set(hit)
+    if rest:
+        groups.append((UNKNOWN_REASON, sorted(rest)))
+    return groups
+
 
 def num(s):
     """Zahl aus einem Zellwert, sonst None. Tausenderkommas werden entfernt."""
@@ -250,11 +282,20 @@ def main():
         md.append("")
     md += [f"**{len(changed)} von {len(common)} geändert, {unchanged} "
            f"unverändert (nicht aufgelistet).**", ""]
+    groups = classify_missing(missing)
     if missing:
-        md += ["Nicht erzeugt von dieser Stufe: "
-               + ", ".join(f"`{k}`" for k in missing), ""]
+        md += [f"### Nicht erzeugt von dieser Stufe ({len(missing)}) — "
+               "kein Datenverlust, sondern Herkunft", ""]
+        for label, keys in groups:
+            md += [f"- **{label}** ({len(keys)}): "
+                   + ", ".join(f"`{k}`" for k in keys)]
+        md.append("")
+    tag = ", ".join(f"{len(k)} {lbl.split(' ')[0].rstrip(',')}"
+                    for lbl, k in groups)
     console.append(f"values      {len(changed):>3d}/{len(common)} geändert"
-                   f"   ({unchanged} unverändert, {len(missing)} fehlen)")
+                   f"   ({unchanged} unverändert)")
+    if missing:
+        console.append(f"            {len(missing)} nicht erzeugt: {tag}")
 
     # ---------------------------------------------------------- 2) Tabellen
     md += ["## 2) Tabellen 3-7", ""]
