@@ -515,8 +515,20 @@ Zeitachse; Opening-RMSE über Bookmaker ohne Kontrolle des jeweiligen
 Opening-Zeitpunkts.
 
 **Untersuchung:**
-- R2-C3 (Perzentil- vs. Absolutzeit): In Diskussion, noch keine empirische
-  Prüfung dokumentiert. [zu ergänzen]
+- R2-C3 (Perzentil- vs. Absolutzeit): **empirisch geprüft, R2 hat recht.**
+  Derselbe absolute Zeitpunkt liegt je nach Marktlänge an ganz
+  unterschiedlicher Stelle der relativen Achse: 5 h vor Anpfiff entspricht
+  bei kurzen Märkten dem **65.**, bei langen dem **92. Perzentil**. Die
+  Betting-Fenster streuen extrem (Median 16,8 h, p90 42,3 h, Maximum 197 h,
+  CV 0,77) – die Perzentil-Achse mittelt also über sehr verschiedene
+  absolute Lernperioden.
+- Gegenprobe zur Fairness der relativen Achse: das **Within-Group-Lernprofil
+  ist über die relative Achse glatt und monoton, über die absolute
+  unregelmäßig.** Die relative Achse ist strukturell also *nicht* schlechter.
+  Ausschlaggebend war deshalb nicht die Achse selbst, sondern dass die
+  relative Achse ein Raster erzwingt und damit die Imputation – genau den
+  Mechanismus, den R2-C2 angreift. Die kontinuierliche absolute Fassung
+  kommt ohne Raster und ohne Imputation aus.
 - R3-2 (RMSE-Konfundierung): Eine mögliche zusätzliche Konfundierung durch
   bookmaker-spezifische Margen wurde deskriptiv geprüft und **widerlegt** –
   die Korrelation zwischen Median-Opening-Marge und rohem RMSE über die
@@ -528,27 +540,67 @@ Opening-Zeitpunkts.
   Normalisierung). Die eigentliche Timing-Kontrolle (Opening-Zeitpunkt als
   Kovariate/Matching) ist noch offen. [zu ergänzen]
 
-**Entscheidung:** Offen. Abgewogene Optionen:
-- (a) Kontinuierliche Spline-Zeitachse zugunsten von Unbiasedness.
-- (b) Diskrete Zeitachse mit expliziter Bias-Rechtfertigung für das GMM.
-Noch nicht entschieden.
+**Entscheidung: getroffen — gespaltene Zeitachse.**
+- **Unbiasedness-Regressionen: kontinuierliche absolute Achse**,
+  `X = log(Stunden bis Anpfiff)`. Damit entfallen Raster und Imputation.
+- **GMM und Bayesian bleiben auf der diskreten relativen Perzentil-Achse.**
+  Begründung siehe R1-vi: Biais et al. (1999) ist rein zeitdiskret, eine
+  kontinuierliche Lernrate wäre dort nicht ableitbar, sondern ein neues
+  Modell.
 
-**Umsetzung:** [zu ergänzen]
+Damit ist die frühere Alternative (a)/(b) nicht als Entweder-oder aufgelöst,
+sondern nach Zielgröße getrennt: (a) für die Unbiasedness, (b) für das GMM —
+jeweils mit eigener Begründung statt eines einheitlichen Kompromisses.
+
+**Umsetzung:** Diagnostik abgeschlossen, Paper-Text ausstehend. Die
+Hauptspezifikation der kontinuierlichen Fassung liegt in
+`revision/snapshots/continuous_unbiasedness/main_spec/` (Ladder M_a–M_c,
+Machbarkeitsmessung, cluster-robuste Inferenz, Bootstrap-Validierung,
+Randdiagnostik). Ergebnis der neuen Spezifikation:
+
+- **β₁ 1,244 (24 h) → 0,938 (6 h) → 0,759 (1 h)**: Unterreaktion früh,
+  Unverzerrtheit in der Mitte, Überreaktion nahe Anpfiff. Ein **Kontinuum,
+  keine Phasen** — das beantwortet zugleich R2-C7 und R1-vii.
+- **Match-Random-Effect begründet ausgeschlossen**: 99,83 % der
+  `Endog`-Varianz liegen auf Matchup-Ebene, für die Within-Match-
+  Identifikation bleiben nur 1,1 % der `p_ref`-Varianz. Stattdessen
+  **cluster-robuste Inferenz auf Matchup-Ebene** — die von R1-ii ausdrücklich
+  genannte Alternative („mindestens cluster-robuste Inferenz auf
+  Match-Ebene").
+- **Die bisherigen SEs waren um den Faktor 3,6 zu klein**
+  (Bootstrap gegen modellbasiert). Sandwich und Bootstrap stimmen an den
+  Rändern überein, in der Fenstermitte ist der Bootstrap 10–22 % weiter;
+  **berichtet werden die Bootstrap-SEs** als Primärinferenz.
+- **Feste vs. penalisierte Spline-Basis**: Median |Δ| = 0,0159 über den
+  Berichtsbereich 0,067–48 h — der Preis der festen Basis, die die
+  lme4-Route erzwingt, ist vernachlässigbar.
 
 **Beleg/Validierung:** RMSE-Rangfolge und Margen-Kennzahlen gegen Paper-Zahlen
 validiert (fig:rmse-Extremränge exakt reproduziert); negative Margen-RMSE-
-Korrelation empirisch bestätigt. Timing-Kontrolle selbst noch nicht
-umgesetzt. [zu ergänzen]
+Korrelation empirisch bestätigt. Für die Zeitachsen-Entscheidung:
+`revision/snapshots/continuous_unbiasedness/` (Commits `5680d91`, `9c05946`,
+`56a0af6`) und `revision/snapshots/gmm_imputation_test/` (`bf9b97a`). Die
+Timing-Kontrolle für R3-2 im engeren Sinn (Opening-Zeitpunkt als
+Kovariate/Matching bei den RMSE-Vergleichen) ist davon **unberührt und
+weiterhin offen**.
 
-**Status:** offen (in Abwägung; Margen-Konfundierung geklärt/widerlegt)
+**Status:** R2-C3 umgesetzt (Diagnostik abgeschlossen, Paper-Text ausstehend);
+R3-2 weiterhin offen (Margen-Konfundierung widerlegt, Timing-Kontrolle nicht
+umgesetzt)
 
-**Superseded:** —
+**Superseded:** die frühere Formulierung „Entscheidung: Offen. (a) vs. (b)"
+ist durch die gespaltene Achse oben ersetzt.
 
-**Für Response-Dokument:** Wir werden die Konfundierung durch Opening-Zeitpunkt
-und die Perzentil-Achse adressieren und eine (kontinuierliche bzw. absolute)
-Zeitrepräsentation prüfen; die Wahl zwischen Unbiasedness-orientierter
-kontinuierlicher Achse und einer für das GMM diskreten Achse ist [zu
-ergänzen: finale Entscheidung]. Wir werden zudem darlegen, dass die
+**Für Response-Dokument:** Wir werden bestätigen, dass die Kritik zutrifft, und
+sie mit der eigenen Prüfung belegen (5 h vor Anpfiff = 65. Perzentil bei
+kurzen, 92. bei langen Märkten; Fensterlängen mit CV 0,77). Wir werden die
+Unbiasedness-Regressionen auf eine **kontinuierliche absolute Zeitachse**
+(log Stunden bis Anpfiff) umstellen und begründen, dass dies zugleich die
+Imputation überflüssig macht (Verbindung zu R2-C2). Wir werden erläutern,
+warum GMM und Bayesian auf der diskreten relativen Achse bleiben: das
+zugrunde liegende Modell von Biais et al. (1999) ist rein zeitdiskret, eine
+kontinuierliche Lernrate wäre dort nicht ableitbar (Details unter R1-vi).
+Wir werden zudem darlegen, dass die
 Unterschiede in der Opening-Genauigkeit nicht durch bookmaker-spezifische
 Margen erklärt werden (die margenärmsten Bookmaker weisen die höchsten
 Forecast-Fehler auf), sodass die verbleibende Erklärung beim Timing der
@@ -612,12 +664,44 @@ Befunde vor (noch nicht zu einer Reviewer-Antwort verarbeitet):
   die CUE-Schätzung – im Original nur Rückfalloption, nicht Primärmethode
   (dort gradientenbasiertes Quasi-Newton mit mehreren Startwerten). Zu klären:
   robust genug im 1-Parameter-Fall, oder gradientenbasierter Vergleich nötig?
-**Entscheidung:** [zu ergänzen]
+
+**Nachtrag – Zeitdiskretheit, trägt die Achsen-Entscheidung in R2-C3:**
+- **Biais et al. (1999) ist rein zeitdiskret.** Das asymptotische Resultat
+  stammt aus Vives (1995) / Germain et al. (1996) und ist ein Grenzwert in
+  der **Anzahl diskreter Handelsrunden**, kein Diffusionslimes. Im Original
+  gibt es keine SDE, kein `dt` und keinen Kalman-Bucy-Filter. Eine
+  kontinuierliche Learning Rate wäre daher nicht aus diesem Rahmen
+  ableitbar, sondern ein **neues Modell** — deshalb bleiben GMM und Bayesian
+  auf der diskreten relativen Achse.
+- **Biais adressiert R2-C3 selbst, aus dem Originalrahmen heraus**
+  (S. 1240, Gl. 13): die Momentbedingung ist **invariant gegenüber
+  Zeitskalierung**. Ist die wahre Lernzeit `n·t` statt `t`, kürzt sich `n`
+  im Verhältnis zweier Momentgleichungen heraus. Die Kritik „die
+  Perzentil-Achse dehnt/staucht die Zeit je Match" trifft das GMM damit
+  nicht in gleicher Weise wie die Unbiasedness-Regressionen.
+- **ZU PRÜFEN, noch offen:** Gilt diese Invarianz auch bei **match-
+  spezifischem `n`**? Biais' Argument ist für einen globalen Skalenfaktor
+  formuliert. Da die Fensterlängen hier stark streuen (CV 0,77, siehe
+  R2-C3), ist `n` gerade nicht konstant über Matches. Solange das nicht
+  geklärt ist, trägt das Invarianzargument die GMM-Entscheidung nur unter
+  Vorbehalt.
+
+**Entscheidung:** GMM und Bayesian bleiben auf der diskreten relativen
+Perzentil-Achse (siehe Nachtrag oben und R2-C3). Die beiden älteren
+Befunde (K=0, Nelder-Mead) sind davon unberührt und weiterhin offen.
 **Umsetzung:** [zu ergänzen]
 **Beleg/Validierung:** [zu ergänzen]
-**Status:** offen (Befunde vorhanden, Bewertung/Umsetzung ausstehend)
+**Status:** teilweise (Zeitdiskretheit geklärt und für R2-C3 nutzbar, mit
+offener Frage zur match-spezifischen Skalierung; K=0 und Nelder-Mead offen)
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+**Für Response-Dokument:** Wir werden darlegen, dass das zugrunde liegende
+Modell von Biais et al. (1999) rein zeitdiskret ist – das asymptotische
+Resultat ist ein Grenzwert in der Anzahl diskreter Runden (Vives 1995;
+Germain et al. 1996), kein Diffusionslimes – und dass eine kontinuierliche
+Lernrate daher ein anderes Modell wäre. Wir werden ergänzen, dass Biais die
+Zeitskalierungs-Frage selbst behandelt (S. 1240, Gl. 13): der Skalenfaktor
+kürzt sich im Verhältnis zweier Momentgleichungen heraus. [zu ergänzen:
+Behandlung des match-spezifischen Skalenfaktors]
 
 ## R1-vii – Überinterpretation der Unbiasedness-Regressionen / glatterer Koeffizientenpfad
 **Kommentar (kondensiert):** Die Unbiasedness-Regressionen (Fig. 3) werden zu
@@ -625,14 +709,45 @@ stark interpretiert – die ökonomische Größenordnung des RMSE-Rückgangs ist
 moderat, und das "Phasen"-Narrativ beruht auf wiederholten punktweisen
 Konfidenzintervallen. Gefordert: formale Tests mit simultanen
 Konfidenzbändern oder ein glatteres dynamisches Modell des Koeffizientenpfads.
-**Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
-**Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+**Stand vor Revision:** Punktweise Schätzung an 50 Perzentilen mit
+punktweisen Konfidenzintervallen; das „Phasen"-Narrativ (Lernen, Pause,
+Wiederaufnahme) wurde aus dem Zackenmuster dieser Punktschätzer gelesen.
+
+**Untersuchung:** Der Referee hat recht, und zwar deutlich.
+- **0 von 48 benachbarten punktweisen Änderungen sind einzeln signifikant**
+  (größtes |z| = 1,93). Das Zackenmuster, auf dem das Phasen-Narrativ
+  beruht, ist **Rauschen** – schon ohne Korrektur für multiples Testen.
+- **Ein Spline über die punktweisen Schätzer bringt null zusätzliche
+  Struktur**, gegenüber einer Geraden dagegen **+20 Punkte R²_w**. Die
+  wahre Kurve ist glatt und monoton, ohne Wendepunkte.
+
+**Entscheidung:** Das **Phasen-Narrativ wird aufgegeben** („pause in
+learning", „resumption") und durch eine **monotone Beschreibung** ersetzt.
+Umgesetzt wird das über dieselbe kontinuierliche Spezifikation wie in R2-C3;
+damit ist zugleich die Forderung nach einem „glatteren dynamischen Modell des
+Koeffizientenpfads" erfüllt.
+
+**Umsetzung:** Diagnostik abgeschlossen, Paper-Text ausstehend. Die neue
+Fassung liefert **β₁ 1,244 (24 h) → 0,938 (6 h) → 0,759 (1 h)**: früh
+Unterreaktion, in der Mitte Unverzerrtheit, nahe Anpfiff Überreaktion – ein
+Kontinuum ohne Phasen (siehe auch R2-C7). Die Inferenz läuft über
+cluster-robuste Standardfehler auf Matchup-Ebene, validiert per
+Cluster-Bootstrap; die bisherigen SEs waren um Faktor 3,6 zu klein.
+
+**Beleg/Validierung:** `revision/snapshots/continuous_unbiasedness/`
+(Commits `5680d91`, `9c05946`, `56a0af6`).
+
+**Status:** umgesetzt (Diagnostik abgeschlossen, Paper-Text ausstehend)
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden dem Referee zustimmen und die
+Überinterpretation zurücknehmen. Wir werden zeigen, dass **keine einzige** der
+48 benachbarten punktweisen Änderungen signifikant ist (größtes |z| = 1,93),
+das Phasen-Narrativ also auf Rauschen beruht, und es durch eine monotone
+Beschreibung des Koeffizientenpfads ersetzen. Wir werden den Pfad künftig aus
+einer kontinuierlichen Spezifikation mit cluster-robuster Inferenz berichten
+statt aus wiederholten punktweisen Intervallen.
 
 ## R1-viii – Favorite-Longshot-Bias direkt zeigen
 **Kommentar (kondensiert):** Favorite-Longshot-Ergebnisse plausibel, aber
@@ -715,13 +830,19 @@ Evidenz für Lernen"). Tatsächlich zeigt jedes β1>0 etwas Lernen, β1=1
 vollständiges, β1>1 partielles Lernen (Unterreaktion) – nicht Abwesenheit von
 Lernen. Lernen als Kontinuum darstellen.
 **Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
-**Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+**Untersuchung:** Von der Zeitachsen-Entscheidung mitbeantwortet (siehe
+R2-C3, R1-vii): die kontinuierliche Spezifikation liefert einen glatten,
+monotonen β₁-Pfad von 1,244 (24 h) über 0,938 (6 h) auf 0,759 (1 h) – also
+Unterreaktion, Unverzerrtheit und Überreaktion als **Punkte auf einem
+Kontinuum** statt als binäre Kategorien.
+**Entscheidung:** [zu ergänzen: Formulierung im Text]
+**Umsetzung:** Empirisch durch die kontinuierliche Fassung abgedeckt;
+Paper-Text ausstehend.
+**Beleg/Validierung:** `revision/snapshots/continuous_unbiasedness/`
+**Status:** offen (empirisch abgedeckt, Textfassung ausstehend)
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+**Für Response-Dokument:** [zu ergänzen — der Befund aus R2-C3/R1-vii trägt
+diese Antwort bereits]
 
 ## R2-C8 – Intuitive Interpretation der Lernraten-Größenordnungen
 **Kommentar (kondensiert):** Den Lernraten-Größenordnungen (z. B. 0.05 vs.
