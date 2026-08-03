@@ -1,8 +1,8 @@
 # Unterschiede zur publizierten Version
 
-- **Stufe:** `C_normalized`
+- **Stufe:** `E_gmm_exponent_fix`
 - **Referenz:** `revision/snapshots/A_baseline` (publizierter Stand; NICHT der Tag `pre-revision-baseline`, zwischen beiden liegen drei Commits Code-Drift)
-- **Erzeugt:** 2026-08-02 09:38 UTC von `revision/compare_to_published.py`
+- **Erzeugt:** 2026-08-02 21:04 UTC von `revision/compare_to_published.py`
 
 ## 1) values (20 Schlüssel vergleichbar, 22 von dieser Stufe nicht erzeugt)
 
@@ -10,9 +10,9 @@
 |---|---:|---:|---:|---:|
 | `iqr_rtrns` | 0.1237 | 0.1207 | -0.003 | -2.43 % |
 | `frac_missings` | 0.0784 | 0.0785 | +0.0001 | +0.13 % |
-| `avg_gamma_gmm` | 0.0332 | 0.032 | -0.0012 | -3.61 % |
-| `min_gamma_gmm` | 0.0029 | 0.0042 | +0.0013 | +44.83 % |
-| `max_gamma_gmm` | 0.0741 | 0.072 | -0.0021 | -2.83 % |
+| `avg_gamma_gmm` | 0.0332 | 0.0054 | -0.0278 | -83.73 % |
+| `min_gamma_gmm` | 0.0029 | 0.0014 | -0.0015 | -51.72 % |
+| `max_gamma_gmm` | 0.0741 | 0.0124 | -0.0617 | -83.27 % |
 | `adf_stat` | -5.35 | -3.79 | +1.56 | +29.16 % |
 | `adf_p` | 0.0002 | 0.056 | +0.0558 | +27900.00 % |
 | `bootstr_std` | 0.0258 | 0.0307 | +0.0049 | +18.99 % |
@@ -343,15 +343,15 @@
 
 | Kennzahl | publiziert | aktuell | Delta |
 |---|---:|---:|---:|
-| `avg_gamma_gmm` | 0.0332 | 0.0320344 | -0.0011656 |
-| `min_gamma_gmm` | 0.0029 | 0.00419375 | +0.00129375 |
-| `max_gamma_gmm` | 0.0741 | 0.0719773 | -0.00212266 |
+| `avg_gamma_gmm` | 0.0332 | 0.00539575 | -0.0278042 |
+| `min_gamma_gmm` | 0.0029 | 0.00137812 | -0.00152188 |
+| `max_gamma_gmm` | 0.0741 | 0.0124031 | -0.0616969 |
 | `idxmin_gamma_gmm` | GGBET | GGBET | — |
 | `idxmax_gamma_gmm` | Dafabet | Dafabet | — |
 
 > **gamma je Bookmaker ist gegen A_baseline nicht vergleichbar.** Der publizierte Lauf hat nur Mittelwert/Min/Max/Argmin/Argmax behalten, die 24 Einzelwerte wurden nach dem Zeichnen verworfen (`A_baseline/MANIFEST.md`, Lücke 1).
 
-Zur Dokumentation, gamma dieser Stufe (24 Bookmaker): Median 0.0350, Spanne 0.0042–0.0720
+Zur Dokumentation, gamma dieser Stufe (24 Bookmaker): Median 0.0057, Spanne 0.0014–0.0124
 
 ## 4) beta_1-Pfad
 

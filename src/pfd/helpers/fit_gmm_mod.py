@@ -54,6 +54,7 @@ def fit_gmm_mod(
         k_moms=14,
         k_params=1,
         n_per=n_per,
+        incr=incr,
     )
 
     res_tot: list[dict[str, float]] = []

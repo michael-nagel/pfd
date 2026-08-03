@@ -284,3 +284,66 @@ fig:rmse-Rangfolge exakt reproduziert):
   (2) pro Zeitpunkt normalisieren, (3) Imputation der Frühwerte auf der 
   normalisierten/zweiseitigen Größe konsistent lösen. Punkt 3 kollidiert mit 
   der offenen Imputations-/Zeitachsen-Umstellung – Reihenfolge beachten.
+
+## GMM Exponent (incr/n_per)
+
+Quelle: `references/specs/biais1999_spec.md` (Gl. 12/13, S. 1240–1242);
+eigener Code `src/pfd/utils/_gen_meth_mom.py`, `_create_gmm_data.py`.
+Belege: `revision/snapshots/E_gmm_exponent_fix/`.
+
+**Befund:** Die Produktionsformel nutzte den Zerfallsfaktor
+`((n_per−1)/n_per)^2γ` bzw. `((n_per−2)/(n_per−1))^2γ` — **unabhängig von
+`incr`**. Korrekt ist das Verhältnis der **tatsächlichen
+Stützstellenpositionen**: `_create_gmm_data` zieht `OddsMvt{n_per − i·incr}`,
+bei `incr = 5` also OddsMvt46/41/36, womit der Faktor 42/47 = 0,8936 lauten
+muss statt 50/51 = 0,9804 (1-basiert, τ = Index + 1).
+
+Bei `incr = 1` fallen beide Formeln exakt zusammen (τ = 51/50/49 → 50/51 und
+49/50) — **dort ist der Code korrekt**. Bei `incr = 5`, dem konfigurierten
+Wert, nicht mehr. Der Fehler ist also an `incr` gekoppelt, nicht am Prinzip.
+
+**Beleg über die Invarianz.** Biais Gl. (13): die Momentbedingung ist
+invariant gegen Zeitskalierung, die Wahl des Stützstellenabstands darf γ also
+nicht verändern. Gemessen mit der Produktionsformel:
+
+| `incr` | 1 | 2 | 5 |
+|---|---:|---:|---:|
+| γ Mittel | 0,0051 | 0,0016 | 0,0293 |
+
+Nicht invariant. Mit korrigiertem Exponenten kollabiert es bei **festgehaltenen
+Stützstellen** (OddsMvt46/41/36) auf 0,0049 — praktisch der `incr = 1`-Wert
+0,0051, also genau die von Gl. (13) geforderte Invarianz. Damit ist auch die
+Alternativerklärung „anderes Fenster" ausgeschlossen.
+
+**Effekt des Fixes:** `avg_gamma_gmm` 0,0320 → 0,0054 (Faktor ≈ 5,9).
+Unverändert: Argmin/Argmax (GGBET/Dafabet) und damit die beiden Namen in
+`oup-authoring-template2.tex:820`; Signifikanzmuster 15 → 16 von 24 mit
+|t| > 1,96; J-Test-Verwerfungen 1/24 (Interwetten). Rangfolge weitgehend
+erhalten (Spearman 0,884), aber **drei materielle Ausreißer in der Feldmitte**
+— am stärksten Lasbet (Rang 5 → 19). Ursache: die beiden Momentbedingungen
+implizieren unterschiedliche Reskalierungen (5,81 vs. 6,44), der Kompromiss
+hängt also von der Datenlage des jeweiligen Bookmakers ab.
+
+**`incr = 5` ist datengetrieben optimal, nicht bloß von Biais übernommen.**
+Mit korrigierten Faktoren über alle Abstände:
+
+| `incr` | 1 | 2 | 3 | 4 | **5** | 6 | 8 | 10 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| SE Mittel | 0,0095 | 0,0048 | 0,0034 | 0,0027 | **0,0022** | 0,0019 | 0,0015 | 0,0012 |
+| γ < 0 | 7/24 | 10/24 | 2/24 | 3/24 | **0/24** | 0/24 | 1/24 | 0/24 |
+| \|t\| > 1,96 | 1/24 | 1/24 | 3/24 | 7/24 | **16/24** | 16/24 | 13/24 | 19/24 |
+
+Bei `incr = 1` — dem einzigen Wert, bei dem der alte Code korrekt wäre — sind
+7 von 24 Lernraten negativ und genau eine signifikant. **Die Rückkehr zu
+`incr = 1` ist also keine Lösung**; der Fix gehört an den Exponenten.
+
+Das stützt zugleich **R1-vi**: Biais' Begründung für weiter auseinander
+liegende Stützstellen („less numerical instability in the estimate of this
+slope") gilt hier empirisch, sie wurde nicht nur mitübernommen.
+
+**Zu klären:** (1) Zählkonvention bewusst festlegen — 1-basiert (τ = Index+1)
+wurde gewählt, weil der Fix damit bei `incr = 1` exakt in die alte Formel
+übergeht; 0-basiert (41/46 statt 42/47) ändert γ um max. 9 % je Bookmaker bei
+**Rangkorrelation 1,000**, ist also empirisch gleichwertig. (2) Ob die
+Größenordnung γ ≈ 0,005 die Interpretation in **R2-C8** verändert. (3) Ob die
+drei Rang-Ausreißer die Bookmaker-Vergleiche im Text berühren.
