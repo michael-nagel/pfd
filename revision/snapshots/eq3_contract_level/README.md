@@ -217,6 +217,78 @@ Tabelle 6 (normalisiert, `C_normalized/tables/res_wp_re.tex`): Intercept
 Schritt S1 → S2.** Dieser Schritt hebt den Koeffizienten von 0,83 auf 0,96 —
 er entkräftet den Befund nicht, sondern verstärkt ihn.
 
+## R2-C6: Signifikanz der bookmakerspezifischen Slopes
+
+Referee 2 (R2-C6) fragt nach der Signifikanz der bookmakerspezifischen
+Steigungen. Die bisherige Abbildung (`fig:win_props_re`) zeigt **24
+Einzelgeraden**, die visuell erhebliche Heterogenität nahelegen — der Text
+(`tex:782`) liest daraus „steeper slopes indicating greater explanatory
+power".
+
+### Welcher Test
+
+**Ein gemeinsamer Wald-Test über alle 23 Interaktionskontraste**
+(`DltOpnCls × Bookmaker`, Referenzkategorie 10Bet), cluster-robust auf
+Matchup-Ebene, aus der **Fixed-Effects**-Variante — **nicht** 24 Einzeltests.
+
+Begründung: 24 Einzeltests auf 5 % würden allein durch Zufall gut einen
+Treffer erzeugen; die Frage „unterscheiden sich die Bookmaker?" ist eine
+**gemeinsame** Hypothese und gehört gemeinsam getestet. Die FE-Variante wurde
+gewählt, weil die Random Effects in S4 **singulär** sind (Varianzen exakt
+null) und dort per Konstruktion keine Heterogenität zeigen könnten — FE prüft
+dieselbe Frage mit voller Flexibilität und ohne Verteilungsannahme.
+
+### Ergebnis
+
+```
+chi2(23) = 20.78   p = 0.595      Interaktionen (Steigung)
+chi2(23) = 31.48   p = 0.111      Dummies (Niveau)
+chi2(46) = 52.91   p = 0.225      beide gemeinsam
+```
+
+Steigungen 0,771 (BetInAsia) – 1,083 (Dafabet), sd 0,085, gepoolt 0,956.
+**Jedes einzelne 95-%-Intervall überschneidet die gepoolte Steigung**, kein
+Kontrast ist einzeln signifikant, und der R²-Zuwachs für 46 zusätzliche
+Parameter beträgt 0,0001.
+
+### Konsequenz für die Abbildung
+
+`eq3_two_panel.{png,pdf}` (Skript `_eq3_plot.py`) ersetzt
+`fig:win_props_re`:
+
+- **Links, rein deskriptiv:** die 288 Bin-Punkte (24 Bookmaker × 12
+  Intervalle), farbcodiert wie bisher, mit Referenzlinien bei y = 0,5 und
+  x = 0. **Keine Regressionsgerade.**
+- **Rechts, die Inferenz:** die 24 Steigungen als Caterpillar mit
+  95-%-Intervallen, sortiert, gestrichelte Linie bei der gepoolten Steigung,
+  Wald-Test als Annotation.
+
+**Warum links keine Gerade mehr steht:** Da Eq. 3 wegen **R2-C1** auf die
+Kontraktebene umgestellt wird, ist die Bin-Regression **nicht mehr die
+Spezifikation**. Eine gepoolte Bin-Gerade hätte die Steigung 0,766 (nach
+Fallzahl gewichtet), die Kontraktebene liefert 0,956. **Zwei verschiedene
+Steigungen in einer Abbildung wären irreführend** — der Leser müsste raten,
+welche die geschätzte ist. Links steht deshalb nur noch die Beschreibung,
+rechts die Schätzung; die Abbildung zeigt genau **eine** Steigung, und zwar
+die tatsächlich geschätzte.
+
+> **Die separate Legendenseite entfällt.** Die bisherige Abbildung brauchte
+> eine eigene Legendendatei (`legend_winprops_*`), um 24 Farben zu benennen.
+> In der neuen Fassung stehen die Namen rechts direkt an den Punkten; die
+> Farbcodierung links ist damit redundant beschriftet und die Legendenseite
+> überflüssig.
+
+### Zu ändern im Papertext
+
+**`tex:782` muss zurückgenommen werden.** Die Formulierung „steeper slopes
+indicating greater explanatory power" behauptet eine Heterogenität, die einem
+gemeinsamen Test nicht standhält (p = 0,595). Die nominellen Unterschiede
+zwischen den Einzelgeraden sind Schätzrauschen, kein systematischer
+Bookmaker-Effekt. Siehe auch R2-M8 (Fokus auf Aggregatergebnisse) und R1-iv
+(eine Sharp/Soft-Klassifikation ließe sich hieraus nicht begründen —
+Pinnacle 0,814 und Betfair 0,806 liegen am unteren Rand, aber innerhalb des
+Rauschens).
+
 ## Dateien
 
 - `_eq3_contract.py` — Stufenreihe, Match-ANOVA, Cluster-Sandwich,
@@ -228,4 +300,12 @@ er entkräftet den Befund nicht, sondern verstärkt ihn.
 - `cluster_robust.csv` — CR1-Sandwich gegen modellbasiert
 - `logit_check.csv` — glmer-Kalibrierungsregression
 - `filter_sensitivity.csv` — gefiltert vs. ungefiltert
-- `bookie_fe_slopes.csv` — bookmakerspezifische Steigungen (FE)
+- `bookie_fe_slopes.csv` — bookmakerspezifische Steigungen (FE) mit
+  `se_slope_cl` und 95-%-Grenzen. **Achtung:** `se_interaktion_cl` ist die SE
+  des *Kontrasts* zur Referenz, `se_slope_cl` die der *Steigung selbst*
+  (`Var(eta_2) + Var(int_b) + 2·Cov`) — für den Caterpillar wird letztere
+  gebraucht.
+- `_eq3_plot.py` — Zwei-Panel-Abbildung; rechnet die FE-Steigungen mit
+  korrekten SEs neu und schreibt `bookie_fe_slopes.csv` dabei fort
+- `eq3_two_panel.{png,pdf}` — Ersatz für `fig:win_props_re`
+  (**gitignoriert**, aus `_eq3_plot.py` regenerierbar)
