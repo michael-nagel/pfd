@@ -139,6 +139,36 @@ sind:
    nur frequentistisch bis einschließlich GMM. Die Bayesian-Schätzung ist auf
    der neuen Baseline noch nicht gerechnet.
 
+6. **Bayesian-Block korrigiert, aber nicht neu gerechnet — acht `\var{}`-Werte
+   im Papertext sind veraltet.** Der Zerfallsexponent in
+   `src/pfd/helpers/base/create_pm_mod.py` enthielt denselben Fehler wie das
+   GMM: der Faktor war fest an `n_per` gekoppelt (`(n_per−1)/n_per`) statt an
+   die tatsächlichen Stützstellenpositionen. Der Fix ist eingespielt und bei
+   `incr = 1` bitgenau rückwärtskompatibel (logp **und** dlogp identisch,
+   0,000e+00 an fünf Zufallspunkten); bei `incr = 5` — dem konfigurierten Wert
+   — ändert er das Modell.
+
+   **Die gespeicherten Bayesian-Artefakte stammen weiterhin aus dem
+   publizierten Lauf mit der alten Formel.** Bis zu einem vollständigen
+   NUTS/ADVI-Neulauf sind damit alle acht Bayesian-`\var{}`-Werte veraltet:
+   `gamma_med_nuts`, `gamma_lower_nuts`, `gamma_upper_nuts`, `gamma_fav`,
+   `gamma_udd`, `gamma_pro`, `gamma_amat` sowie `corr_gamma_loss`. Zu erwarten
+   ist dieselbe Größenordnung wie beim GMM, also eine Verschiebung um **Faktor
+   ≈ 6 nach unten** (dort 0,0320 → 0,0054).
+
+   **Laufzeit:** kalibriert auf der vollen Stichprobe (183.210 × 14
+   Likelihood-Elemente): nutpie-Kompilierung 101 s je Lauf, NUTS 1.537 ms je
+   Iteration, ADVI 158 ms je Iteration. Hochgerechnet auf die
+   Produktionseinstellung (4 Ketten, 2000 tune, 5000 draws, 25.000
+   ADVI-Iterationen) und 1 ADVI + 15 NUTS-Läufe (tot, fav, udd, pro, amat,
+   q1–q10): **13–25 h auf dieser Maschine** — untere Schranke bei perfekter
+   Kettenparallelität, obere ohne. Speicher unkritisch (~1,6 GB gegen 11,4 GB).
+
+   **Empfehlung: auf der 32-vCPU-Maschine rechnen** (geschätzt 1–3 h), die
+   ohnehin für die Phase-5-Regression-Baseline vorgesehen ist. Auf dieser
+   Maschine ist ein 13–25-h-Lauf angesichts wiederholter VM-Abbrüche nicht
+   belastbar.
+
 ---
 
 ## Tags und Referenzpunkte

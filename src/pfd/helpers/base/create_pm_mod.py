@@ -85,12 +85,21 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
             dims="bookmakers",
         )
 
-        # Moment conditions
+        # Positionen der tatsaechlich verwendeten Stuetzstellen auf dem
+        # Perzentilraster, 1-basiert (OddsMvt0 ist der erste Timestamp) --
+        # identisch zu `_gen_meth_mom.momcond`, damit GMM und Bayesian
+        # dieselbe Momentbedingung schaetzen.
+        tau = [n_per - i * incr + 1 for i in (1, 2, 3)]
+
+        # Zerfallsfaktor = Verhaeltnis der Positionen der beiden jeweils
+        # verglichenen Stuetzstellen (Biais et al. 1999, Gl. 12). Bei
+        # incr = 1 geht es exakt in ((n_per-1)/n_per) bzw.
+        # ((n_per-2)/(n_per-1)) ueber.
         mom_cond_1 = (exog[:, 0] - endog) ** 2 - (
-            ((n_per - 1) / n_per) ** (2 * gamma[bookie_idx])
+            (tau[1] / tau[0]) ** (2 * gamma[bookie_idx])
         ) * (exog[:, 1] - endog) ** 2
         mom_cond_2 = (exog[:, 1] - endog) ** 2 - (
-            ((n_per - 2) / (n_per - 1)) ** (2 * gamma[bookie_idx])
+            (tau[2] / tau[1]) ** (2 * gamma[bookie_idx])
         ) * (exog[:, 2] - endog) ** 2
 
         # Moment conditions x instruments
