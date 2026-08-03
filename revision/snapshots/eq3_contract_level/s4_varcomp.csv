@@ -1,0 +1,5 @@
+grp,var1,var2,vcov,sdcor
+Bookies,(Intercept),NA_character_,0.0,0.0
+Bookies,DltOpnCls,NA_character_,1.9414774454183294e-10,1.3933690987740217e-05
+Bookies,(Intercept),DltOpnCls,0.0,
+Residual,NA_character_,NA_character_,0.20363646776096112,0.4512609752249369
