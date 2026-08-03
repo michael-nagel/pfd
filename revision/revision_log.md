@@ -636,13 +636,58 @@ dokumentieren oder Robustheit ohne sharpe Bookmaker zeigen (R1-iv). Die
 Sharp/Soft-Charakterisierung (S. 3) ist zu vereinfachend – ein Bookmaker kann
 beide Rollen einnehmen (R2-M3).
 **Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
+
+**Untersuchung:** Querverweis auf **R2-C1**: in der Kontraktebenen-Fassung von
+Eq. 3 gibt es **keine Bookmaker-Heterogenität in der Preisinformativität**.
+RE und FE kommen unabhängig zum selben Schluss (Belege
+`revision/snapshots/eq3_contract_level/`, Commit `d4183ab`):
+
+- Random Effects (S4): Varianzen **exakt null** (`boundary (singular) fit`),
+  S4 identisch zu S3 bis fünf Nachkommastellen, R² marginal = konditional.
+- Fixed Effects mit vollen Dummies und Interaktionen: R²-Zuwachs **0,0001**
+  für 46 Parameter; cluster-robuste Wald-Tests Niveau chi2(23) = 31,48
+  (p = 0,111), Steigung chi2(23) = 20,78 (p = 0,595), gemeinsam
+  chi2(46) = 52,91 (p = 0,225). Die bookmakerspezifischen Steigungen streuen
+  nominell 0,771 (BetInAsia) – 1,083 (Dafabet), aber **kein einziger der 23
+  Kontraste** ist von der Referenz zu unterscheiden.
+
+**Für die Sharp/Soft-Frage ist das direkt relevant:** Pinnacle (0,8135) und
+Betfair (0,8063) — die im Kommentar als „typischerweise sharp" genannten —
+liegen zwar am unteren Rand der Steigungsverteilung, aber innerhalb des
+Rauschens (t = −1,35 bzw. −1,13 gegen die Referenz). **Eine Sharp/Soft-
+Klassifikation ließe sich aus Eq. 3 also nicht begründen.**
+
+Bemerkenswert ist der **Kontrast zu den Lernraten**, wo die
+Bookmaker-Heterogenität substanziell und robust ist (γ von 0,0014 bei GGBET
+bis 0,0124 bei Dafabet, Faktor 9, stabile Rangfolge über Spezifikationen,
+Spearman 0,88 auch nach dem Exponenten-Fix). **Bookmaker unterscheiden sich
+darin, wie schnell sie lernen, aber nicht darin, wie gut ihre Preisbewegungen
+den Ausgang vorhersagen.**
+
+*Einschränkung:* Dafabet hat mit SE 0,2031 den größten Standardfehler bei
+zugleich höchster Steigung — bei dünn besetzten Bookmakern ist die Power
+gering. Belastbar ist die Aussage für das Kollektiv (Wald über alle 23), für
+einzelne kleine Bookmaker nur schwach.
+
 **Entscheidung:** [zu ergänzen]
+
 **Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+
+**Beleg/Validierung:**
+`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`, `s4_varcomp.csv`
+
+**Status:** offen (Befund zur fehlenden Heterogenität liegt vor, Konsequenz
+für die Klassifikation noch zu ziehen)
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden die Sharp/Soft-Charakterisierung
+abschwächen und dabei auf einen eigenen Befund verweisen: in der
+Kontraktebenen-Fassung von Eq. 3 finden wir **keine** Bookmaker-Heterogenität
+in der Preisinformativität — weder über Random noch über Fixed Effects, und
+auch die als sharp geltenden Anbieter (Pinnacle, Betfair) liegen innerhalb des
+Rauschens. Heterogenität zeigt sich bei den Lernraten, nicht bei der
+Prognosegüte der Preisbewegungen.
 
 ## R1-vi – Plausibilität der GMM-Momentbedingungen (Biais-Annahmen)
 **Kommentar (kondensiert):** GMM-Momentbedingungen aus einem asymptotischen
@@ -755,13 +800,48 @@ indirekt. Direkt zeigen: Favorite-Longshot-Bias in Opening-/Closing-Preisen,
 seine Verkleinerung über das Betting-Fenster und den Zusammenhang mit den
 geschätzten Lernraten.
 **Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
+
+**Untersuchung:** Ein direkter Nachweis fällt als Nebenprodukt der
+Kontraktebenen-Spezifikation aus **R2-C1** an (Belege dort,
+`revision/snapshots/eq3_contract_level/`, Commit `d4183ab`):
+
+- **LPM:** `eta_1 = 1,12480` auf den Opening-Preis, cluster-robust
+  **t = 7,27 gegen 1** (p = 3,5e−13). Ein Koeffizient über 1 heißt: die
+  Opening-Preise sind **unterdispers**. Bei `OpnOdds = 0,2` sagt das Modell
+  0,175 vorher, bei 0,8 dagegen 0,85 — Longshots gewinnen seltener als
+  impliziert, Favoriten häufiger. Das ist der Favorite-Longshot-Bias in
+  direkt ablesbarer Form.
+- **Logit-Kalibrierung:** Steigung auf `logit(OpnOdds)` = **1,18431**
+  (gegen 1: t = 24,88), Intercept 0,00115 (gegen 0: p = 0,83). Die
+  Verzerrung sitzt **in der Steigung, nicht im Niveau** — genau die Signatur
+  eines Favorite-Longshot-Bias, nicht eines allgemeinen Miskalibrierungs-
+  Offsets.
+
+Damit sind zwei der drei vom Referee geforderten Punkte abgedeckt (Bias in
+den Opening-Preisen, direkt statt indirekt). **Offen bleiben:** (a) dieselbe
+Kalibrierung für **Closing**-Preise, um die geforderte *Verkleinerung über das
+Betting-Fenster* zu zeigen; (b) der Zusammenhang mit den geschätzten
+Lernraten. Beides ist mit demselben Frame billig nachzurechnen.
+
 **Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+
+**Umsetzung:** Teilweise — Opening-Kalibrierung liegt vor, Closing-Vergleich
+und Lernraten-Bezug ausstehend.
+
+**Beleg/Validierung:** `revision/snapshots/eq3_contract_level/ladder.csv`,
+`logit_check.csv`, `cluster_robust.csv`.
+
+**Status:** teilweise (Opening-Bias direkt gezeigt; Fenster-Verkleinerung und
+Lernraten-Bezug offen)
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden den Favorite-Longshot-Bias direkt
+ausweisen: der Koeffizient auf den Opening-Preis liegt bei 1,125 und damit
+signifikant über eins, und die Logit-Kalibrierungssteigung bei 1,184 bei einem
+Intercept, der den Effizienzwert null exakt trifft. Wir werden ergänzen, wie
+sich diese Kalibrierung vom Opening zum Closing verändert und wie sie sich zu
+den geschätzten Lernraten verhält.
 
 ## R1-ix – Kausale Sprache abschwächen
 **Kommentar (kondensiert):** Kausale Sprache zu stark ("market identifies and
@@ -784,14 +864,86 @@ einziger UV weicht von der Standardpraxis ab. Empfehlung: den Opening-Preis
 zusätzlich als Kovariate (Baseline-Wahrscheinlichkeit) aufnehmen, sodass die
 Preisänderung zusätzliche Information testet. Der aktuelle Intercept ~0.5 ist
 unintuitiv, v. a. bei gemischter Favoriten/Longshot-Stichprobe.
-**Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
-**Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+
+**Stand vor Revision:** Tabelle 6 (`res_wp_re`) regressiert Gewinnraten je
+Preisänderungs-Bin auf die mittlere Preisänderung des Bins
+(`winning_proportions.py:126`, Einheit = Bookmaker × Bin), ohne Kontrolle für
+den Opening-Preis. Normalisiert: Intercept 0,504, AvgChange 0,821.
+
+**Untersuchung:** Neue Spezifikation auf **Kontraktebene** (172.663
+Kontrakte, 20.588 Matchups, 24 Bookmaker; `df_oc`, normalisiert, echte
+Opening/Closing-Preise, keine Imputation), lineares Wahrscheinlichkeitsmodell
+`Match = eta_0 + eta_1·OpnOdds + eta_2·DltOpnCls + TsDur + Compet_* +
+(1 + DltOpnCls | Bookies)`, lme4, REML = FALSE.
+
+| Stufe | eta_0 | eta_1 | eta_2 | R² |
+|---|---:|---:|---:|---:|
+| S1 nur Preisänderung | 0,510 | — | 0,833 | 0,0075 |
+| S2 + OpnOdds | −0,062 | 1,125 | 0,957 | 0,1849 |
+| S3 + Kovariaten | −0,050 | 1,125 | 0,956 | 0,1851 |
+| S4 + Bookmaker-RE | −0,050 | 1,125 | 0,956 | 0,1851 |
+
+- **Der Einwand trifft empirisch nicht zu:** eta_2 wird nach Kontrolle für den
+  Opening-Preis **größer statt kleiner** (0,833 → 0,956) und bleibt
+  cluster-robust hochsignifikant (t = 13,87). Die Preisbewegung trägt
+  eigenständige Information; die Bin-Ergebnisse waren kein Niveaueffekt.
+- **eta_1 = 1,125 liegt signifikant ÜBER 1** (cluster-robust t = 7,27 gegen 1,
+  p = 3,5e−13) → Opening-Preise sind unterdispers, siehe R1-viii.
+- **Der unintuitive Intercept ist aufgeklärt:** die ~0,5 entstehen nur ohne
+  Baseline-Kontrolle (S1: 0,510). Mit `OpnOdds` im Modell liegt eta_0 bei
+  −0,050, und in der Logit-Fassung trifft der Intercept den Effizienzwert 0
+  exakt (0,00115, p = 0,83). Der Referee hat mit der Diagnose recht, auch wenn
+  seine Vorhersage zu eta_2 nicht eintritt.
+- **Logit-Robustheitscheck** (`glmer`, `Match ~ logit(OpnOdds) + DltOpnCls`):
+  Steigung 1,184 (gegen 1: t = 24,88), Intercept 0,00115 (gegen 0: p = 0,83),
+  DltOpnCls 4,421 (t = 43,69). Qualitativ identisch — der Befund hängt nicht
+  an der Linearitätsannahme.
+- **Match-RE ist hier NICHT identifiziert:** `Match` ist der Spielausgang und
+  per Konstruktion konstant über die Bookmaker eines Matchups — **100,00 %**
+  der Varianz between Matchup, 0 von 20.588 Matchups mit mehr als einem Wert
+  (strenger als die 99,83 % bei der Unbiasedness-Regression). Die
+  crossed-Variante treibt die Residualvarianz auf sd = 1e−6, ohne dass lme4
+  eine Warnung meldet (`isSingular` prüft die RE-Kovarianz, nicht das
+  Residuum). Inferenz daher **cluster-robust auf Matchup-Ebene**, Faktor
+  2,96–4,11 gegenüber modellbasiert — dieselbe Größenordnung wie bei der
+  Unbiasedness-Regression.
+- **Filter-Sensitivität:** der Produktionsfilter `|RtrnOpnCls| > 0` entfernt
+  11.752 Kontrakte (6,4 %). Auf der ungefilterten Stichprobe (184.415)
+  verschiebt sich eta_2 um **0,00026**, eta_1 um −0,00215 — der Befund kann
+  auf der vollen Stichprobe berichtet werden, was den Selektionseinwand
+  („auf bewegte Preise selektiert") von vornherein erledigt.
+- **Keine Bookmaker-Heterogenität**, RE und FE unabhängig übereinstimmend:
+  siehe R2-M8 / R1-iv.
+
+**Entscheidung:** Die Kontraktebenen-Spezifikation wird als neue Fassung von
+Eq. 3 übernommen (LPM als Hauptspezifikation, Logit als Robustheitscheck,
+cluster-robuste SEs statt Match-RE). Tabelle 6 bleibt als aggregierte
+Darstellung erhalten, wird aber nicht mehr als Test gegen den Opening-Preis
+gelesen.
+
+**Umsetzung:** Analyse abgeschlossen, Paper-Text ausstehend.
+
+**Beleg/Validierung:** `revision/snapshots/eq3_contract_level/` (Commit
+`d4183ab`): `ladder.csv`, `match_anova.csv`, `cluster_robust.csv`,
+`logit_check.csv`, `filter_sensitivity.csv`, `bookie_fe_slopes.csv`.
+Übertragbarkeit des Sandwich verifiziert
+(`max |beta(OLS) − beta(lmer)| = 0,000000`).
+
+**Status:** Analyse abgeschlossen, Paper-Text ausstehend
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden Eq. 3 auf Kontraktebene neu schätzen und
+den Opening-Preis wie vorgeschlagen als Baseline-Kovariate aufnehmen. Wir
+werden zeigen, dass der Koeffizient auf die Preisänderung dabei **nicht**
+verschwindet, sondern von 0,83 auf 0,96 steigt und cluster-robust
+hochsignifikant bleibt — die Preisbewegung trägt also Information über den
+Opening-Preis hinaus. Wir werden ergänzen, dass der vom Referee zu Recht als
+unintuitiv bezeichnete Intercept von ~0,5 eine Folge der fehlenden
+Baseline-Kontrolle war: mit Opening-Preis im Modell liegt er bei −0,05, und in
+der Logit-Fassung exakt beim Effizienzwert null. Wir werden ferner darlegen,
+dass der Koeffizient auf den Opening-Preis mit 1,125 signifikant über eins
+liegt, was den Favorite-Longshot-Bias direkt sichtbar macht (siehe R1-viii).
 
 ## R2-C4 – Mispricing- vs. Informations-Interpretation
 **Kommentar (kondensiert):** Preisbewegungen werden zu oft als
@@ -882,14 +1034,72 @@ Sortierung nach zugrundeliegender Wahrscheinlichkeit hin, nicht nur
 Rauschreduktion – Mechanismus/Benchmark unerklärt. Vorschlag: direkterer Test
 (Realized Outcomes vs. Opening/Closing-Probabilities bedingt auf initiales
 Probability-Level). Überschneidet mit R2-M9.
+
 **Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
-**Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+
+**Untersuchung:** Der vom Referee vorgeschlagene direktere Test ist genau die
+Kontraktebenen-Spezifikation aus **R2-C1** — Realized Outcome auf
+Opening-Preis **und** Revision, also bedingt auf das initiale
+Probability-Level. Belege dort.
+
+Der Benchmark lässt sich zudem als **testbare Restriktion** schreiben. Unter
+`Opening = p + e1 + e2`, `Closing = p + e2` mit `e1` unabhängig von `p` ist
+`Closing` die bessere Prognose, und da
+`Closing = Opening + DltOpnCls` gilt:
+
+```
+E[Match | Opening, DltOpnCls] = lambda * Closing
+                              = lambda * Opening + lambda * DltOpnCls
+```
+
+Reine Rauschreduktion impliziert also **eta_1 = eta_2 = lambda** (Reliabilität
+des Closing-Preises) — **nicht** eta_2 = 0. Das präzisiert die
+Referee-Intuition: die Frage ist nicht, ob die Revision überhaupt vorhersagt,
+sondern ob sie **genauso stark** vorhersagt wie der Opening-Preis.
+
+Ergebnis (cluster-robust auf Matchup-Ebene, n = 172.663, G = 20.588):
+
+| Restriktion | Wert | Test |
+|---|---:|---|
+| `eta_1 − eta_2` | +0,16838 (SE 0,07163) | t = 2,35, **p = 0,019** |
+| `eta_1 = eta_2 = 1` gemeinsam | — | chi2(2) = 53,04, **p = 3,0e−12** |
+
+- **Die Gleichheitsrestriktion wird nur knapp verworfen** (p = 0,019, auf
+  1 %-Niveau nicht). Die Daten liegen also **nahe** am reinen
+  Rauschreduktions-Benchmark — die Revision sagt fast genauso stark vorher wie
+  der Opening-Preis selbst.
+- **Die stärkere Fassung `eta_1 = eta_2 = 1`** (Closing als hinreichende
+  Statistik ohne Shrinkage) wird dagegen klar verworfen, und zwar getrieben
+  von `eta_1 = 1,125 > 1`, nicht von einer Abweichung zwischen den beiden
+  Koeffizienten. Die Abweichung vom Benchmark ist damit **ein
+  Kalibrierungsproblem des Opening-Preises (Favorite-Longshot, R1-viii), kein
+  Sortierungsartefakt**.
+- Damit ist die im Kommentar vermutete „Sortierung nach zugrundeliegender
+  Wahrscheinlichkeit" empirisch lokalisiert: sie sitzt im Niveau
+  (`eta_1 > 1`), nicht im Revisionskanal.
+
+**Entscheidung:** [zu ergänzen: ob der Benchmark-Test als eigene Passage in
+den Text geht oder als Fußnote zu Eq. 3]
+
+**Umsetzung:** Analyse abgeschlossen, Paper-Text ausstehend.
+
+**Beleg/Validierung:** `revision/snapshots/eq3_contract_level/` (Commit
+`d4183ab`). Der Benchmark-Test selbst ist eine Nebenrechnung auf demselben
+Frame und derselben Cluster-Kovarianz; er liegt **nicht** als eigene CSV vor.
+
+**Status:** Analyse abgeschlossen, Paper-Text ausstehend
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden den vom Referee vorgeschlagenen
+direkteren Test durchführen — Realized Outcomes auf Opening-Preis und
+Revision gemeinsam — und den Benchmark als testbare Restriktion formulieren:
+reine Rauschreduktion impliziert gleiche Koeffizienten auf beiden Größen, nicht
+einen Nullkoeffizienten auf der Revision. Wir werden zeigen, dass diese
+Gleichheit nur knapp verworfen wird (p = 0,019), die Daten also nahe am
+Benchmark liegen, und dass die verbleibende Abweichung von der Kalibrierung
+des Opening-Preises herrührt (Koeffizient 1,125 statt 1) und nicht vom
+Revisionskanal.
 
 ## R3-6 – Informationsdiffusion zwischen Bookmakern (Reframing-Vorschlag)
 **Kommentar (kondensiert):** Größere Perspektive: Der Datensatz eignet sich für
@@ -991,13 +1201,52 @@ Beobachtung der Konkurrenz).
 zwischen Bookmakern, z. B. 10Bet) mehr Intuition gewünscht: Rauschen durch
 Stichprobengröße oder systematisch? Fokus eher auf Aggregatergebnisse?
 **Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
+
+**Untersuchung:** Querverweis auf **R2-C1**. Für die Preisinformativität
+lautet die Antwort auf die Frage des Referees eindeutig **„Rauschen"**: in der
+Kontraktebenen-Fassung von Eq. 3 gibt es **keine** Bookmaker-Heterogenität
+(Belege `revision/snapshots/eq3_contract_level/`, Commit `d4183ab`).
+
+- Random Effects exakt null (`boundary (singular) fit`).
+- Fixed Effects mit Dummies **und** Interaktionen: R²-Zuwachs 0,0001 für 46
+  Parameter; cluster-robust Niveau chi2(23) = 31,48 (p = 0,111), Steigung
+  chi2(23) = 20,78 (p = 0,595), gemeinsam chi2(46) = 52,91 (p = 0,225).
+- Nominelle Spreizung der Steigungen 0,771–1,083 (sd 0,085), aber **0 von 23**
+  Kontrasten einzeln signifikant; SEs 0,08–0,20.
+
+**Das ist der belastbare Fall für „Fokus auf Aggregatergebnisse"**, den der
+Referee anregt — und zwar mit einem Test statt einer Vermutung: die
+nominellen Unterschiede zwischen Bookmakern verschwinden, sobald man sie
+formal prüft.
+
+**Wichtige Abgrenzung:** das gilt für die **Preisinformativität**, nicht
+generell. Bei den **Lernraten** ist die Heterogenität substanziell und robust
+(γ 0,0014–0,0124, Faktor 9, stabile Rangfolge). Die Antwort auf R2-M8 ist also
+größenabhängig und sollte nicht pauschal als „alles nur Rauschen" formuliert
+werden.
+
+*Offen:* Table 7 selbst (Forecast-Error-Varianz) ist damit **nicht** direkt
+getestet — die Aussage betrifft die Steigung in Eq. 3, nicht die RMSE-Streuung.
+Ein analoger Test auf Table 7 steht aus.
+
 **Entscheidung:** [zu ergänzen]
+
 **Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+
+**Beleg/Validierung:**
+`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`
+
+**Status:** offen (Teilbefund zur Preisinformativität liegt vor, Test auf
+Table 7 selbst ausstehend)
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden für die Preisinformativität zeigen, dass
+die nominellen Unterschiede zwischen Bookmakern einem formalen Test nicht
+standhalten — weder über Random noch über Fixed Effects — und die Darstellung
+entsprechend auf die Aggregatergebnisse konzentrieren. Wir werden zugleich
+abgrenzen, dass dies **nicht** für die Lernraten gilt, wo die Heterogenität
+substanziell und über Spezifikationen stabil ist.
 
 ## R2-M9 – Tables 5/6 + Eq. 3: Befund fast definitional
 **Kommentar (kondensiert):** Der Befund (größere positive Preisbewegung →
