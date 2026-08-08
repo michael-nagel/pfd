@@ -41,6 +41,10 @@ revision/snapshots/**/*.pdf
 revision/snapshots/**/*.h5
 revision/snapshots/**/group_bookie_*.csv
 
+# Reviewer reply: the .tex is the source, the .pdf is built from it
+revision/.build/
+revision/*.pdf
+
 # Auxiliary files
 routine_cmds.rst
 to_do.rst
