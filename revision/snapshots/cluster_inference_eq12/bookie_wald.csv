@@ -1,0 +1,7 @@
+model,test,df,chi2,p
+Eq1_resp_to_info,Interaktionen (Steigung),23,24.46369935673757,0.3785158719445241
+Eq1_resp_to_info,Dummies (Niveau),23,34.33998003559223,0.06039944001136366
+Eq1_resp_to_info,beide gemeinsam,46,57.07991985983859,0.12675199639038714
+Eq2_ags_test,Interaktionen (Steigung),23,304.1512578589137,0.0
+Eq2_ags_test,Dummies (Niveau),23,151.9051284616301,0.0
+Eq2_ags_test,beide gemeinsam,46,507.715850030674,0.0

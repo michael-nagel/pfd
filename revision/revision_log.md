@@ -55,7 +55,8 @@ Der Match-Cluster wurde nicht modelliert.
   0,7265 (~37 % mechanisch), bleibt aber ~2 Größenordnungen über den
   Bookies-Komponenten → R1-ii-Befund hält auch nach Bereinigung.
 - Deskriptive Between/Within-Prüfung der anderen beiden Zielgrößen:
-  fit_rfa_mod (FEOpn−FECls) 82,53 %/17,47 %, kein Degenerationsmuster;
+  fit_rfa_mod (FEOpn−FECls) 82,53 %/17,47 %, kein Degenerationsmuster
+  **[teilweise korrigiert, siehe Nachtrag 2026-08-08]**;
   fit_mixed_lm (OddsMvt0) 99,35 %/0,65 %, extrem aber ohne algebraische
   Degeneration (nur 0,5 % Gruppen mit 0 Within-Varianz) – ökonomisch
   substanziell (Opening-Preise bei Markteröffnung naturgemäß ähnlich), anders
@@ -95,17 +96,31 @@ Ursache über 3 unabhängige Wege bestätigt (siehe Untersuchung). Symbolische
 Prüfung der anderen zwei Zielgrößen (kein exakte-Null-Kollaps) plus
 empirische Between/Within-Zerlegung.
 
-**Status:** in Arbeit (Modelle verifiziert, Paper-Interpretation offen)
+**Status:** Analyse abgeschlossen, Papertext ausstehend (alle vier Modelle
+auf cluster-robuste Inferenz umgestellt; siehe Nachträge 2026-08-01 und
+2026-08-08)
 
-**Superseded:** —
+**Superseded:** die Erwartung, crossed random effects seien für alle
+betroffenen Gleichungen der richtige Weg — sie sind es für keine, weil die
+abhängigen Variablen innerhalb eines Matches nahezu konstant sind (Details
+in den beiden Nachträgen).
 
-**Für Response-Dokument:** Wir haben die Modelle mit crossed random effects
-für Bookmaker und Match neu geschätzt (Umstieg auf R/lme4, da statsmodels
-gruppenübergreifende crossed effects nicht korrekt abbildet); die Ergebnisse
-liegen für alle drei betroffenen Gleichungen vor. Der starke Match-Cluster in
-eq:resp_to_info ist teilweise eine mechanische Eigenschaft der Return-Metrik
-bei verlorenen Wetten und werden wir in der Interpretation entsprechend
-zurückhaltend einordnen.
+**Für Response-Dokument:** Wir haben die Modelle zunächst wie vom Referee
+vorgeschlagen mit crossed random effects für Bookmaker und Match neu
+geschätzt (Umstieg auf R/lme4, da statsmodels gruppenübergreifende crossed
+effects nicht korrekt abbildet). Wir werden darlegen, dass ein
+Match-Random-Intercept in unserem Fall die abhängige Variable absorbiert
+statt die Abhängigkeit zu modellieren — der Spielausgang ist über die
+Bookmaker eines Matches per Konstruktion konstant — und dass die
+crossed-Fassungen deshalb einen anderen Schätzgegenstand liefern, keinen
+Präzisionsgewinn. Wir werden daher die vom Referee selbst genannte
+Alternative verwenden, cluster-robuste Inferenz auf Match-Ebene, und
+berichten, dass die Standardfehler dadurch um den Faktor 3 bis 4 steigen,
+was die Kritik in der Sache bestätigt. Für die relative Prognosegenauigkeit
+werden wir zusätzlich auf Bookmaker-Ebene clustern und begründen, warum das
+dort nötig ist. Den starken Match-Cluster in eq:resp_to_info werden wir
+zurückhaltend einordnen, weil er teilweise eine mechanische Eigenschaft der
+Return-Metrik bei verlorenen Wetten ist.
 
 **Offen / [zu ergänzen]:** match_icc (Anteil der Gesamtvarianz durch Matchup)
 wurde als Zusatzkennzahl diskutiert, aber für keines der drei Modelle in
@@ -152,6 +167,86 @@ Weg, die R1-ii-Forderung zu erfüllen.
   Matchup) lief zum Commit-Zeitpunkt noch; begründet, weil die Cluster stark
   unbalanciert sind (1–24 Bookmaker je Matchup, Median 7) und die
   CR1-Skalarkorrektur das nicht sieht.
+
+**Nachtrag 2026-08-08 – Eq. 1 und Eq. 2 nachgezogen, Cluster-Dimension folgt
+der Abhängigkeitsstruktur.** Beleg:
+`revision/snapshots/cluster_inference_eq12/`. Datenbasis `revision-baseline`
+(normalisiert), `df_oc` mit 172.663 Kontrakten, 20.588 Matchups, 24
+Bookmaker.
+
+**Entscheidung: alle vier Modelle nutzen cluster-robuste Inferenz, aber
+nicht dieselbe Clusterdimension.**
+
+| Modell | Inferenz |
+|---|---|
+| Unbiasedness-Regression | CR1 auf Matchup |
+| Eq. 1 (`resp_to_info`) | CR1 auf Matchup |
+| Eq. 3 (Kontraktebene) | CR1 auf Matchup |
+| **Eq. 2 (`ags_test`, „All")** | **zweifach geclustert, Matchup + Bookmaker (Cameron-Gelbach-Miller)** |
+
+*Gate vorab* (Schwelle 0,01 auf den Kernkoeffizienten, wie bei der
+Unbiasedness-Regression): Eq. 1 |β(OLS) − β(lme4)| = **0,000000** – beide
+Fits melden `boundary (singular) fit`, die Bookmaker-Komponenten kollabieren
+auf null und das Mixed Model fällt exakt auf OLS zurück. Eq. 2
+**0,000125**. Beide Gates halten, der Sandwich ist übertragbar.
+
+*SE-Inflation gegen die modellbasierte lme4-SE:*
+
+- **Eq. 1: Faktor 3,36–4,02**, Kernkoeffizient `RtrnOpnCls` **3,83**
+  (0,02112 → 0,08084). Damit im selben Bereich wie die
+  Unbiasedness-Regression (3,0–3,6) und Eq. 3 (2,96–4,11). `RtrnOpnCls`
+  geht von t = +1,31 auf **+0,34**; der Kernbefund ändert sich nicht, weil
+  der Koeffizient auch publiziert schon insignifikant war (p = 0,202
+  normalisiert).
+- **Eq. 2: Intercept (= AGS-Statistik) Faktor 2,43** (t = +6,30 → **+2,59**),
+  Kovariaten **2,70–3,37**.
+
+*Warum Eq. 2 die zweite Dimension braucht.* Für `Exog` ist die
+Matchup-Cluster-SE **kleiner** als die modellbasierte, **Faktor 0,92**. Das
+ist kein Rechenfehler: `Exog` wird in `fit_rfa_mod.py:41–49` **je Bookmaker
+zentriert**, seine Variation ist damit weitgehend within-bookmaker, und
+Matchup-Clustering greift dort kaum (gegen die iid-SE ist der Faktor
+trotzdem 2,7). Die modellbasierte SE ist ihrerseits groß, weil sie die
+Varianz des Random Slope über Bookmaker mitträgt. Ein reiner
+Matchup-Sandwich würde diese Unsicherheit **fallen lassen** – und sie ist
+hier real (siehe R2-M8). Zweifach geclustert steigt die `Exog`-SE von
+**0,00033 auf 0,00050**, t von −11,90 auf **−8,00**. *Einschränkung:* nur 24
+Bookmaker-Cluster, die zweite Dimension ist grob.
+
+**Korrektur der Einschätzung oben zu `fit_rfa_mod`.** Die dort festgehaltene
+Aussage „82,53 %/17,47 %, kein Degenerationsmuster" war **deskriptiv
+richtig** und wird nicht zurückgezogen – die Between/Within-Zerlegung zeigt
+tatsächlich keinen algebraischen Kollaps wie bei `RtrnClsEnd`. Der
+tatsächlich geschätzte crossed-Fit kippt den Koeffizienten aber dennoch:
+
+```
+beta(Exog)  Bookmaker-only -0,00386   ->   crossed +0,01970   (Vorzeichenwechsel)
+Matchup-Komponente 0,002698  >  Varianz der AV 0,002675   (Residual 0,000495)
+```
+
+Die Matchup-Varianzkomponente **übersteigt die Gesamtvarianz der abhängigen
+Variablen**. Auch ohne algebraische Degeneration ist der crossed-Fit damit
+ein **Wechsel des Schätzgegenstands**, kein Präzisionsgewinn – dieselbe
+Lehre wie bei der Unbiasedness-Regression und bei Eq. 1 (dort deutlicher:
+Residual-sd 0,057 gegen AV-sd 1,124, Bookmaker-Slope-Varianz von ~0 auf
+1,65, β von +0,0276 auf −0,2200, und `lme4` meldet dabei **keine** Warnung).
+
+**Offen 1 – welche SE-Basis wird in den Tabellen berichtet?** Die
+publizierten Standardfehler stammen aus `statsmodels` MixedLM, die neuen aus
+`lme4`. Bei diesen singulären Fits weichen beide ab: Eq. 2, Intercept
+**z = 3,84 (statsmodels) gegen t = 6,30 (lme4)**. Gegen die publizierte SE
+wäre der Inflationsfaktor rund **1,5** statt 2,43. **Vor dem Schreiben
+klären**, welche Basis in den Tabellen steht – sonst enthält die
+ausgewiesene SE-Inflation einen Softwareanteil und ist gegenüber den
+Referees nicht sauber begründbar.
+
+**Offen 2 – Eq. 1: die Kovariaten fallen unter Signifikanz.** Nach
+Clustering: `Compet_ITF_Men` z = −6,67 → t = **−1,87**, `Compet_WTA` −4,89 →
+**−1,22**, `TsDur` −2,22 → **−0,66**. In Tabelle 3 bleibt cluster-robust
+praktisch nichts signifikant. **Beim Schreiben prüfen:** enthält der
+Papertext Aussagen über Wettbewerbsunterschiede in der Vorhersagbarkeit von
+close-to-end-Renditen, sind diese nicht mehr haltbar. Der Kernbefund
+(`RtrnOpnCls` insignifikant) ist davon unberührt und wird sogar deutlicher.
 
 ---
 
@@ -1378,25 +1473,65 @@ werden.
 *Offen:* Table 7 selbst (Forecast-Error-Varianz) ist damit **nicht** direkt
 getestet — die Aussage betrifft die Steigung in Eq. 3, nicht die RMSE-Streuung.
 Ein analoger Test auf Table 7 steht aus.
+**[erledigt, siehe Nachtrag 2026-08-08]**
+
+**Nachtrag 2026-08-08 – die Antwort ist gleichungsabhängig.** Beleg:
+`revision/snapshots/cluster_inference_eq12/bookie_wald.csv`. Derselbe Test
+wie bei Eq. 3 (Bookmaker-Dummies **und** Interaktionen, gemeinsamer
+Wald-Test, cluster-robust auf Matchup) jetzt auch für Eq. 1 und Eq. 2:
+
+| Test | Eq. 1 (`resp_to_info`) | **Eq. 2 (`ags_test`, trägt Tabelle 7)** | Eq. 3 |
+|---|---|---|---|
+| Interaktionen (Steigung) | chi2(23) = 24,46, p = 0,379 | chi2(23) = **304,15**, p < 0,0001 | chi2(23) = 20,78, p = 0,595 |
+| Dummies (Niveau) | chi2(23) = 34,34, p = 0,060 | chi2(23) = **151,91**, p < 0,0001 | chi2(23) = 31,48, p = 0,111 |
+| beide gemeinsam | chi2(46) = 57,08, p = 0,127 | chi2(46) = **507,72**, p < 0,0001 | chi2(46) = 52,91, p = 0,225 |
+| R² ohne → mit | 0,000419 → 0,000591 | 0,006504 → 0,008405 | 0,185114 → 0,185216 |
+
+**Die pauschale Formulierung „Fokus auf Aggregatergebnisse" gilt NICHT für
+Tabelle 7.** Genauer:
+
+- **Preisinformativität (Eq. 3) und Vorhersagbarkeit der close-to-end-Renditen
+  (Eq. 1): Rauschen.** Bei Eq. 1 ist die nominelle Steigungsstreuung mit
+  −0,113 bis +0,379 (sd 0,115) sogar groß, aber das Basis-R² beträgt 0,0004
+  — das Modell erklärt praktisch nichts, und der gemeinsame Test findet
+  nichts.
+- **Relative Prognosegenauigkeit (Eq. 2, die Grundlage von Tabelle 7):
+  systematisch.** Der Test ist hoch signifikant, die Steigungen streuen von
+  −0,0066 bis −0,0004 (sd 0,0018). Die bookmakerspezifischen Angaben in
+  Tabelle 7 sind damit **belegt**, nicht bloß deskriptiv.
+
+Das ist zugleich die Begründung für die zweifache Clusterung bei Eq. 2
+(siehe R1-ii, Nachtrag 2026-08-08): weil die Bookmaker-Heterogenität dort
+real ist, darf die Inferenz sie nicht wegfallen lassen.
 
 **Entscheidung:** [zu ergänzen]
 
 **Umsetzung:** [zu ergänzen]
 
 **Beleg/Validierung:**
-`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`
+`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`,
+`revision/snapshots/cluster_inference_eq12/bookie_wald.csv` und
+`Eq{1,2}_*_bookie_fe_slopes.csv`
 
-**Status:** offen (Teilbefund zur Preisinformativität liegt vor, Test auf
-Table 7 selbst ausstehend)
+**Status:** Analyse abgeschlossen, Papertext ausstehend (Test jetzt für alle
+drei Gleichungen gerechnet; Befund ist gleichungsabhängig)
 
-**Superseded:** —
+**Superseded:** die frühere Lesart, „Fokus auf Aggregatergebnisse" gelte
+generell — sie gilt für Eq. 1 und Eq. 3, **nicht** für Tabelle 7 (Eq. 2).
 
-**Für Response-Dokument:** Wir werden für die Preisinformativität zeigen, dass
-die nominellen Unterschiede zwischen Bookmakern einem formalen Test nicht
-standhalten — weder über Random noch über Fixed Effects — und die Darstellung
-entsprechend auf die Aggregatergebnisse konzentrieren. Wir werden zugleich
-abgrenzen, dass dies **nicht** für die Lernraten gilt, wo die Heterogenität
-substanziell und über Spezifikationen stabil ist.
+**Für Response-Dokument:** Wir werden die Frage des Referees getrennt nach
+Größe beantworten, weil die Antwort unterschiedlich ausfällt. Für die
+Preisinformativität (Eq. 3) und für die Vorhersagbarkeit der
+close-to-end-Renditen (Eq. 1) werden wir zeigen, dass die nominellen
+Unterschiede zwischen Bookmakern einem gemeinsamen Test nicht standhalten —
+weder über Random noch über Fixed Effects — und die Darstellung dort auf die
+Aggregatergebnisse konzentrieren. Für die relative Prognosegenauigkeit, also
+genau die in Tabelle 7 berichteten Größen, werden wir dagegen belegen, dass
+die Unterschiede **systematisch** sind und einem cluster-robusten Wald-Test
+über alle 46 Kontraste deutlich standhalten; die bookmakerspezifischen
+Angaben in Tabelle 7 bleiben damit als eigenständiger Befund stehen. Wir
+werden ferner abgrenzen, dass dasselbe für die Lernraten gilt, wo die
+Heterogenität substanziell und über Spezifikationen stabil ist.
 
 ## R2-M9 – Tables 5/6 + Eq. 3: Befund fast definitional
 **Kommentar (kondensiert):** Der Befund (größere positive Preisbewegung →
