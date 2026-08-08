@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Neufassung von Figure 1 im Paper-Stil (R2-M7, zugleich R3-2).
 
+SUPERSEDED: ersetzt durch die beiden Einzelabbildungen `_fig_bars.py` und
+`_fig_scatter.py`. Bleibt liegen, weil die Farbcodierung des
+Posting-Zeitpunkts im Balkenpanel eine Alternative zur zweiten y-Achse ist.
+
 Links  RMSE je Bookmaker wie in der publizierten Abbildung -- Balken,
        alphabetisch, gleiche Achsenbeschriftung -- aber auf SERIENEBENE und
-       mit dem medianen Posting-Zeitpunkt als Farbe. Die punktierte Linie ist
-       die Grenze sqrt(E[p(1-p)]), also der RMSE, den ein perfekt
-       kalibrierter Prognostiker bei dieser Preisverteilung erreichen wuerde.
+       mit dem medianen Posting-Zeitpunkt als Farbe.
 Rechts derselbe RMSE gegen den medianen Posting-Zeitpunkt ueber die 24
        Bookmaker -- der direkte Test der Referee-Hypothese.
 
@@ -88,10 +90,6 @@ fig, ax = plt.subplots(ncols=2, gridspec_kw={"width_ratios": [1.9, 1]})
 # ------------------------------------------------- links: RMSE je Bookmaker
 x = np.arange(len(bm))
 ax[0].bar(x, bm["rmse"], color=clr, width=0.8)
-ax[0].axhline(limit, linestyle="dotted", color="black", zorder=3)
-ax[0].annotate(r"$\sqrt{E[p(1-p)]}$", xy=(-0.4, limit), xytext=(0, 2),
-               textcoords="offset points", ha="left", va="bottom",
-               fontsize=TCK)
 ax[0].set(ylabel="Root Mean Squared Error", ylim=YLIM,
           xlim=[-0.8, len(bm) - 0.2])
 ax[0].set_xticks(x, bm.index, rotation=90)

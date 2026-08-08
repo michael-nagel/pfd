@@ -128,7 +128,7 @@ konsistent mit der partiellen Lernrate.
 |---|---|---:|
 | Figure-1-Größe (Panel, gewichtet) | 0,4506 – 0,4710 | 0,4622 |
 | Serienebene (ungewichtet) | 0,4465 – 0,4646 | 0,4531 |
-| publiziert (roh, `A_baseline`) | 0,4520 – 0,4719 | 0,4630 |
+| publiziert (roh, `A_baseline`) | 0,4519 – 0,4719 | 0,4630 |
 
 - max |Δ| gegen den publizierten Stand: **0,00244** (Interwetten). Die
   Rangfolge ist praktisch unverändert, die Extremränge exakt.
@@ -289,43 +289,63 @@ diesen Bereich hinaus und unterstellt Linearität.
 
 # Neufassung von Figure 1
 
-`fig_rmse_posting.{png,pdf}`, Skript `_fig_rmse_posting.py`. Paper-Stil über
-`PlotParams` und `sns.set_theme(palette=stata_colors, style="ticks")` wie die
-übrigen Abbildungen, **beide Panels auf Serienebene**.
+**Zwei getrennte Abbildungen**, beide im Paper-Stil über `PlotParams` und
+`sns.set_theme(palette=stata_colors, style="ticks")`, beide auf
+**Serienebene**, Beschriftung durchgehend englisch.
 
-**Links — RMSE je Bookmaker.** Gleiche Darstellungsform wie die publizierte
-Figur (Balken, alphabetisch, `Root Mean Squared Error`, Beschriftung um 90°
-gedreht). Drei Änderungen:
+> **Die Grenze sqrt(E[p(1−p)]) wird in keiner der beiden Abbildungen
+> gezeigt** (Entscheidung, siehe `revision_log.md`, R2-M7). Eine
+> Referenzlinie, die von zwei Dritteln der Balken unterschritten wird, ist
+> ohne die Erklärung „unterdisperse Preise senken die Grenze" irreführend —
+> und die gehört in den Text. Die Zahlen stehen in `baselines.csv` zur
+> Verfügung.
 
-1. **Serienebene statt Panelgewichtung** — jede Match-Bookmaker-Kombination
-   zählt einmal (Begründung oben).
-2. **Farbe kodiert den medianen Posting-Zeitpunkt**, Colorbar über dem
-   Panel. Damit steckt die von R2-M7 geforderte Zusatzinformation im
-   bestehenden Panel, ohne dessen Form zu ändern.
-3. **Punktierte Referenzlinie bei sqrt(E[p(1−p)]) = 0,4630** — die bei
-   perfekter Kalibrierung erreichbare Grenze. Beantwortet Teil 1 von R2-M7
-   direkt in der Abbildung.
+## A — `rmse_posting_bars.{png,pdf}`, Skript `_fig_bars.py`
 
-y-Achse auf `[0,44; 0,47]` gesetzt statt der publizierten `[0,39; 0,49]`; die
-Serienebenen-Werte liegen zwischen 0,4465 und 0,4646.
+Gruppierte Balken je Bookmaker, alphabetisch wie die publizierte Figur
+(`Root Mean Squared Error`, Beschriftung um 90° gedreht, Boxrahmen):
 
-> **Die 0,4630 ist die Grenze auf der Serienstichprobe (184.415 Serien).**
-> Auf dem gefilterten `df_oc` (172.663, `baselines.csv`) sind es 0,4634. Die
-> Abbildung rechnet den Wert aus derselben Stichprobe, aus der auch die
-> Balken kommen — die beiden Zahlen dürfen nicht vermischt werden.
+- **Balken 1, linke Achse:** RMSE, Skala `[0,44; 0,47]` statt der
+  publizierten `[0,39; 0,49]`; die Serienebenen-Werte liegen zwischen
+  0,4465 und 0,4646.
+- **Balken 2, rechte Achse:** medianer Posting-Zeitpunkt in Stunden vor
+  Anpfiff, ab null.
+- Zwei Farben aus `stata_colors` (`#1A476F`, `#E37E00`), Legende über dem
+  Panel.
 
-**Rechts — der direkte Test.** RMSE gegen medianen Posting-Zeitpunkt über die
-24 Bookmaker, Regressionsgerade, Pearson +0,409 und Spearman +0,470 als
-Annotation. Gleiche y-Skala wie links, damit beide Panels dieselbe Größe in
-derselben Auflösung zeigen.
+> **Bekannter Nachteil der gruppierten Fassung:** die RMSE-Achse ist
+> abgeschnitten, die Stundenachse beginnt bei null. Zwei nebeneinander
+> stehende Balken laden zu einem Höhenvergleich ein, der hier bedeutungslos
+> ist. Bewusst in Kauf genommen — die Alternative (Posting Time als Punkte
+> auf der rechten Achse) steht in `_fig_rmse_posting.py` als Farbcodierung
+> zur Verfügung, falls die Entscheidung revidiert wird.
 
-## Frühere Entwurfsfassung
+## B — `rmse_vs_posting_scatter.{png,pdf}`, Skript `_fig_scatter.py`
 
-`rmse_posting_time.{png,pdf}`, Skript `_rmse_posting_plot.py` — Diagnose-Bild
-mit deutscher Beschriftung. Zeigt zusätzlich die **bookmakerspezifische**
-Grenze je Bookmaker als Dumbbell und beide RMSE-Fassungen im rechten Panel
-nebeneinander. Nicht für das Paper gedacht, aber nützlich, um die
-Gewichtungsfrage in der Antwort an die Referees zu belegen.
+Scatter RMSE gegen medianen Posting-Zeitpunkt über die 24 Bookmaker mit
+Regressionsgerade und den Korrelationen als Annotation (Pearson +0,409,
+Spearman +0,470).
+
+**Alle 24 Punkte sind beschriftet.** Die Platzierung nutzt kein `adjustText`,
+sondern probiert je Punkt eine feste Kandidatenliste von Versätzen durch und
+nimmt den ersten kollisionsfreien — deterministisch, ohne zusätzliche
+Abhängigkeit. Reihenfolge: gedrängte Punkte zuerst, weil sie die wenigsten
+freien Plätze haben. Im aktuellen Lauf reicht für **alle 24** der kleinste
+Versatz (4 pt), Verbindungslinien werden nicht gebraucht; die Fallback-Logik
+dafür bleibt für den Fall geänderter Daten im Skript.
+
+## Superseded
+
+- `fig_rmse_posting.{png,pdf}`, Skript `_fig_rmse_posting.py` — die frühere
+  Zwei-Panel-Fassung. Ersetzt durch A und B, die Referenzlinie ist auch dort
+  entfernt. Bleibt liegen, weil sie den Posting-Zeitpunkt als **Farbe im
+  Balkenpanel** kodiert statt über eine zweite Achse; das ist die
+  Rückfalloption, falls die zweite y-Achse in A stört.
+- `rmse_posting_time.{png,pdf}`, Skript `_rmse_posting_plot.py` — das erste
+  Diagnose-Bild mit deutscher Beschriftung. Zeigt die
+  **bookmakerspezifische** Grenze je Bookmaker als Dumbbell und beide
+  RMSE-Fassungen nebeneinander. Nicht für das Paper, aber nützlich, um die
+  Gewichtungsfrage in der Antwort an die Referees zu belegen.
 
 # Dateien
 
@@ -333,8 +353,10 @@ Gewichtungsfrage in der Antwort an die Referees zu belegen.
   Kalibrierungssteigungen, Prüfung des Papertextes
 - `_posting_time.py` — Posting-Zeitpunkte, Korrelationen, partielle
   Betrachtung, Within-Matchup-FE
-- `_fig_rmse_posting.py` — Neufassung von Figure 1 im Paper-Stil
-- `_rmse_posting_plot.py` — frühere Diagnose-Fassung der Abbildung
+- `_fig_bars.py` — **Abbildung A**, gruppierte Balken mit zweiter y-Achse
+- `_fig_scatter.py` — **Abbildung B**, Scatter mit beschrifteten Punkten
+- `_fig_rmse_posting.py` — superseded, Zwei-Panel-Fassung mit Farbcodierung
+- `_rmse_posting_plot.py` — superseded, erste Diagnose-Fassung
 - `baselines.csv` — Brier, RMSE, BSS, Grenze, Abstand mit cluster-robustem
   Test, je für Opening/Closing und mit/ohne `|RtrnOpnCls| > 0`-Filter
 - `opening_vs_closing.csv` — gepaarter Brier-Vergleich
@@ -349,8 +371,9 @@ Gewichtungsfrage in der Antwort an die Referees zu belegen.
   RMSE-Fassungen, Updates je Serie
 - `correlations.csv`, `partial_correlations.csv`, `joint_regression.csv`
 - `within_matchup_fe.csv` — FE-Schätzungen mit cluster-robusten SEs
-- `fig_rmse_posting.{png,pdf}`, `rmse_posting_time.{png,pdf}` — Abbildungen
-  (**gitignoriert**, aus den beiden Plotskripten regenerierbar)
+- `rmse_posting_bars.{png,pdf}`, `rmse_vs_posting_scatter.{png,pdf}`,
+  `fig_rmse_posting.{png,pdf}`, `rmse_posting_time.{png,pdf}` — Abbildungen
+  (**gitignoriert**, aus den Plotskripten regenerierbar)
 
 **Cache:** die Skripte legen den Serien-Frame als Parquet im Scratchpad ab
 (Pfadkonstante `FRAME` in `_rmse_baselines.py`). `_posting_time.py` und

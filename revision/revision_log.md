@@ -537,8 +537,59 @@ Opening-Zeitpunkts.
   Konfundierungs-Hypothese scheidet damit als Erklärung aus; die RMSE-Anomalie
   läuft über Timing (R3-2 im engeren Sinn: unterschiedliche Opening-Zeitpunkte),
   nicht über die Marge. Details in open_questions.md (Abschnitt Margen/
-  Normalisierung). Die eigentliche Timing-Kontrolle (Opening-Zeitpunkt als
-  Kovariate/Matching) ist noch offen. [zu ergänzen]
+  Normalisierung).
+- **R3-2 (Timing-Kontrolle), nachgeholt.** Posting-Zeitpunkt je Serie =
+  Anpfiff minus erster beobachteter Zeitstempel; Mediane je Bookmaker über
+  die 24 der Schätzstichprobe. Spanne 16,57 h (Dafabet) bis 36,03 h
+  (Betfair), Faktor 2,17.
+
+  **Die konkrete Hypothese des Referees trifft nicht zu.** Pinnacle
+  eröffnet median bei **20,63 h — Timing-Rang 12 von 24**, praktisch exakt
+  beim Stichprobenmedian (20,45 h) — bei **RMSE-Rang 24**. BetInAsia
+  dasselbe: Timing-Rang 13, RMSE-Rang 23. Die frühesten Eröffner (Betfair
+  36,0 h, Betfred 35,7 h, 888sport 34,4 h) liegen beim RMSE im Mittelfeld.
+  Pinnacles hoher Opening-RMSE ist kein Artefakt früher Marktteilnahme.
+
+  **Der Mechanismus existiert dennoch.** Über die 24 Bookmaker auf
+  Serienebene: Pearson **+0,409** (p = 0,047), Spearman **+0,470**
+  (p = 0,020) — Vorzeichen wie vom Referee erwartet. Weil dieser
+  Querschnitt über verschiedene Match-Portfolios mittelt und mit n = 24
+  wenig Power hat, zusätzlich **innerhalb desselben Matchups** (18.394
+  Matchups, 181.889 Kontrakte, cluster-robust auf Matchup): der
+  Koeffizient auf `OpnHrs` im quadrierten Opening-Fehler beträgt
+  **+1,17e−04, t = 4,12**; mit zusätzlichen Bookmaker-FE +1,14e−04,
+  t = 3,73. **Sauber identifiziert**, nicht nur ein Querschnitt über 24
+  Punkte — und die Stabilität gegenüber den Bookmaker-FE zeigt, dass der
+  Effekt am Timing der einzelnen Serie hängt, nicht an einer festen
+  Bookmaker-Eigenschaft.
+
+  **Größenordnung: real, aber nicht der Haupttreiber.** Hochgerechnet auf
+  die 19,46-h-Spanne der Bookmaker-Mediane ergibt der Within-Koeffizient
+  ≈ **+0,0025 RMSE** gegen eine beobachtete Spanne von **0,018** auf
+  Serienebene — rund ein Achtel. *Einschränkung:* die Within-Matchup-
+  Streuung von `OpnHrs` beträgt sd 4,1 h, die Hochrechnung extrapoliert
+  über diesen Bereich hinaus und unterstellt Linearität.
+
+  **Marge herausgerechnet** bleibt die Richtung, nicht die Signifikanz:
+  +0,409 → **+0,327** (p = 0,13; Rang-partiell +0,362, p = 0,090). Marge
+  und Posting-Zeitpunkt sind selbst korreliert (Pearson −0,266, Spearman
+  −0,435): margenarme Häuser eröffnen tendenziell später.
+- **METHODISCHER BEFUND — in der publizierten Figur 1 ist der Zusammenhang
+  unsichtbar.** Panelgewichtet beträgt die Korrelation **−0,059** (p = 0,79),
+  auf den publizierten rohen Werten −0,083. Ursache:
+  `bookmaker_accuracy.py:62` rechnet den RMSE **auf Panelebene**. `OpnOdds`
+  ist je Serie konstant, also geht jede Serie mit ihrer Zahl an Preisupdates
+  gewichtet ein. Diese Zahl korreliert **−0,73** mit dem Posting-Zeitpunkt
+  (spät postende Bookmaker liefern mehr Updates je Serie, 5,6 bis 10,8) —
+  **die Gewichtung hebt den Effekt exakt auf.**
+
+  Serienebene ist die inhaltlich richtige Einheit: ein Bookmaker mit vielen
+  Updates hat nicht mehr Prognosen abgegeben, sondern **dieselbe Prognose
+  öfter aktualisiert**. Der Opening-Preis, um den es hier geht, existiert je
+  Serie genau einmal.
+
+  *Offen:* Entscheidung, ob die Produktionsrechnung auf Serienebene
+  umgestellt wird. Betrifft **Figur 1 und Tabelle 7**.
 
 **Entscheidung: getroffen — gespaltene Zeitachse.**
 - **Unbiasedness-Regressionen: kontinuierliche absolute Achse**,
@@ -579,14 +630,17 @@ Randdiagnostik). Ergebnis der neuen Spezifikation:
 validiert (fig:rmse-Extremränge exakt reproduziert); negative Margen-RMSE-
 Korrelation empirisch bestätigt. Für die Zeitachsen-Entscheidung:
 `revision/snapshots/continuous_unbiasedness/` (Commits `5680d91`, `9c05946`,
-`56a0af6`) und `revision/snapshots/gmm_imputation_test/` (`bf9b97a`). Die
-Timing-Kontrolle für R3-2 im engeren Sinn (Opening-Zeitpunkt als
-Kovariate/Matching bei den RMSE-Vergleichen) ist davon **unberührt und
-weiterhin offen**.
+`56a0af6`) und `revision/snapshots/gmm_imputation_test/` (`bf9b97a`). Für die
+Timing-Kontrolle im engeren Sinn: `revision/snapshots/rmse_baselines/` —
+`posting_time_by_bookie.csv`, `correlations.csv`,
+`partial_correlations.csv`, `joint_regression.csv`, `within_matchup_fe.csv`.
+Die Margen-RMSE-Korrelation von −0,34 wurde dabei exakt reproduziert
+(−0,3431).
 
 **Status:** R2-C3 umgesetzt (Diagnostik abgeschlossen, Paper-Text ausstehend);
-R3-2 weiterhin offen (Margen-Konfundierung widerlegt, Timing-Kontrolle nicht
-umgesetzt)
+R3-2 Diagnostik abgeschlossen, Papertext ausstehend (Margen-Konfundierung
+widerlegt, Timing-Kontrolle durchgeführt; offen bleibt allein die
+Entscheidung über die Serienebene in der Produktionsrechnung)
 
 **Superseded:** die frühere Formulierung „Entscheidung: Offen. (a) vs. (b)"
 ist durch die gespaltene Achse oben ersetzt.
@@ -603,8 +657,25 @@ kontinuierliche Lernrate wäre dort nicht ableitbar (Details unter R1-vi).
 Wir werden zudem darlegen, dass die
 Unterschiede in der Opening-Genauigkeit nicht durch bookmaker-spezifische
 Margen erklärt werden (die margenärmsten Bookmaker weisen die höchsten
-Forecast-Fehler auf), sodass die verbleibende Erklärung beim Timing der
-Markteröffnung liegt.
+Forecast-Fehler auf).
+
+Zur Timing-Konfundierung werden wir dem Referee in der Sache zustimmen und
+zugleich sein konkretes Beispiel korrigieren: Pinnacle eröffnet nicht früher
+als die anderen, sondern genau beim Stichprobenmedian (Rang 12 von 24), hat
+aber den höchsten Opening-RMSE — der Befund lässt sich dort also nicht mit
+früher Marktteilnahme erklären. Wir werden den vom Referee vermuteten
+Mechanismus dennoch nachweisen, und zwar sauber identifiziert innerhalb
+desselben Spiels: unter Matchup- und Bookmaker-Fixed-Effects erhöht eine
+Stunde früheres Posting den quadrierten Opening-Fehler signifikant. Wir werden
+die Größenordnung offenlegen — über die Spanne der Bookmaker-Mediane
+entspricht das etwa 0,0025 RMSE gegen eine beobachtete Spanne von 0,018, also
+rund einem Achtel der Unterschiede — und daraus folgern, dass Timing die
+Rangfolge mitprägt, sie aber nicht erklärt. Wir werden die Posting-Zeit wie
+von Referee 2 vorgeschlagen in Figure 1 aufnehmen (siehe R2-M7) und dabei
+offenlegen, dass die Bookmaker-RMSE künftig auf Serienebene berichtet werden:
+in der bisherigen panelgewichteten Rechnung geht jede Serie mit ihrer Zahl an
+Preisupdates ein, und weil diese Zahl mit dem Posting-Zeitpunkt korreliert,
+verdeckt die Gewichtung genau den Zusammenhang, nach dem der Referee fragt.
 
 ---
 
@@ -1187,14 +1258,93 @@ halten. Durchgängig überdenken.
 Einordnung/Baseline. Figure 1 sollte zusätzlich die durchschnittliche
 Posting-Zeit zeigen (später postende Bookmaker profitieren evtl. nur von der
 Beobachtung der Konkurrenz).
-**Stand vor Revision:** [zu ergänzen]
-**Untersuchung:** [zu ergänzen]
-**Entscheidung:** [zu ergänzen]
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** offen
+**Stand vor Revision:** `tex:687` schreibt „all bookmakers show similar
+prediction accuracy based on opening prices, with RMSE values clustering
+around 0.45. These values suggest that the bookmakers' models make fairly
+accurate predictions." Kein Bezugspunkt, gegen den 0,45 einzuordnen wäre. Der
+auskommentierte Absatz darunter (`tex:689`) enthielt den Münzwurf-Vergleich,
+steht aber nicht im Text. Figure 1 zeigt ausschließlich den RMSE.
+
+**Untersuchung:** Drei Bezugspunkte gerechnet (`df_oc`, normalisiert;
+Serienebene ungefiltert als Sensitivität):
+
+| | Opening | Closing |
+|---|---:|---:|
+| Brier / RMSE | 0,20664 / **0,4546** | 0,20425 / 0,4519 |
+| uninformiert (p ≡ 0,5) | 0,25 / 0,5 | 0,25 / 0,5 |
+| **Brier Skill Score** | **0,1734** | **0,1830** |
+| erreichbare Grenze E[p(1−p)] | 0,21487 (RMSE 0,4634) | 0,21277 (0,4613) |
+
+Auf der Serienebene ohne Filter — der Stichprobe, auf der die Abbildung
+rechnet — liegt die Grenze bei **RMSE 0,4630**.
+
+- **Murphy-Zerlegung** (20 Quantilsbins, Opening): REL 0,00052,
+  RES 0,04348, UNC 0,24990. Die Fehlkalibrierung macht **0,25 % des
+  Brier-Scores** aus und scheidet als Erklärung der 0,4546 aus; die Preise
+  lösen **17,4 % der Ergebnisunsicherheit** auf (Closing 18,4 %). Der Rest
+  ist irreduzible Unsicherheit des Tennisergebnisses, keine Modellschwäche.
+  Der Within-Bin-Rest der Zerlegung wird in `murphy.csv` mitgeführt und
+  schrumpft erwartungsgemäß mit feineren Bins (−0,0010 bei k = 10 →
+  −0,0001 bei k = 50).
+- **Der beobachtete Brier liegt signifikant UNTER der Grenze**
+  (−0,00823, SE 0,00121 cluster-robust auf Matchup, **t = −6,78**). Exakt
+  testbar ohne Binnung, weil für binäres y algebraisch gilt
+  `(y − p)² − p(1 − p) = (y − p)(1 − 2p)`; der Abstand ist damit der
+  Mittelwert einer gewöhnlichen Beobachtungsgröße.
+- **Das ist derselbe Befund wie `eta_1` = 1,125 aus R2-C1**, nur in einer
+  anderen Metrik. E[p(1−p)] ist die Grenze eines perfekt kalibrierten
+  Prognostikers *mit dieser Preisverteilung*; sind die Preise unterdispers,
+  ist die Grenze zu hoch angesetzt und wird unterboten. Gegenprobe: die
+  Kalibrierungssteigung beträgt 1,1170 auf Kontraktebene (1,1165 über 20
+  Bins). **Der Favorite-Longshot-Bias ist groß genug, um in der
+  aggregierten Prognosegüte sichtbar zu werden** — verwertbar für R1-viii.
+- **Textkorrektur nötig:** „clustering around 0.45" trifft nicht zu. Die
+  publizierten Werte reichen von **0,4519 (Vulkan Bet) bis 0,4719
+  (Pinnacle)**; auf der Serienebene von 0,4465 bis 0,4646. Das galt
+  **bereits für die publizierte Fassung** — die Normalisierung verschiebt
+  die Werte um maximal 0,00244 (Interwetten) und ist nicht die Ursache.
+- **Posting Time:** die Mediane streuen von 16,57 h (Dafabet) bis 36,03 h
+  (Betfair) vor Anpfiff, Faktor 2,17. Die inhaltliche Auswertung dazu steht
+  unter **R3-2**, mit dem dieser Punkt zusammenfällt.
+
+**Entscheidung:** Figure 1 wird durch **zwei getrennte Abbildungen** ersetzt,
+beide auf Serienebene: (A) gruppierte Balken je Bookmaker, RMSE auf der
+linken und medianer Posting-Zeitpunkt auf der rechten y-Achse; (B) Scatter
+RMSE gegen Posting-Zeitpunkt über die 24 Bookmaker mit Regressionsgerade,
+Korrelationen und Bookmaker-Annotation an jedem Punkt.
+
+**Die Grenze E[p(1−p)] wird in der Abbildung NICHT gezeigt.** Sie steht als
+Einordnung für den Papertext zur Verfügung. Grund: eine Referenzlinie, die von
+zwei Dritteln der Balken unterschritten wird, ist ohne die Erklärung
+„unterdisperse Preise senken die Grenze" irreführend, und diese Erklärung
+gehört in den Text, nicht in eine Bildunterschrift.
+
+**Umsetzung:** Analyse abgeschlossen, Papertext ausstehend.
+
+**Beleg/Validierung:** `revision/snapshots/rmse_baselines/`: `baselines.csv`
+(Brier, RMSE, BSS, Grenze, cluster-robuster Test des Abstands),
+`murphy.csv`, `calibration_slopes.csv`, `opening_vs_closing.csv`,
+`rmse_by_bookie_check.csv` (Figure-1-Größe, Serienebene und publizierter Wert
+je Bookmaker). Abbildungen aus `_fig_bars.py` und `_fig_scatter.py`.
+
+**Status:** Analyse abgeschlossen, Papertext ausstehend
+
 **Superseded:** —
-**Für Response-Dokument:** [zu ergänzen]
+
+**Für Response-Dokument:** Wir werden dem Referee zustimmen und den RMSE
+einordnen, statt ihn unkommentiert stehen zu lassen. Wir werden die
+uninformierte Prognose als oberen Bezugspunkt nennen (Brier 0,25 / RMSE 0,5)
+und daraus den Brier Skill Score von 0,173 berichten, und wir werden über die
+Murphy-Zerlegung zeigen, dass die verbleibende Fehlerhöhe fast vollständig aus
+der irreduziblen Unsicherheit des Spielausgangs stammt und nur zu 0,25 % aus
+Fehlkalibrierung. Wir werden ergänzen, dass der beobachtete Brier-Score sogar
+unter der bei perfekter Kalibrierung erreichbaren Grenze liegt, und erläutern,
+dass dies kein Widerspruch ist, sondern die Kehrseite der unterdispersen
+Preise, die wir unter R1-viii und R2-C1 dokumentieren. Wir werden die Formel
+„clustering around 0.45" korrigieren und die tatsächliche Spanne angeben. Wir
+werden Figure 1 zudem um den medianen Posting-Zeitpunkt je Bookmaker
+erweitern, wie vom Referee vorgeschlagen; die inhaltliche Auswertung dieser
+Größe berichten wir zusammen mit R3-2.
 
 ## R2-M8 – Table 7: Rauschen vs. systematischer Unterschied
 **Kommentar (kondensiert):** Zu Table 7 (Forecast-Error-Varianz-Unterschiede
