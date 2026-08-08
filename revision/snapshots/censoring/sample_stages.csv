@@ -1,0 +1,5 @@
+stufe,n_serien,n_zeilen
+shaped_data (roh),587414,2952877.0
+"nach filter_and_shape (Marge, Bookmaker, TsDur)",184415,1654415.0
+nach Nullvarianz-Filter (resample_and_impute),184112,
+nach NumOddsMvt < 20 (nur Unbiasedness/GARCH),175266,

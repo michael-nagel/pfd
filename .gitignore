@@ -39,6 +39,7 @@ reports/bibliographies/
 revision/snapshots/**/*.png
 revision/snapshots/**/*.pdf
 revision/snapshots/**/*.h5
+revision/snapshots/**/*.parquet
 revision/snapshots/**/group_bookie_*.csv
 
 # Reviewer reply: the .tex is the source, the .pdf is built from it
