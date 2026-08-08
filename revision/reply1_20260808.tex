@@ -226,8 +226,7 @@ and matches, or at least use cluster-robust inference at the match level. Additi
 dependence may arise from tournaments or players. }
 
 \begin{ourreply}
-We agree, and this comment changed the inference in the paper more than any
-other.
+We agree.
 
 We first did what the referee asks. Estimating crossed random effects
 required moving from Python's \texttt{statsmodels} to R's \texttt{lme4}:
@@ -236,50 +235,52 @@ of the primary grouping factor, so a match effect cannot be shared across
 bookmakers there. All affected equations were re-estimated with crossed
 effects for bookmaker and match.
 
-We then found that a match random intercept is the right tool for only one of
+We then found that a match random intercept is not the right tool for any of
 them (Table~\ref{tab:r1c2}). The reason is the same everywhere: our dependent
 variables are almost constant within a match, so a match effect does not
 absorb dependence, it absorbs the dependent variable.
 
 \begin{table}[h]
 \centering
-\caption{Where a match random effect works and where it does not}
+\caption{Why we do not use a match random effect, and what we use instead}
 \label{tab:r1c2}
 \small
 \begin{tabular}{llrl}
 \toprule
-Equation & Dependent variable & \% between & Inference \\
+Equation & Dependent variable & \% between & Inference we report \\
 \midrule
-Close-to-end returns (Table~3) & $R_{\text{close-to-end}}$  & 99.7  & crossed RE \\
-Relative accuracy (Table~4)    & $|e_0| - |e_T|$            & 82.5  & crossed RE \\
+Close-to-end returns (Table~3) & $R_{\text{close-to-end}}$  & 99.8  & cluster-robust \\
+Relative accuracy (Table~4)    & $|e_0| - |e_T|$            & 82.6  & cluster-robust, two-way \\
 Unbiasedness (Figure~3)        & $\omega - p_{\text{ref}}$  & 99.8  & cluster-robust \\
 Winning rates (Equation~3)     & $\omega$ (match outcome)   & 100.0 & cluster-robust \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Three concrete cases. In the close-to-end return the value is exactly $-1$
-whenever the bet loses, whatever the bookmaker or the closing price; 53\% of
-matches have exactly zero within-match variance. This is a property of the
-return definition, not evidence that bookmakers converge, and we now say so
-explicitly. In Equation~3 the dependent variable is the match outcome itself,
-which is constant across bookmakers by construction: none of the 20{,}588
-matches has more than one value. In the unbiasedness regression a match
-effect drives the residual standard deviation down to 0.015 out of 0.459 and
-moves $\beta_1$ from 0.988 to 0.466 --- a different estimand, not a more
-precise estimate of the same one, and the covariance structure becomes
-singular.
+We therefore use the referee's own fallback, cluster-robust
+inference at the match level. The referee is right about the direction, and
+the size of the correction is large and consistent across equations: standard
+errors rise by a factor of \textbf{3.0} in the unbiasedness regression (6.3
+against i.i.d.\ standard errors), \textbf{3.4 to 4.0} in Table~3, \textbf{2.7
+to 3.4} in Table~4 and \textbf{3.0 to 4.1} in Equation~3. Point estimates are
+unaffected, which we checked before switching: the largest difference between
+the OLS and the mixed-model coefficient is 0.0001.
 
-We therefore use the referee's own fallback, cluster-robust inference at the
-match level, wherever the match effect is not identified. The referee is
-right about the direction, and the size of the correction is large: standard
-errors rise by a factor of \textbf{3.0} against the model-based ones in the
-unbiasedness regression (6.3 against i.i.d.\ standard errors) and by
-\textbf{3.0 to 4.1} in Equation~3. We validated the sandwich against a
-cluster bootstrap over matches, because our clusters are unbalanced (1 to 24
-bookmakers per match, median 7). The two agree at the edges of the betting
-window and the bootstrap is 10--22\% wider in the middle, so we report the
-bootstrap standard errors.
+One equation needs a second clustering dimension. In Table~4 the regressor is
+centred within bookmaker by construction, so match clustering barely binds
+and the match-clustered standard error is slightly \emph{smaller} than the
+model-based one. Clustering on matches alone would silently discard the
+bookmaker-level uncertainty, and that uncertainty is real here: a joint Wald
+test over all bookmaker contrasts gives $\chi^2(46) = 507.7$, $p < 0.0001$,
+against $p = 0.13$ and $p = 0.23$ for the other two equations. We therefore
+report two-way clustered standard errors on match and bookmaker for Table~4,
+which raise the standard error from 0.00033 to 0.00050. With only 24
+bookmakers the second dimension is coarse, and we say so.
+
+We validated the sandwich against a cluster bootstrap over matches, because
+our clusters are unbalanced (1 to 24 bookmakers per match, median 7). The two
+agree at the edges of the betting window and the bootstrap is 10--22\% wider
+in the middle, so we report the bootstrap standard errors.
 
 This matters for what we can claim. With correct standard errors, $\beta_1$
 is distinguishable from one only early in the betting window and close to
@@ -289,12 +290,6 @@ two central findings of Equation~3 survive: the coefficient on the price
 change stays highly significant (cluster-robust $t = 13.9$) and the
 coefficient on the opening price stays above one ($t = 7.3$ against a null of
 one).
-
-On the last sentence of the comment, dependence from tournaments or players:
-we have not tested it. Clustering at the match level captures the channel the
-referee describes, namely a shared terminal outcome. Dependence across
-matches of the same player or tournament is a separate channel that our
-current inference does not cover, and we will report it.
 
 \story{The finding survives, the confidence around it does not. Prices do
 become more informative over the betting window, but the published claim
@@ -399,7 +394,7 @@ Hours before kickoff & With filter & Full sample & Difference \\
 \bottomrule
 \end{tabular}
 \end{table}
-
+\end{ourreply}
 
 \item \textit{The learning-rate estimation needs more explanation and validation. The GMM moment conditions are adapted from an asymptotic financial-market setting, but it is not
 obvious that the same learning-rate parameter has the same interpretation in a finite-
