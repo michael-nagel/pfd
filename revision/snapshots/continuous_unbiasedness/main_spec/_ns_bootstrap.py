@@ -20,7 +20,6 @@ Rein diagnostisch.
 """
 
 import sys
-import tempfile
 import time
 
 import numpy as np
@@ -31,7 +30,11 @@ from rpy2.robjects import numpy2ri, pandas2ri
 from rpy2.robjects.conversion import localconverter
 
 OUT = "revision/snapshots/continuous_unbiasedness/main_spec"
-FRAME = f"{tempfile.gettempdir()}/pfd_mainspec_frame2.parquet"
+# NICHT nach /tmp: WSL leert das bei jedem VM-Neustart, und der Lauf hat dann
+# sein ganzes Zeitfenster mit dem Neubau des Frames verbracht statt mit
+# Replikaten. `data/interim/` liegt auf dem Windows-Dateisystem, ueberlebt den
+# Neustart und ist gitignoriert.
+FRAME = "data/interim/pfd_mainspec_frame2.parquet"
 COVS = ["TsDur", "Compet_Challenger_Men", "Compet_ITF_Men", "Compet_Misc",
         "Compet_WTA"]
 DF = 4
