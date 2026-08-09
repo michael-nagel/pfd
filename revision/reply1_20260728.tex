@@ -34,7 +34,15 @@
 \newcommand{\argX}{\textcolor{green!55!black}{\textbf{[X --- addressed by argument]}}}
 \newcommand{\argT}{\textcolor{blue!75!black}{\textbf{[TD]}}}
 
+\usepackage{float}
+
 \newcommand{\Reply}[1]{\par\noindent\textbf{Reply:} #1}
+
+% Our own replies, marked to distinguish them from the draft replies that
+% were already in the document.
+\definecolor{mncol}{HTML}{1A476F}
+\newcommand{\ReplyMN}[1]{\par\noindent%
+  \textcolor{mncol}{\textbf{[MN]}}~\textbf{Reply:} #1}
 
 \usepackage[position=bottom,justification=centerfirst, labelfont=bf]{caption}
 
@@ -81,7 +89,7 @@ Thank you very much for your very constructive and helpful comments and suggesti
 \begin{enumerate}
 \item \textit{As someone who has often scraped Oddsportal and thought about different uses of the data, it is great to see this work looking at pre-match movements - which are well documented there within a short period of the match completing (which is a feature which perhaps warrants a footnote when describing the data collection process). } \argX \argT
 
-\Reply{We thank the Associate Editor for this observation and agree that it deserves an explicit note. Our scraper ran from 6 March to 28 November 2023 and polled Oddsportal's \emph{results} pages, recording a match only once its final result had been posted, so no series in our sample was retrieved before kickoff: across all scraped records the median lag was 19.1 hours after kickoff, and 92\% were collected within 48 hours. We add a footnote to Section~4 stating this, because it is precisely what makes the observed price path the complete history as Oddsportal displays it, rather than a path truncated by the timing of our own collection --- the one remaining restriction, opening odds plus the last 20 updates, is imposed by the platform and is already noted in Section~4.1.}
+\ReplyMN{We thank the Associate Editor for this observation and agree that it deserves an explicit note. Our scraper ran from 6 March to 28 November 2023 and polled Oddsportal's \emph{results} pages, recording a match only once its final result had been posted, so no series in our sample was retrieved before kickoff: across all scraped records the median lag was 19.1 hours after kickoff, and 92\% were collected within 48 hours. We add a footnote to Section~4 stating this, because it is precisely what makes the observed price path the complete history as Oddsportal displays it, rather than a path truncated by the timing of our own collection --- the one remaining restriction, opening odds plus the last 20 updates, is imposed by the platform and is already noted in Section~4.1.}
 
 \item \textit{As you focus on pre-match, rather than in-play movements which has arguably been the dominant focus of the literature over many years now, your comment in the literature review, discounting the results of another paper because most of their data is not in play ("However, the focus on goals scored near half-time limits the generalizability of their findings to events occurring during regular play") seems a little inconsistent with what you are seeking to achieve here - emphasis on the importance of non-in-play betting activities. } \argX \argT
 
@@ -108,7 +116,7 @@ overrounds strategically. The authors should report results using margin-adjuste
 probabilities, for example by normalizing the two implied probabilities to sum to one, and should examine whether the findings are robust to alternative margin-removal
 methods.}
 
-\Reply{We follow this recommendation in full. Where the submitted version used the raw one-sided inverse decimal odds, all prices are now margin-adjusted by proportional normalisation,
+\ReplyMN{We follow this recommendation in full. Where the submitted version used the raw one-sided inverse decimal odds, all prices are now margin-adjusted by proportional normalisation,
 \begin{equation*}
 p^{\text{old}} = \frac{1}{o_1}
 \qquad \longrightarrow \qquad
@@ -116,7 +124,7 @@ p^{\text{new}} = \frac{1/o_1}{1/o_1 + 1/o_2},
 \end{equation*}
 and this runs consistently through the entire pipeline --- cross-sections, GMM estimation and unbiasedness regressions --- so that every result we report is now based on the margin-adjusted price; it is not appended as a robustness check. The referee's concern is quantitatively justified: the median overround is 7.81\% at opening and 7.60\% at closing, so the margin does shrink systematically over the betting window and part of the raw open-to-close movement is margin compression rather than belief revision, and the raw price level sat roughly half a margin too high. The central findings are nevertheless robust (Table~\ref{tab:r1c1}): the ranking of bookmakers by forecast accuracy is practically unchanged, the monotone pattern of Table~5 is preserved with slightly sharper extreme bins, and the estimated learning rates are barely affected. A useful side effect is that normalisation re-centres the implied probability of Player~1, which removes a systematic level markup from all quantities measured against the match outcome and makes the intercepts easier to interpret. So far we have implemented proportional normalisation only; we would be glad to add Shin's method or the odds-ratio (power) method as a robustness check should the referee consider it useful.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \caption{Raw versus margin-adjusted probabilities. Both columns come from the same code and the same data; the only difference is the normalisation.}
 \label{tab:r1c1}
@@ -144,7 +152,7 @@ bookmakers. The regressions should include crossed random effects for bookmakers
 and matches, or at least use cluster-robust inference at the match level. Additional
 dependence may arise from tournaments or players. }
 
-\Reply{We examined both routes the referee proposes. Crossed random effects with a match intercept turn out not to be usable in these specifications, because the match outcome enters the dependent variable directly: between 82.6\% and 100\% of its variance lies between matches (last column of Table~\ref{tab:r1c2}), so a match intercept absorbs the dependent variable rather than the dependence, and the fitted variance components degenerate --- the core coefficient flips from $+0.028$ to $-0.220$ in Eq.~1 and from $-0.0039$ to $+0.0197$ in Eq.~2. We therefore follow the referee's second route and use cluster-robust inference at the match level throughout, keeping the specification of the submitted version and changing only the covariance matrix,
+\ReplyMN{We examined both routes the referee proposes. Crossed random effects with a match intercept turn out not to be usable in these specifications, because the match outcome enters the dependent variable directly: between 82.6\% and 100\% of its variance lies between matches (last column of Table~\ref{tab:r1c2}), so a match intercept absorbs the dependent variable rather than the dependence, and the fitted variance components degenerate --- the core coefficient flips from $+0.028$ to $-0.220$ in Eq.~1 and from $-0.0039$ to $+0.0197$ in Eq.~2. We therefore follow the referee's second route and use cluster-robust inference at the match level throughout, keeping the specification of the submitted version and changing only the covariance matrix,
 \begin{align*}
 \text{submitted:} \quad & \widehat{\mathrm{Var}}(\hat{\beta})_{\text{model}}, \\
 \text{revised:} \quad & \widehat{\mathrm{Var}}(\hat{\beta}) = c \, (X'X)^{-1}
@@ -152,7 +160,7 @@ dependence may arise from tournaments or players. }
 \end{align*}
 where $m$ indexes matches. The point estimates are untouched in Eq.~1--3; for the unbiasedness regression the sandwich runs on the OLS counterpart, which reproduces the mixed-model coefficient at 42 of the 50 percentiles (median difference 0.007, the deviations confined to the earliest percentiles). For Eq.~2 we additionally cluster on bookmaker, because there the bookmaker heterogeneity is demonstrably real (joint Wald test $\chi^2(46) = 507.7$, $p < 0.0001$), whereas it is not detectable in Eq.~1 ($p = 0.127$) or Eq.~3 ($p = 0.225$); this raises the standard error on the price-change coefficient from 0.00036 to 0.00050 and its $t$-statistic falls from $-11.9$ to $-8.0$. The referee's concern is confirmed quantitatively: the standard errors were too small by a factor of roughly two to four (Table~\ref{tab:r1c2}). The consequence is concrete in Eq.~1, but it falls on the controls rather than on the result: the core coefficient RtrnOpnCls was already insignificant in the submitted version --- that close-to-end returns are not predictable from open-to-close returns is the finding of Table~3, and clustering only reinforces it --- whereas the covariates do lose their significance (Compet\_ITF\_Men from $z = -6.7$ to $t = -1.9$, Compet\_WTA from $-4.9$ to $-1.2$). The central findings of the other equations survive in sign and magnitude.
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
 \caption{Model-based versus match-clustered inference. The point estimates are identical in both columns; only the covariance matrix differs.}
 \label{tab:r1c2}
@@ -198,9 +206,29 @@ most market activity and information flow. This could bias the analysis of learn
 The authors should quantify how many observations are lost, compare included and
 excluded matches, and show that the conclusions are not driven by this selection.}
 
-\Reply{The referee describes the data structure correctly, and we now quantify all three points he raises. The platform shows at most the opening price plus 20 updates, and this is visible in the raw scrape before any filtering of our own: of 1{,}425{,}576 bookmaker series, not one has more than 20 updates, and the count jumps from 7{,}164 at nineteen updates to 54{,}054 at exactly twenty. Series sitting at that cap are the censored ones --- for them we cannot tell whether exactly twenty movements occurred or more that are not displayed --- which is why we exclude them; the restriction removes 8{,}846 of 184{,}112 series (4.80\%) and costs 94 of 20{,}854 matches entirely, and it applies only to the unbiasedness regressions and the time-series diagnostics, not to the cross-sections in Tables~3--7 or to the GMM and Bayesian learning-rate estimates, which run on all series and read the price only at the opening and at support points in the closing half of the window, not in the stretch a censored path leaves unobserved. This filter was not documented in the submitted version, which is the substantive omission the comment uncovers, and we correct it in the revised data section. The excluded series are more active, exactly as the referee expects, but they do not differ in anything that would bias a learning estimate (Table~\ref{tab:r1c5}). Re-estimating the coefficient path at alternative thresholds leaves the pattern intact --- $\beta_1$ falls from above one early in the window to below one near kickoff at every threshold --- although the level is not equally insensitive: dropping to a much stricter cut moves it by up to 0.25 (Table~\ref{tab:r1c5b}), which we report rather than claim uniform robustness.
+\ReplyMN{The referee describes the data structure correctly, and we now quantify all three points he raises. The platform shows at most the opening price plus 20 updates, and this is visible in the raw scrape before any filtering of our own: of 1{,}425{,}576 bookmaker series, not one has more than 20 updates, and the count jumps from 7{,}164 at nineteen updates to 54{,}054 at exactly twenty. Series sitting at that cap are the censored ones --- for them we cannot tell whether exactly twenty movements occurred or more that are not displayed --- which is why we exclude them; the restriction removes 8{,}846 of 184{,}112 series (4.80\%) and costs 94 of 20{,}854 matches entirely, and it applies only to the unbiasedness regressions and the time-series diagnostics, not to the cross-sections in Tables~3--7 or to the GMM and Bayesian learning-rate estimates, which run on all series and read the price only at the opening and at support points in the closing half of the window, not in the stretch a censored path leaves unobserved. This filter was not documented in the submitted version, which is the substantive omission the comment uncovers, and we correct it in the revised data section. It is also the smallest of the restrictions the sample passes through, and we now report the full chain (Table~\ref{tab:r1c5c}): from the raw scrape to the estimation sample the number of series falls by 74\%, and by far the largest single step is the window-length restriction of 12 to 72 hours, which is already described in the data section and is a homogeneity requirement rather than a selection on market activity. The excluded series are more active, exactly as the referee expects, but they do not differ in anything that would bias a learning estimate (Table~\ref{tab:r1c5}). Re-estimating the coefficient path at alternative thresholds leaves the pattern intact --- $\beta_1$ falls from above one early in the window to below one near kickoff at every threshold --- although the level is not equally insensitive: dropping to a much stricter cut moves it by up to 0.25 (Table~\ref{tab:r1c5b}), which we report rather than claim uniform robustness.
 
-\begin{table}[h]
+\begin{table}[H]
+\centering
+\caption{From the raw scrape to the estimation sample. The unit is a series, that is one bookmaker's price path for one match on the analysed side of the market.}
+\label{tab:r1c5c}
+\small
+\begin{tabular}{lrr}
+\toprule
+ & Series & Removed \\
+\midrule
+Raw scrape                                          & 712{,}151 & --- \\
+Final result posted, 2023 onward, consistency checks & 587{,}414 & 17.5\% \\
+Margin between 0 and 15\%                            & 585{,}938 & 0.3\% \\
+Bookmakers in the lowest size quartile               & 495{,}039 & 15.5\% \\
+\textbf{Betting window 12 to 72 hours}               & \textbf{184{,}415} & \textbf{62.8\%} \\
+Zero price variation                                 & 184{,}112 & 0.2\% \\
+Fewer than 20 price changes                          & 175{,}266 & 4.8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
 \centering
 \caption{Included versus excluded series. ``Std.\ diff.'' is the difference in means expressed in standard deviations of the respective variable.}
 \label{tab:r1c5}
@@ -225,9 +253,9 @@ Number of series                  & 175{,}266 & 8{,}846 & \\
 \end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{The coefficient path $\beta_1$ at alternative filter thresholds. Estimated on the continuous specification, which additionally discards updates recorded after kickoff.}
+\caption{The coefficient path $\beta_1$ at alternative filter thresholds. Estimated on the continuous specification, which additionally discards updates recorded after kickoff; we describe that specification in more detail in our reply to Comment~7.}
 \label{tab:r1c5b}
 \small
 \setlength{\tabcolsep}{5pt}

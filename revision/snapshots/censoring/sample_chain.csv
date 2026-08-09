@@ -1,0 +1,8 @@
+stufe,serien,beobachtungen,hinweis,anteil_vom_roh,entfernt,entfernt_anteil
+"Rohscrape (crawled_odds.json, Home-Seite)",712151,,,1.0,,
+"nach shape_data (Endergebnis, Datum ab 2023, Konsistenz)",587414,2952877.0,"Sammelstufe, nicht weiter aufgeloest",0.8248447309629559,124737.0,0.17515526903704412
+nach Margen-Filter (0 <= Marge <= 15 %),585938,2946271.0,beobachtungsweise -- kuerzt Serien auch teilweise,0.8227721368080646,1476.0,0.0025127082432492244
+nach Bookmaker-Quantilsfilter (unterstes 25 %),495039,2688855.0,,0.6951320717095111,90899.0,0.15513416095218266
+nach ts_dur-Filter (12-72 h Fensterlaenge),184415,1654415.0,,0.25895491265195164,310624.0,0.6274737949939297
+nach Nullvarianz-Filter,184112,1653370.0,,0.2585294410876345,303.0,0.0016430333758099937
+nach NumOddsMvt < 20 (nur Unbiasedness/GARCH),175266,1467604.0,,0.2461079181241057,8846.0,0.04804684105327192
