@@ -509,3 +509,175 @@ Sandwich vollständig beantwortet.
   für k = 6/10/20 mit markierten Trim-Zonen, darunter die Datendichte
 
   (alle PNG/PDF **gitignoriert**, aus den `_*_plot.py` regenerierbar)
+
+---
+
+# Nachtrag – Simultane Inferenz und RMSE-Grössenordnung (R1-vii)
+
+R1-vii hat zwei Teile: (a) die ökonomische Grössenordnung des RMSE-Rückgangs
+sei bescheiden, und (b) das Narrativ über Phasen des Lernens beruhe auf
+wiederholten **punktweisen** Konfidenzintervallen; gefordert sind formale
+Tests mit **simultanen** Bändern oder ein glatteres dynamisches Modell des
+Koeffizientenpfads.
+
+Das glatte dynamische Modell ist die Hauptspezifikation dieses Verzeichnisses
+(Abschnitte 3–6). Was fehlte, war die simultane Inferenz darauf — und die
+Einordnung des RMSE. Skripte: `_simultaneous.py` (rechnet nur auf den
+gespeicherten Bootstrap-Replikaten, keine Datenladung) und
+`_rmse_magnitude.py`.
+
+## 8) Simultane Bänder und globale Tests
+
+Grundlage sind die B = 100 Cluster-Bootstrap-Replikate aus Abschnitt 6a,
+getrimmt auf das Berichtsfenster ≤ 48 h (96 Gitterpunkte).
+
+### Der kritische Wert
+
+Die Kovarianzmatrix von β₁(·) über das Gitter hat **effektiven Rang 5** — der
+Pfad lebt in der k = 6-Splinebasis. Damit ist sie aus 100 Replikaten gut
+geschätzt, und der sup-t-Wert lässt sich aus N(0, Σ̂) simulieren, statt das
+95-%-Quantil eines Maximums roh aus 100 Ziehungen zu nehmen.
+
+| | kritischer Wert |
+|---|---:|
+| punktweise | 1,960 |
+| **sup-t (Gauss-Simulation, 200.000 Ziehungen)** | **2,617** (1,34×) |
+| sup-t roh aus B = 100 (Kontrolle) | 2,516 |
+
+### Das Band
+
+| Stunden | β₁ | SE (Bootstrap) | punktweises 95 % | **simultanes 95 %** |
+|---:|---:|---:|---|---|
+| 24,5 | 1,244 | 0,114 | [1,020 · 1,468] | [0,945 · 1,543] |
+| 12,3 | 1,090 | 0,101 | [0,891 · 1,289] | [0,824 · 1,355] |
+| 5,8 | 0,932 | 0,103 | [0,731 · 1,134] | [0,663 · 1,202] |
+| 2,9 | 0,835 | 0,109 | [0,622 · 1,049] | [0,551 · 1,120] |
+| 0,97 | 0,758 | 0,108 | [0,546 · 0,970] | [0,475 · 1,040] |
+| 0,25 | 0,768 | 0,094 | [0,583 · 0,952] | [0,521 · 1,014] |
+
+**Punktweise schliessen 44 von 96 Gitterpunkten die 1 aus, simultan 0 von 96.**
+
+### Zwei globale Tests
+
+| H0 | sup-\|t\| | krit. 5 % | p | Ergebnis |
+|---|---:|---:|---:|---|
+| β₁(t) = 1 für alle t | 2,509 | 2,617 | **0,066** | **nicht verworfen** |
+| β₁(t) konstant | 3,998 | 2,660 | **0,0006** | **verworfen** |
+
+Dazu der Randkontrast als Effektmass:
+
+```
+β₁(24,5 h) − β₁(0,25 h) = 0,477   SE 0,117   t = 4,08
+Bootstrap-Perzentil-CI [0,261 · 0,705]
+```
+
+**Die Aufteilung ist der eigentliche Befund.** Dass β₁ an irgendeiner
+*bestimmten* Stelle von 1 verschieden ist, überlebt die simultane Korrektur
+**nicht**. Dass es überhaupt einen **Pfad** gibt — β₁ fällt monoton von ~1,24
+auf ~0,77, also von Unterreaktion durch Unverzerrtheit in leichte
+Überreaktion — überlebt sie **deutlich**.
+
+### Trim-Sensitivität
+
+Abschnitt 7 hatte den Trim offen gelassen; ein sup-Test maximiert über alle
+Gitterpunkte und ist deshalb auf den linken Rand empfindlich.
+
+| Trim | Punkte | c_sup | sup-\|t\| Niveau | p | sup-\|t\| Form | p |
+|---:|---:|---:|---:|---:|---:|---:|
+| 48 h | 96 | 2,620 | 2,509 | 0,0663 | 3,998 | 0,00063 |
+| 36 h | 92 | 2,559 | 2,509 | 0,0571 | 4,091 | 0,00039 |
+| 24 h | 86 | 2,458 | 2,509 | **0,0439** | 4,106 | 0,00029 |
+
+**Der Niveautest liegt genau auf der 5-%-Grenze und kippt mit dem
+Berichtsfenster** (0,066 / 0,057 / 0,044). Er wird deshalb als *nicht
+verworfen* berichtet, mit ausgewiesener Sensitivität — nicht als knapper
+Erfolg beim engsten Trim. Der Formtest ist gegen den Trim unempfindlich.
+
+### Gegenrechnung auf der publizierten Perzentil-Kurve
+
+Was die 50 punktweisen Mixed-LM-Fits übrig lassen, wenn man Multiplizität
+(Šidák über 50 Tests) und Clusterung (SE × 3 aus Abschnitt 6) berücksichtigt:
+
+| Fassung | z | SE-Faktor | Perzentile mit CI ohne 1 |
+|---|---:|---:|---:|
+| punktweise, modellbasiert (publiziert) | 1,960 | 1,0 | **49 / 50** |
+| Šidák über 50 Tests | 3,283 | 1,0 | 47 / 50 |
+| punktweise, SE × 3 | 1,960 | 3,0 | 18 / 50 |
+| **Šidák + SE × 3** | 3,283 | 3,0 | **1 / 50** |
+
+Die Multiplizität allein kostet fast nichts (49 → 47); die Clusterung kostet
+fast alles. Beides zusammen lässt **ein** Perzentil übrig.
+
+## 9) Ökonomische Grössenordnung des RMSE-Rückgangs
+
+### Was die Kurve in Figur 3 misst
+
+Der geplottete `rmse` ist der **Residual-RMSE der Unbiasedness-Regression**
+(`fit_mixed_lm.py:60`), nicht der RMSE des Preises. Er fällt über das Fenster
+von 0,45566 auf 0,45081 (**−1,06 %**), in Brier-Einheiten von 0,20762 auf
+0,20323 (−2,12 %), Brier Skill Score 16,95 % → 18,71 %.
+
+### Der direkte, kompositionsfreie Vergleich
+
+Auf **echten** Beobachtungen, je Serie erste gegen letzte, matchup-cluster-robust
+(175.166 Serien, 20.741 Matchups):
+
+| | Brier | RMSE | BSS |
+|---|---:|---:|---:|
+| Münzwurf (p ≡ 0,5) | 0,25000 | 0,50000 | 0 % |
+| erster echter Preis (Ø 21,2 h vor Anpfiff) | 0,20428 | 0,45197 | 18,29 % |
+| letzter echter Preis (Ø 2,70 h vor Anpfiff) | 0,20315 | 0,45072 | 18,74 % |
+
+```
+Differenz = −0,00113   SE (Cluster) 0,00026   t = −4,39
+```
+
+**Signifikant, aber klein: das Wettfenster steuert 2,5 % der gesamten
+Prognoseleistung des Preises gegenüber dem Münzwurf bei. 97,5 % stehen schon
+bei der ersten Beobachtung fest.** Der Referee hat in der Sache recht.
+
+Die Stundenbins (`rmse_by_hour_bin.csv`) sind dafür **nicht** verwendbar: die
+Population wechselt zwischen ihnen (der Bin > 48 h hat den *besten* Brier,
+weil dort nur 11.927 früh eröffnende Serien stehen). Nur der gepaarte
+Vergleich ist kompositionsfrei.
+
+### Auch der RMSE-Rückgang ist zu einem grossen Teil Imputation
+
+Damit die Aussage belastbar ist, wird **dieselbe** Grösse — Brier des rohen
+Preises, erste gegen letzte Spalte — auch auf dem Produktionsraster gerechnet:
+
+| | Brier früh | Brier spät | Differenz | t |
+|---|---:|---:|---:|---:|
+| echte Beobachtungen | 0,20428 | 0,20315 | **−0,00113** | −4,39 |
+| imputiertes Perzentilraster | 0,20791 | 0,20330 | **−0,00462** | −11,59 |
+
+**Faktor 4,08.** Die späten Werte stimmen praktisch überein (0,20330 gegen
+0,20315); die gesamte Differenz sitzt am **frühen** Rand (0,20791 gegen
+0,20428). Das ist derselbe Mechanismus wie in `../README.md`, Nachtrag 2: die
+Imputation lässt den Frühpreis schlechter aussehen, als er ist, und
+vergrössert dadurch sowohl den β₁-Abfall als auch den RMSE-Rückgang.
+
+### Einschränkung
+
+Der Formtest (β₁ nicht konstant) läuft auf der **vollen** kontinuierlichen
+Stichprobe, also Zelle C des 2×2. Auf den vollständig beobachteten Serien
+(Zelle D) ist der Pfad flacher und höher: 1,299 → 1,087 statt 1,289 → 0,771.
+Die **Richtung** des Abfalls ist also robust, die **Amplitude** nicht — ein
+Teil davon ist Komposition (spät eröffnende Serien). Bootstrap-Replikate für
+Zelle D existieren nicht, ein Formtest dort ist nicht gerechnet.
+
+## Dateien (Nachtrag)
+
+- `_simultaneous.py` — sup-t-Band, globale Tests, Trim-Sensitivität,
+  Gegenrechnung auf der publizierten Kurve
+- `_rmse_magnitude.py` — RMSE-Einordnung, gepaarter Vergleich, echt gegen
+  imputiert
+- `simultaneous_band.csv` — 96 Gitterpunkte mit punktweisem und simultanem Band
+- `simultaneous_marks.csv` — dasselbe an den sechs Stundenmarken
+- `global_tests.csv` — die beiden sup-Tests und der Randkontrast
+- `simultaneous_trim_sensitivity.csv` — beide Tests bei Trim 48/36/24 h
+- `pointwise_vs_corrected.csv` — publizierte Kurve unter Šidák und SE × 3
+- `rmse_magnitude_curve.csv` — Figur-3-Kurve als Brier und Skill Score
+- `rmse_by_hour_bin.csv` — Brier je Stundenbin (kompositionsbehaftet)
+- `rmse_paired_first_last.csv` — gepaarter Vergleich, cluster-robust
+- `rmse_real_vs_imputed.csv` — dieselbe Grösse echt gegen imputiert
