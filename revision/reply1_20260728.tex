@@ -35,6 +35,7 @@
 \newcommand{\argT}{\textcolor{blue!75!black}{\textbf{[TD]}}}
 
 \usepackage{float}
+\graphicspath{{reply_figures/}}
 
 \newcommand{\Reply}[1]{\par\noindent\textbf{Reply:} #1}
 
@@ -289,6 +290,40 @@ modest. The narrative about phases of learning, pauses in learning, and resumed
 learning is based on repeated pointwise confidence intervals and should be treated
 cautiously. The authors should provide formal tests with simultaneous confidence
 bands or a smoother dynamic model of the coefficient path. }
+
+\ReplyMN{The referee is right, and we checked it directly: apart from the very first step at the edge of the window, not one of the 48 adjacent changes in the published curve is individually significant, the largest being $|z| = 0.92$. The phases we described --- learning, a pause, learning resumed --- are read off noise, and we withdraw them. We replace the 50 separate regressions by a single smooth dynamic model in which $\beta_1$ is a function of the time remaining before kickoff,
+\begin{align*}
+\text{submitted:} \quad & \omega_i - p_{i0} = \beta_0^{(k)} + \beta_1^{(k)} \, (p_{ik} - p_{i0}) + x_i' \gamma + u_i, \qquad k = 1, \dots, 50, \\
+\text{revised:} \quad & \omega_i - p_{i0} = \beta_0(t) + \beta_1(t) \, (p_{it} - p_{i0}) + x_i' \gamma + u_i,
+\end{align*}
+estimated with a match-level cluster bootstrap ($B = 100$) from which we take both pointwise and simultaneous confidence bands. The result is a monotone convergence without turning points: $\beta_1$ falls from 1.24 a day before kickoff through 0.93 at six hours to 0.76 in the final hour --- underreaction early, unbiasedness in the middle, mild overreaction near kickoff, a continuum rather than phases (Figure~\ref{fig:r1c7}, Table~\ref{tab:r1c7}). One property of this specification deserves emphasis, because it also speaks to two other comments: it is estimated on the genuinely observed price timestamps, so that each series contributes only the prices actually recorded for it, and the backward imputation of early prices and the percentile time axis both drop out of the analysis entirely --- the concerns raised in Referee~2's Critical Comments~2 and~3 do not apply to it. On inference, the standard errors of the published specification were too small by a factor of 2.1 once the match clustering of Comment~2 is taken into account, and under the simultaneous band the referee asks for, $\beta_1$ is nowhere in the window distinguishable from one, while pointwise it is above one only early and below one only close to kickoff. What does survive simultaneously is the path itself: the hypothesis that $\beta_1(t)$ is constant is rejected ($p = 0.0006$), so we now claim that prices move from underreaction towards and past unbiasedness, but no longer claim to locate where along the window the price is biased.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{r1c7_coefficient_path.pdf}
+\caption{The coefficient path, as submitted and as revised. Both panels share the $y$ axis; the $x$ axes differ, since the revised specification runs on real time before kickoff and the submitted one on percentiles of the betting window. The dip at the extreme left of the left panel is an edge artefact of the unpenalised spline basis over the sparsest 3\% of the data, not a finding.}
+\label{fig:r1c7}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{$\beta_1$ over the betting window, with pointwise and simultaneous 95\% bands from the match-level cluster bootstrap.}
+\label{tab:r1c7}
+\small
+\begin{tabular}{lrcc}
+\toprule
+Hours before kickoff & $\beta_1$ & Pointwise 95\% & Simultaneous 95\% \\
+\midrule
+24   & 1.244 & [1.020, 1.468] & [0.945, 1.543] \\
+12   & 1.090 & [0.891, 1.289] & [0.824, 1.355] \\
+6    & 0.932 & [0.731, 1.134] & [0.663, 1.202] \\
+3    & 0.835 & [0.622, 1.049] & [0.551, 1.120] \\
+1    & 0.758 & [0.546, 0.970] & [0.475, 1.040] \\
+0.25 & 0.768 & [0.583, 0.952] & [0.521, 1.014] \\
+\bottomrule
+\end{tabular}
+\end{table}
+}
 
 \item \textit{The favorite-longshot results are interesting, but the interpretation needs to be sharpened. The paper finds lower learning rates for longshots than favorites and interprets
 this as potentially related to the favorite-longshot bias. This is plausible, but the evidence is indirect. The authors should show directly whether opening and closing

@@ -1,0 +1,5 @@
+Fassung,z,SE-Faktor,Perzentile_mit_CI_ohne_1,von,Anteil
+"punktweise, modellbasiert",1.959963984540054,1.0,49,50,0.98
+Šidák über 50 Tests,3.283479816130269,1.0,47,50,0.94
+"punktweise, SE x 3 (Cluster)",1.959963984540054,3.0,18,50,0.36
+Šidák + SE x 3,3.283479816130269,3.0,1,50,0.02
