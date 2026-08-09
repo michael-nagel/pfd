@@ -42,7 +42,53 @@ NREP = int(sys.argv[2])
 
 ro.r("library(mgcv); library(lme4); library(splines)")
 
-df = pd.read_parquet(FRAME)
+def build():
+    """Frame neu bauen, wenn der /tmp-Cache fehlt.
+
+    WSL leert /tmp beim Neustart der VM; ein Lauf, der sich nur auf den
+    Cache verlaesst, stirbt dann beim Start. Identisch zu
+    `_cluster_inference.py:build()`.
+    """
+    import sys
+
+    from omegaconf import OmegaConf
+
+    sys.path.insert(0, "src")
+    from pfd.models.filter_and_shape import filter_and_shape_data
+
+    cfg = OmegaConf.create({"estimation": {
+        "spec": "BmHome", "normalize": True, "compets": None,
+        "bm_quantile": 0.25, "ts_dur": [12, 72], "period": None,
+        "resample_freq": "1min", "pctl": 2}})
+    raw = pd.read_hdf("data/processed/shaped_data.h5", "df")
+    for c in ("Date", "Update"):
+        raw[c] = pd.to_datetime(raw[c])
+    kick = raw.groupby("Matchup")["Date"].first()
+    d, *_ = filter_and_shape_data(raw.copy(), cfg)
+    d["Kick"] = d["Matchup"].map(kick)
+    d["HoursToKick"] = (d["Kick"] - d["Update"]).dt.total_seconds() / 3600.0
+    d = d[d["HoursToKick"] > 0]
+    d = d[d.groupby("GroupId")["OddsMvt"].transform("std") > 0]
+    d = d[d["NumOddsMvt"] < 20]
+    d = d.sort_values(["GroupId", "Update"])
+    d["PRef"] = d.groupby("GroupId", sort=False)["OddsMvt"].transform("first")
+    d["Endog"] = d["Match"] - d["PRef"]
+    d["Exog"] = d["OddsMvt"] - d["PRef"]
+    d["ObsIdx"] = d.groupby("GroupId").cumcount()
+    d = d[d["ObsIdx"] > 0]
+    d["X"] = np.log(d["HoursToKick"])
+    keep = ["GroupId", "Matchup", "Bookies", "X", "HoursToKick", "Endog",
+            "Exog", "PRef", "Match", "NumOddsMvt"] + COVS
+    d = d[keep].reset_index(drop=True)
+    d.to_parquet(FRAME)
+    return d
+
+
+try:
+    df = pd.read_parquet(FRAME)
+except (FileNotFoundError, OSError):
+    print("Frame-Cache fehlt, wird neu gebaut ...", flush=True)
+    df = build()
 df["Bookies"] = df["Bookies"].astype(str)
 h_lo, h_hi = df["HoursToKick"].quantile([0.01, 0.99])
 HRS = np.exp(np.linspace(np.log(h_hi), np.log(h_lo), NGRID))
@@ -81,9 +127,21 @@ fe = (" + ".join(f"b{j}" for j in range(1, nb + 1)) + " + Exog + "
 ro.globalenv["fml"] = f"Endog ~ {fe} + (1 + Exog | Bookies)"
 print(f"  {ro.globalenv['fml'][0]}", flush=True)
 
+NPY = f"{OUT}/ns4_bootstrap_beta1_part{PART}.npy"
+
+# Zwischenspeichern nach JEDEM Replikat, und beim Start fortsetzen statt neu
+# beginnen. Ein erster Lauf wurde nach ~50 min abgebrochen und hatte nichts
+# geschrieben, weil np.save erst hinter der Schleife stand.
 rows, singular, failed = [], 0, 0
+try:
+    rows = [r for r in np.load(NPY)]
+    print(f"  fortgesetzt: {len(rows)} Replikate bereits vorhanden",
+          flush=True)
+except FileNotFoundError:
+    pass
+
 t_start = time.time()
-for r in range(NREP):
+for r in range(len(rows), NREP):
     rng = np.random.default_rng(42 + PART * 1000 + r)
     draw = rng.integers(0, G, size=G)
     idx = np.concatenate([groups[i] for i in draw]) + 1     # R ist 1-basiert
@@ -112,6 +170,7 @@ for r in range(NREP):
         C[:, nm.index(f"eb{j + 1}")] = Bg[:, j]
     singular += int(bool(ro.globalenv["sg"][0]))
     rows.append(C @ fx)
+    np.save(NPY, np.array(rows))
     el = time.time() - t_start
     print(f"  r{r:03d} {time.time() - t0:5.1f} s   beta1(24h) "
           f"{(C @ fx)[np.argmin(np.abs(HRS - 24))]:.4f}   "
@@ -119,7 +178,7 @@ for r in range(NREP):
           f"{el / (r + 1) * (NREP - r - 1) / 60:.0f} min", flush=True)
 
 boot = np.array(rows)
-np.save(f"{OUT}/ns4_bootstrap_beta1_part{PART}.npy", boot)
+np.save(NPY, boot)
 pd.DataFrame({"hours": HRS, "boot_sd": boot.std(axis=0, ddof=1),
               "boot_mean": boot.mean(axis=0)}).to_csv(
     f"{OUT}/ns4_bootstrap_part{PART}.csv", index=False)
