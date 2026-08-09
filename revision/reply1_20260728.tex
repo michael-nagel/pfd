@@ -144,6 +144,33 @@ bookmakers. The regressions should include crossed random effects for bookmakers
 and matches, or at least use cluster-robust inference at the match level. Additional
 dependence may arise from tournaments or players. }
 
+\Reply{We examined both routes the referee proposes. Crossed random effects with a match intercept turn out not to be usable in these specifications, because the match outcome enters the dependent variable directly: between 82.6\% and 100\% of its variance lies between matches (last column of Table~\ref{tab:r1c2}), so a match intercept absorbs the dependent variable rather than the dependence, and the fitted variance components degenerate --- the core coefficient flips from $+0.028$ to $-0.220$ in Eq.~1 and from $-0.0039$ to $+0.0197$ in Eq.~2. We therefore follow the referee's second route and use cluster-robust inference at the match level throughout, keeping the specification of the submitted version and changing only the covariance matrix,
+\begin{align*}
+\text{submitted:} \quad & \widehat{\mathrm{Var}}(\hat{\beta})_{\text{model}}, \\
+\text{revised:} \quad & \widehat{\mathrm{Var}}(\hat{\beta}) = c \, (X'X)^{-1}
+\Big[ \sum\nolimits_{m} X_m' \hat{u}_m \hat{u}_m' X_m \Big] (X'X)^{-1},
+\end{align*}
+where $m$ indexes matches; every point estimate is unchanged. For Eq.~2 we additionally cluster on bookmaker, because there the bookmaker heterogeneity is demonstrably real (joint Wald test $\chi^2(46) = 507.7$, $p < 0.0001$), whereas it is not detectable in Eq.~1 ($p = 0.127$) or Eq.~3 ($p = 0.225$); this raises the standard error on the price-change coefficient from 0.00036 to 0.00050 and its $t$-statistic falls from $-11.9$ to $-8.0$. The referee's concern is confirmed quantitatively: the standard errors were too small by a factor of roughly two to four (Table~\ref{tab:r1c2}). The consequence is concrete in Eq.~1, but it falls on the controls rather than on the result: the core coefficient RtrnOpnCls was already insignificant in the submitted version --- that close-to-end returns are not predictable from open-to-close returns is the finding of Table~3, and clustering only reinforces it --- whereas the covariates do lose their significance (Compet\_ITF\_Men from $z = -6.7$ to $t = -1.9$, Compet\_WTA from $-4.9$ to $-1.2$). The central findings of the other equations survive in sign and magnitude.
+
+\begin{table}[h]
+\centering
+\caption{Model-based versus match-clustered inference. The point estimates are identical in both columns; only the covariance matrix differs.}
+\label{tab:r1c2}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrr}
+\toprule
+ & Coefficient & Est. & SE model & SE clust. & Factor & Btw.\ match \\
+\midrule
+Eq.~1 (Table~3)       & RtrnOpnCls               & 0.0276 & 0.0211 & 0.0808 & 3.8 & 99.8\% \\
+Eq.~2 (Table~4)       & Intercept (AGS)          & 0.0026 & 0.0004 & 0.0010 & 2.4 & 82.6\% \\
+Eq.~3                 & OpnOdds                  & 1.1248 & 0.0058 & 0.0172 & 3.0 & 100.0\% \\
+Unbiasedness (Fig.~3) & $\beta_1$ (median of 50) & ---    & ---    & ---    & 2.1 & 99.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+}
+
 \item \textit{The claim that price movements are driven by rational bettors is too strong. The em-
 pirical evidence shows that open-to-close price changes are associated with subse-
 quent match outcomes and that closing prices are more accurate than opening prices.
