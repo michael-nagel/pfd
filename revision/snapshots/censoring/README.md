@@ -142,3 +142,89 @@ Inhaltlich ändert sich nichts.
   `exclusion_by_competition.csv`
 - `beta1_filter_marks.csv`, `beta1_filter_marks_long.csv`
 - `series_frame.parquet` — Serien-Frame des ersten Skripts (Cache)
+
+---
+
+# Nachtrag 1 – Korrektur: die Kappung war zirkulär belegt
+
+Abschnitt 2 schloss aus `num_updates_distribution.csv` (Maximum 20, keine
+Serie darüber), die Kappung sei „die Signatur der Datenquelle". **Dieser
+Schluss war nicht gedeckt.** `shape_odds.py:104` verwirft selbst alle Gruppen
+mit mehr als 21 Beobachtungen:
+
+```python
+group_sizes = df.groupby(["Matchup", "Bookies"])["Matchup"].transform(len)
+df = df[group_sizes <= 21]
+```
+
+Im `shaped_data.h5` **kann** per Konstruktion nichts über 20 Updates stehen.
+Die Verteilung dort belegt also unseren eigenen Filter, nicht die Plattform.
+
+## Der Nachweis am Rohbestand
+
+Skript `_censoring_raw_cap.py`, Quelle `data/raw/crawled_odds.json` — vor
+jedem eigenen Filter. Je Bookmaker-Eintrag ist die Zahl der Zeitstempel vor
+`Opening odds` die Zahl der angezeigten Updates.
+
+**1.425.576 rohe Bookmaker-Serien.**
+
+| Updates | 16 | 17 | 18 | 19 | **20** | > 20 |
+|---|---:|---:|---:|---:|---:|---:|
+| Serien | 11.547 | 10.199 | 8.391 | 7.164 | **54.054** | **0** |
+
+- **Maximum 20, keine einzige Serie darüber** — unabhängig von unserem Code.
+- **Sprung um Faktor 7,5** von 19 auf 20 (7.164 → 54.054).
+
+Die Kappung ist damit belegt eine Eigenschaft von Oddsportal. Die Aussage aus
+Abschnitt 2 bleibt richtig, sie steht jetzt nur auf tragfähigem Grund.
+
+**Nebenbefund:** weil im Rohbestand nichts über 20 Updates liegt, entfernt die
+`shape_odds`-Regel `<= 21 Beobachtungen` **null Serien**; sie ist bindungslos.
+Zwischen ihr und dem Modellfilter `NumOddsMvt < 20` liegt genau
+`NumOddsMvt == 20`, also die 8.846 zensierten Serien. Die einzige wirksame
+Restriktion ist unsere.
+
+Datei: `raw_updates_distribution.csv`.
+
+---
+
+# Nachtrag 2 – Alternative Filterschwellen
+
+Abschnitt 4 vergleicht nur zwei Fälle (Produktionsfilter gegen alle Serien).
+Skript `_censoring_thresholds.py` schätzt dieselbe Spezifikation M_c über
+eine Reihe von Schwellen; der Frame wird einmal gebaut und danach nur
+geteilt, die Schwellen unterscheiden sich also ausschliesslich in der
+Zeilenmenge.
+
+| Stunden vor Anpfiff | < 10 | < 15 | < 18 | **< 20** (Produktion) | < 21 (alle) |
+|---:|---:|---:|---:|---:|---:|
+| 24 | 0,9952 | 1,1338 | 1,2055 | **1,2413** | 1,2513 |
+| 12 | 1,0783 | 1,0881 | 1,1642 | **1,1853** | 1,1516 |
+| 6 | 0,8684 | 0,9099 | 0,9782 | **1,0285** | 0,9728 |
+| 3 | 0,7800 | 0,7966 | 0,8598 | **0,9302** | 0,9020 |
+| 1 | 0,7972 | 0,7309 | 0,7938 | **0,8736** | 0,9037 |
+| 0,25 | 0,7927 | 0,7163 | 0,7884 | **0,8664** | 0,9094 |
+| **Serien** | 123.795 | 157.065 | 168.489 | **175.166** | 184.012 |
+
+Grösste absolute Abweichung von der Produktionsschwelle: **0,2461**, bei
+`< 10` am fernen Rand.
+
+## Lesart – differenziert, nicht pauschal
+
+- **Die Form hält an jeder Schwelle.** β₁ fällt überall vom fernen Rand zum
+  Anpfiff hin und liegt anpfiffnah unter 1: von 0,995 → 0,793 bei `< 10` bis
+  1,251 → 0,909 bei allen Serien. Unterreaktion früh, Überreaktion spät ist
+  gegen die Schwelle unempfindlich.
+- **Das Niveau nicht.** Engere Schwellen senken β₁ systematisch, am stärksten
+  früh im Fenster (24 h: 1,241 → 0,995 bei `< 10`).
+- **Grössenordnung:** Bei `< 18` und bei allen Serien bleibt die Abweichung
+  unter 0,080, gemessen an den cluster-robusten SEs (Faktor ≈ 2,1 auf
+  modellbasierte ~0,048, also ~0,10) **unter einem Standardfehler**. Bei
+  `< 10` sind 0,246 dagegen rund **2,4 Standardfehler** — diese Schwelle
+  verwirft aber auch 30 % der Serien.
+
+**Für die Antwort verwertbar:** robust gegen Schwellen in der Nähe der
+gewählten, nicht robust gegen eine drastische Verschärfung. Das gehört so
+gesagt.
+
+Dateien: `beta1_thresholds.csv`, `beta1_thresholds_long.csv`.
