@@ -487,6 +487,46 @@ erben diese rohe Größe.
 - Konsistenz: GMM/Bayesian/Unbiasedness nutzen dieselbe rohe 1/dez-Größe wie
   die Cross-Sections (Detail in open_questions.md, Abschnitt Margen/
   Normalisierung).
+
+**KORREKTUR (09.08.2026) – die „exakte Zentrierung auf 0,50" trägt nicht.**
+Der oben unter *Level-Effekt* notierte Satz, die Normalisierung zentriere die
+Player-1-Opening-Wahrscheinlichkeit **exakt auf 0,50 (roh: Median 0,5405)**,
+ist auf der isolierten Vergleichsbasis `C1_refactor` → `C_normalized`
+(identischer Code, identische Daten, einziger Unterschied das
+`normalize`-Flag) **nicht reproduzierbar**. Gemessen auf `wide_imputed.h5`
+beider Stufen, Spalte `OddsMvt0`:
+
+| | C1_refactor (roh) | C_normalized (normalisiert) |
+|---|---:|---:|
+| Median Opening-Preis | **0,5464** | **0,5063** |
+| Intercept Table 6 (`res_wp_re.tex`) | 0,505 | 0,504 |
+
+Zwei getrennte Befunde, die vorher vermengt waren:
+
+1. **Der Level-Effekt existiert** – die Normalisierung nimmt rund 4 pp aus dem
+   Preisniveau (0,5464 → 0,5063), größenordnungsmäßig die halbe Marge bei
+   7,8 % Overround. Das Ergebnis ist aber **0,5063, nicht 0,5000**, und das
+   ist kein Margenrest: die Normalisierung erzwingt p₁ + p₂ = 1, nicht
+   p₁ = 0,5. Die verbleibenden 0,006 sind eine echte Asymmetrie (Spieler 1
+   ist etwas häufiger Favorit).
+2. **Der Intercept bewegt sich gar nicht** – 0,505 roh gegen 0,504
+   normalisiert. Er lag **nie** bei 0,54.
+
+Woher die alten Zahlen stammen: 0,5405 aus der deskriptiven Margen-Diagnose
+auf einer rekonstruierten Fassung, 0,5438 aus dem Papertext (`tex:628`, dort
+als panelgewichtetes Mittel über alle Beobachtungen, nicht als Median der
+Opening-Preise). Beides **andere Stichproben und andere Statistiken** als der
+C1/C2-Vergleich – die Differenz ist kein Widerspruch, sondern ein
+Objektwechsel.
+
+**Konsequenz für die Antworten:** Die Aussage „der Intercept um 0,5 ist ein
+Margen-Artefakt" trägt in dieser Form **nicht** und darf auch in der
+**R2-C1**-Antwort (und R2-M5) nicht verwendet werden. Der R2-C1-Einwand zum
+unintuitiven Intercept ist durch die Normalisierung **nicht** erledigt und
+braucht eine eigene Antwort. Die R1-i-Antwort in `reply1_20260728.tex`
+formuliert entsprechend nur noch, dass die Normalisierung den Level-Markup
+entfernt, ohne eine Zentrierungszahl zu behaupten.
+
 **Entscheidung:** Umgestellt auf margin-bereinigte, auf Summe 1 normierte
 Wahrscheinlichkeiten statt roher inverser Quoten – umgesetzt und als
 Referenz-Baseline gesetzt (Tag `revision-baseline`). Die drei
@@ -945,20 +985,63 @@ Kontinuum ohne Phasen (siehe auch R2-C7). Die Inferenz läuft über
 cluster-robuste Standardfehler auf Matchup-Ebene, validiert per
 Cluster-Bootstrap; die bisherigen SEs waren um Faktor 3,6 zu klein.
 
-**Beleg/Validierung:** `revision/snapshots/continuous_unbiasedness/`
-(Commits `5680d91`, `9c05946`, `56a0af6`).
+**Nachtrag – simultane Inferenz (die wörtliche Forderung des Referees).**
+Auf die B = 100 Cluster-Bootstrap-Replikate wurde ein **sup-t-Band** gesetzt.
+Die Kovarianz von β₁(·) über das Gitter hat effektiven **Rang 5** (k = 6-
+Splinebasis), ist also aus 100 Replikaten gut geschätzt; kritischer Wert
+**2,617 gegen 1,960** punktweise. Ergebnis in zwei Teilen:
+- **H0: β₁(t) = 1 für alle t → NICHT verworfen** (sup-|t| = 2,509,
+  p = 0,066). Simultan schließen **0 von 96** Gitterpunkten die 1 aus, gegen
+  **44 von 96** punktweise. Wo genau der Preis verzerrt ist, lässt sich nicht
+  mehr sagen. Der Test liegt auf der 5-%-Grenze und kippt mit dem
+  Berichtsfenster (0,066 / 0,057 / 0,044 bei Trim 48/36/24 h) – bewusst als
+  *nicht verworfen* berichtet, nicht als knapper Erfolg beim engsten Trim.
+- **H0: β₁(t) konstant → VERWORFEN** (sup-|t| = 3,998, p = 0,0006, gegen
+  Trim unempfindlich). Randkontrast β₁(24 h) − β₁(0,25 h) = **0,477**,
+  SE 0,117, **t = 4,08**. Der Pfad existiert, seine Lokalisierung nicht.
 
-**Status:** umgesetzt (Diagnostik abgeschlossen, Paper-Text ausstehend)
+Gegenrechnung auf der publizierten Kurve: **49/50** Perzentile punktweise →
+47/50 unter Šidák → 18/50 mit SE × 3 → **1/50 unter beidem**. Die
+Multiplizität kostet fast nichts, die Clusterung fast alles.
+
+**Nachtrag – RMSE-Größenordnung (Teil 1 des Kommentars, vorher unbearbeitet).**
+Der geplottete `rmse` ist der **Residual-RMSE der Regression**
+(`fit_mixed_lm.py:60`), nicht der RMSE des Preises. Der direkte,
+kompositionsfreie Vergleich auf echten Beobachtungen (je Serie erste gegen
+letzte, matchup-cluster-robust): Brier **0,20428 → 0,20315**, Differenz
+**−0,00113**, SE 0,00026, **t = −4,39**. Signifikant, aber klein: **das
+Wettfenster steuert 2,5 % der Prognoseleistung des Preises gegenüber dem
+Münzwurf bei, 97,5 % stehen bei der ersten Beobachtung fest.** Der Referee hat
+in der Sache recht.
+
+**Und auch hier ist die Imputation im Spiel:** dieselbe Größe auf dem
+Produktionsraster gerechnet ergibt −0,00462 statt −0,00113, **Faktor 4,08**.
+Die späten Werte stimmen überein (0,20330 gegen 0,20315), die ganze Differenz
+sitzt am frühen Rand – derselbe Mechanismus wie beim β₁-Pfad.
+
+**Einschränkung:** Der Formtest läuft auf der vollen kontinuierlichen
+Stichprobe (Zelle C). Auf den vollständig beobachteten Serien (Zelle D) ist
+der Pfad flacher: 1,299 → 1,087 statt 1,289 → 0,771. Richtung robust,
+Amplitude teilweise Komposition. Bootstrap-Replikate für Zelle D existieren
+nicht.
+
+**Beleg/Validierung:** `revision/snapshots/continuous_unbiasedness/`
+(Commits `5680d91`, `9c05946`, `56a0af6`); simultane Inferenz und
+RMSE-Einordnung in `continuous_unbiasedness/main_spec/`, Nachtrag zu
+`README.md`, Skripte `_simultaneous.py` und `_rmse_magnitude.py`.
+
+**Status:** Antwort im Reply-Dokument entworfen; Paper-Text ausstehend
 
 **Superseded:** —
 
-**Für Response-Dokument:** Wir werden dem Referee zustimmen und die
-Überinterpretation zurücknehmen. Wir werden zeigen, dass **keine einzige** der
-48 benachbarten punktweisen Änderungen signifikant ist (größtes |z| = 1,93),
-das Phasen-Narrativ also auf Rauschen beruht, und es durch eine monotone
-Beschreibung des Koeffizientenpfads ersetzen. Wir werden den Pfad künftig aus
-einer kontinuierlichen Spezifikation mit cluster-robuster Inferenz berichten
-statt aus wiederholten punktweisen Intervallen.
+**Für Response-Dokument:** Entworfen in `revision/reply1_20260808.tex`
+(R1, Kommentar 7), dreiteilig: (i) die RMSE-Größenordnung wird zugestanden und
+mit 2,5 % / 97,5 % beziffert, plus Skill-Score-Einordnung (Querverweis
+R2-M7); (ii) das Phasen-Narrativ wird zurückgenommen, belegt mit der Tabelle
+49/50 → 1/50; (iii) an seine Stelle treten das glatte dynamische Modell und
+die beiden globalen Tests – *wo* der Preis verzerrt ist, sagen wir nicht mehr,
+*dass* es einen Koeffizientenpfad gibt, sagen wir jetzt formal. Anschluss an
+R2-C7 (Lernen als Kontinuum).
 
 ## R1-viii – Favorite-Longshot-Bias direkt zeigen
 **Kommentar (kondensiert):** Favorite-Longshot-Ergebnisse plausibel, aber

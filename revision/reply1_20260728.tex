@@ -1,0 +1,478 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage[english]{babel}
+
+\usepackage{t1enc}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{ae}
+\newcommand{\bs}{\boldsymbol}
+\newcounter{b}
+\textwidth 16cm
+\textheight 23cm
+\topmargin -1.7cm
+\evensidemargin-0.1cm
+\oddsidemargin -0.1cm
+\parskip 0.5em plus 0.01ex minus 0.01ex
+\parindent 0.0cm
+\newcommand{\sssty}{\scriptscriptstyle}
+\setlength{\unitlength}{1cm}
+
+\usepackage{enumerate}
+\usepackage[longnamesfirst, round]{natbib}
+\usepackage{amsthm}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{url}
+\usepackage{xcolor}
+\epstopdfsetup{update}
+
+% Marks a comment that we address by argumentation alone (no new empirical analysis required).
+\newcommand{\argX}{\textcolor{green!55!black}{\textbf{[X --- addressed by argument]}}}
+\newcommand{\argT}{\textcolor{blue!75!black}{\textbf{[TD]}}}
+
+\newcommand{\Reply}[1]{\par\noindent\textbf{Reply:} #1}
+
+\usepackage[position=bottom,justification=centerfirst, labelfont=bf]{caption}
+
+\usepackage{lscape}
+\bibliographystyle{ecta}
+\usepackage{booktabs}
+\renewcommand{\thetable}{R.\arabic{table}}
+
+\renewcommand{\thefigure}{R.\arabic{figure}}
+\newcommand{\erw}[1]{\mathbb{E}\left[ \#1 \right]}
+
+
+
+\begin{document}
+\itemsep6pt
+
+\onehalfspacing
+
+\begin{center}
+\textbf{\Large Revision of \\[6pt]
+``Price Formation Dynamics and Learning in the Tennis
+Sports Betting Market''}\\[6pt]
+Manuscript Ref. JFM\_2018\_269\\[24pt]
+\end{center}
+
+
+\begin{flushright}
+   \today
+\end{flushright}
+
+Dear Referees,\\
+Dear Editor,\\
+
+Thank you very much for your very constructive and helpful comments and suggestions. The paper has undergone a substantial revision, and in so doing we hope that your comments and suggestions have been addressed appropriately. Below you will find our detailed responses to the individual remarks. 
+
+
+
+
+\newpage
+
+
+\subsection*{Reply to Associate Editor}
+
+\begin{enumerate}
+\item \textit{As someone who has often scraped Oddsportal and thought about different uses of the data, it is great to see this work looking at pre-match movements - which are well documented there within a short period of the match completing (which is a feature which perhaps warrants a footnote when describing the data collection process). } \argX \argT
+
+\Reply{We thank the Associate Editor for this observation and agree that it deserves an explicit note. Our scraper ran from 6 March to 28 November 2023 and polled Oddsportal's \emph{results} pages, recording a match only once its final result had been posted, so no series in our sample was retrieved before kickoff: across all scraped records the median lag was 19.1 hours after kickoff, and 92\% were collected within 48 hours. We add a footnote to Section~4 stating this, because it is precisely what makes the observed price path the complete history as Oddsportal displays it, rather than a path truncated by the timing of our own collection --- the one remaining restriction, opening odds plus the last 20 updates, is imposed by the platform and is already noted in Section~4.1.}
+
+\item \textit{As you focus on pre-match, rather than in-play movements which has arguably been the dominant focus of the literature over many years now, your comment in the literature review, discounting the results of another paper because most of their data is not in play ("However, the focus on goals scored near half-time limits the generalizability of their findings to events occurring during regular play") seems a little inconsistent with what you are seeking to achieve here - emphasis on the importance of non-in-play betting activities. } \argX \argT
+
+\Reply{We agree that, as currently worded, this passage reads as an inconsistency and thank the Associate Editor for flagging it. As this passage was meant to highlight existing literature concerned with information efficiency in sports betting and now yet about in-play or pre-game related questions, we decided to delete the sentence as it is not needed at this stage and we tried to observe the word limit.
+% Our intention was not to discount in-play research as such, but to note that Croxson et al.'s (2014) evidence is drawn from a narrow window (goals scored near half-time) that limits how far their findings on in-play responsiveness generalize even to \emph{other} in-play events, let alone to the pre-match window we study. In-play and pre-match price formation are complementary but distinct margins of price discovery, and our paper's contribution is specifically about the latter, which remains comparatively understudied (as we state in Section~1). We will revise the sentence to make this distinction explicit, for example: ``However, because their evidence is drawn from a narrow, high-salience in-play window (goals scored near half-time), it speaks primarily to the market's response to discrete, unambiguous in-play events, and generalizes less directly to the continuous, less event-driven learning process we study in the pre-match period.'' This removes the implication that we are discounting in-play work generally, while preserving the substantive point that our pre-match setting differs from theirs.
+}
+
+\item \textit{I would like to see you cover the comments of the reviewers, with a particular focus on the concerns regarding censoring from R1. If you are able to take on board (or rebut) these comments it will be great to review a revised version of your manuscript. }
+We agree that this is an important aspect of our analysis. Please refer to our response to R1's Comment 5.
+
+\end{enumerate}
+
+
+
+
+\subsection*{Reply to Referee Report 1}
+\begin{enumerate}
+\item \textit{ The interpretation of implied probabilities requires more care. The paper uses inverse
+decimal odds as prices, but these implied probabilities include bookmaker margins.
+This matters for every forecast evaluation exercise. Opening and closing prices may
+differ not only because beliefs change, but also because margins change, because
+margins are allocated asymmetrically across players, or because bookmakers adjust
+overrounds strategically. The authors should report results using margin-adjusted
+probabilities, for example by normalizing the two implied probabilities to sum to one, and should examine whether the findings are robust to alternative margin-removal
+methods.}
+
+\Reply{We follow this recommendation in full. Where the submitted version used the raw one-sided inverse decimal odds, all prices are now margin-adjusted by proportional normalisation,
+\begin{equation*}
+p^{\text{old}} = \frac{1}{o_1}
+\qquad \longrightarrow \qquad
+p^{\text{new}} = \frac{1/o_1}{1/o_1 + 1/o_2},
+\end{equation*}
+and this runs consistently through the entire pipeline --- cross-sections, GMM estimation and unbiasedness regressions --- so that every result we report is now based on the margin-adjusted price; it is not appended as a robustness check. The referee's concern is quantitatively justified: the median overround is 7.81\% at opening and 7.60\% at closing, so the margin does shrink systematically over the betting window and part of the raw open-to-close movement is margin compression rather than belief revision, and the raw price level sat roughly half a margin too high. The central findings are nevertheless robust (Table~\ref{tab:r1c1}): the ranking of bookmakers by forecast accuracy is practically unchanged, the monotone pattern of Table~5 is preserved with slightly sharper extreme bins, and the estimated learning rates are barely affected. A useful side effect is that normalisation re-centres the implied probability of Player~1, which removes a systematic level markup from all quantities measured against the match outcome and makes the intercepts easier to interpret. So far we have implemented proportional normalisation only; we would be glad to add Shin's method or the odds-ratio (power) method as a robustness check should the referee consider it useful.
+
+\begin{table}[h]
+\centering
+\caption{Raw versus margin-adjusted probabilities. Both columns come from the same code and the same data; the only difference is the normalisation.}
+\label{tab:r1c1}
+\small
+\begin{tabular}{lrr}
+\toprule
+ & Raw inverse odds & Margin-adjusted \\
+\midrule
+Median overround, opening / closing   & 7.81\% / 7.60\% & \multicolumn{1}{c}{---} \\
+Median opening probability, Player 1  & 0.5464 & 0.5063 \\
+Winning rate, lowest revision bin (Table~5)  & 0.3369 & 0.3292 \\
+Winning rate, highest revision bin (Table~5) & 0.6345 & 0.6519 \\
+Bookmaker RMSE ranking & \multicolumn{2}{c}{Spearman 0.992, largest shift 2 places} \\
+\bottomrule
+\end{tabular}
+\end{table}
+}
+
+\item \textit{The dependence structure of the data is not adequately handled. The same tennis
+match appears across multiple bookmakers and shares the same terminal outcome.
+Treating bookmaker heterogeneity through bookmaker random effects is not suffi-
+cient, because observations are also clustered at the match level. Standard errors
+may be substantially understated if the same match outcome is replicated across
+bookmakers. The regressions should include crossed random effects for bookmakers
+and matches, or at least use cluster-robust inference at the match level. Additional
+dependence may arise from tournaments or players. }
+
+\item \textit{The claim that price movements are driven by rational bettors is too strong. The em-
+pirical evidence shows that open-to-close price changes are associated with subse-
+quent match outcomes and that closing prices are more accurate than opening prices.
+However, this does not identify the mechanism. Price movements may reflect in-
+formed bettors, but they may also reflect bookmakers copying sharper bookmakers,
+internal risk-management rules, changes in margins, public information, arbitrage
+across bookmakers, or mechanical adjustment algorithms. Without betting volume,
+order-flow data, or a clearer source of exogenous information, the paper should avoid
+attributing the results specifically to rational bettors. } \argX
+
+\Reply{We agree that our data cannot directly identify who trades or why, and that several alternative mechanisms -- bookmakers copying sharper competitors, internal risk-management rules, mechanical repricing algorithms, margin changes, or cross-bookmaker arbitrage -- could also generate the pattern that closing prices predict outcomes better than opening prices. We will revise the manuscript to consistently frame our results as evidence of \emph{price discovery} (an increase in informational content from open to close), rather than asserting a specific behavioral mechanism as established fact. Concretely, we will replace phrases such as ``the market identifies and corrects mispricing'' and ``rational bettors force bookmakers to adjust prices'' (pp.~15, 21--22) with more cautious language, e.g., ``prices become more informative from open to close, consistent with -- but not uniquely identifying -- informed betting activity'', and explicitly list the alternative mechanisms noted by the referee as competing explanations that our data cannot rule out. This same revision addresses the closely related concerns raised in Comment~9 below, by Referee~2 (Critical Comment~5), and by Referee~3 (Comment~4).}
+
+\item \textit{The distinction between soft and sharp bookmakers needs to be clarified. The paper
+states that it focuses on the soft bookmaker market, yet the list of bookmakers appears
+to include bookmakers such as Pinnacle and Betfair, which are typically associated
+with sharper or exchange-like markets. The classification of bookmakers should be
+documented explicitly. The authors should either separate sharp and soft bookmakers
+or show that the main results are robust to excluding sharper books. }
+
+\item \textit{The Oddsportal data structure creates important limitations that need to be central
+to the analysis. The paper notes that Oddsportal provides only opening odds and
+the last 20 updates before kickoff. This means that the observed price path may be
+censored, especially for highly active markets. The subsequent restriction to time series with fewer than 20 price changes may remove precisely the matches with the
+most market activity and information flow. This could bias the analysis of learning.
+The authors should quantify how many observations are lost, compare included and
+excluded matches, and show that the conclusions are not driven by this selection.}
+
+\item \textit{The learning-rate estimation needs more explanation and validation. The GMM moment conditions are adapted from an asymptotic financial-market setting, but it is not
+obvious that the same learning-rate parameter has the same interpretation in a finite-
+horizon betting market with binary terminal outcomes, irregularly observed prices,
+bookmaker margins, and censored price histories. The paper should discuss whether
+the assumptions behind the Biais et al. (1999) framework are plausible here. } \argX
+
+\Reply{We agree that the Biais et al. (1999) framework was developed for an asymptotic, continuous, unbounded financial-market setting, whereas we apply it to a finite-horizon, binary-outcome market with irregularly spaced, margin-contaminated prices, and we will add a paragraph to Section~3.5 (Learning Rate) discussing these differences explicitly. Two features of the framework make it more portable to our setting than it may first appear. First, the moment conditions (Equation~9 in the manuscript) are constructed so that $\sigma^2$ cancels, making them robust to heteroskedasticity across time and matches -- precisely the property we need given our irregular observation grid and time-varying margins. Second, as we note following that equation, the moment conditions are invariant to a rescaling of $t$, which mitigates concerns about the arbitrary choice of a time origin in a finite-horizon market. We will clarify in the revised text that we interpret $\hat{\gamma}$ as a reduced-form measure of how quickly the price-outcome gap shrinks over our \emph{observed} window, rather than as a literal estimate of an asymptotic convergence rate, and will flag the transfer of an asymptotic framework to a finite window as an acknowledged limitation, consistent with how we already treat the comparison to Biais et al.'s and Vives's (1995) financial-market estimates as suggestive rather than directly comparable (Section~5.5).}
+
+\item \textit{The unbiasedness regressions are interpreted too strongly. Figure 3 suggests some
+movement of the slope coefficient toward one and a small decline in RMSE over the
+betting window. However, the economic magnitude of the RMSE decline appears
+modest. The narrative about phases of learning, pauses in learning, and resumed
+learning is based on repeated pointwise confidence intervals and should be treated
+cautiously. The authors should provide formal tests with simultaneous confidence
+bands or a smoother dynamic model of the coefficient path. }
+
+\item \textit{The favorite-longshot results are interesting, but the interpretation needs to be sharpened. The paper finds lower learning rates for longshots than favorites and interprets
+this as potentially related to the favorite-longshot bias. This is plausible, but the evidence is indirect. The authors should show directly whether opening and closing
+prices display favorite-longshot bias, whether the bias shrinks over the betting window, and whether the estimated learning rates are related to the correction of this
+bias. }
+
+\item \textit{The paper should be more careful with causal language. Statements such as “the
+market identifies and corrects mispricing” and “rational bettors force bookmakers to
+adjust prices” go beyond what is identified. The evidence is consistent with price discovery, but not conclusive about who learns, what information is learned, or whether price changes are caused by informed betting. A more cautious interpretation would
+improve the credibility of the paper.} \argX
+
+\Reply{This concern is closely related to Comment~3 above, and we will address both through the same revision of the manuscript's language. We will systematically review all causal statements about ``rational bettors'' and ``mispricing correction'' (including the specific phrases quoted by the referee) and replace them with language that separates what we directly observe -- price movements from open to close predict match outcomes, and closing prices dominate opening prices in accuracy -- from what we infer about the underlying mechanism. Where we retain an interpretive discussion of informed betting as a plausible driver, we will explicitly frame it as one interpretation consistent with the evidence rather than an identified causal channel, and will note the competing explanations listed in Comment~3.}
+
+
+\end{enumerate}
+
+\newpage
+\subsection*{Reply to Referee Report 2}
+
+\begin{enumerate}
+
+
+\item \textit{Critical Comment \#1: Modeling Choice in Equation 3\\[6pt]
+The specification in Equation 3 uses a binary win/loss outcome as the dependent variable with the change in price (open to close) as the primary independent variable. While this approach has some merit, it deviates from standard practice in the sports economics literature for this type of analysis. When the outcome variable is binary (win/loss), it is more appropriate to include the opening price itself as a control variable in the model, not just the change in price.\\[6pt]
+The recommended specification would include both the opening price and the change in price as independent variables. The opening price captures the baseline winning probability, while the change in price tests whether price movements contain additional predictive information. If the opening price is efficient, the coefficient on the price change variable should be statistically insignificant (after controlling for the opening price), as all relevant information should already be reflected in the opening price.\\[6pt]
+Your current specification relies on an intercept centered around 0.5, which is not intuitive and does not provide optimal model fit when estimating a model that includes bets that aren't 50-50 propositions (i.e., when including both favorites and longshots). Including the opening price as a covariate would better align with how winning probabilities are typically modeled in this literature and would make the results more interpretable. I encourage you to reconsider this specification in light of the broader sports economics literature.}
+
+
+
+\item \textit{Critical Comment \#2: Backward Imputation Strategy\\[6pt]
+I have concerns about the backward imputation strategy described on page 11 and in Appendix C. Based on my reading, the procedure appears to impute opening prices for bookmakers who enter the market later than others, but this approach may not appropriately capture the actual information environment those bookmakers faced. If my understanding is incorrect, the authors should provide much clearer explanation of what is being imputed and how the imputation method was implemented.\\[6pt]
+A bookmaker that posts odds later has the benefit of observing what other bookmakers have posted. There is learning that occurs while off-market—these bookmakers incorporate information from competitors' prices before posting their own opening odds. In many respects, their "opening" odds reflect not just their independent expectations but also expectations assisted by learning from other books already in the market.\\[6pt]
+I understand why you want consistent time horizons for your analysis, but I'm not convinced that backward imputation accurately reflects the theoretical opening price that a late-entering bookmaker would have posted. More fundamentally, you should consider whether learning has two distinct channels in your setting: (1) learning by posting to market and observing betting action, and (2) learning by waiting and observing the market before entering. The decision of when to post may itself be informative and should potentially be incorporated into your analysis rather than imputed away.} \argX
+
+\Reply{We will substantially expand our explanation of the imputation procedure (Appendix~B) to make explicit what is imputed: only the early-period observations that are missing for bookmakers who open their market after other bookmakers have already posted odds on the same match, so that all time series can be aligned to a common starting point. We agree with the referee that a late-entering bookmaker's true opening price plausibly already reflects information from bookmakers already active in the market -- this is precisely why our multivariate imputation model uses the \emph{contemporaneous} implied probabilities of other active bookmakers for the same match as predictive features (Appendix~B), rather than a naive backward- or forward-fill. In this sense, the imputed values are explicitly designed to approximate what a bookmaker observing the existing market would plausibly have posted, rather than an independent, ``as-if-isolated'' opening price, which partially addresses the referee's conceptual concern rather than imputing it away. We will clarify this design choice in the main text and explicitly acknowledge the referee's distinction between learning-by-posting and learning-by-waiting as a valuable conceptual point; fully modeling bookmakers' endogenous entry-timing decision is beyond the scope of the current paper, and we will flag it as a promising direction for future work in the Conclusion.}
+
+\item \textit{Critical Comment \#3: Use of Percentile-Based Timing\\[6pt]
+Your decision to use percentile-based timing rather than absolute time creates potential problems for interpretation. I understand the motivation—it creates a consistent set of observations regardless of how long before the match a bookmaker opens—but this approach assumes linearity in the learning process that may not hold.\\[6pt]
+Consider the following issue: a book that opens 18 hours before the match versus one that opens 9 hours before will have very different absolute time intervals represented by a single percentile. More specifically, a one-percentile change in the 18-hour window covers substantially more absolute time than a one-percentile change in the 9-hour window. If betting action and learning occur at similar absolute times across different matches (e.g., concentrated in the final two hours), then the relative time representation would be systematically distorted. Suppose, hypothetically, that most learning occurs in the final hour before the match. In the 18-hour window, the final hour represents only about 5-6 percentiles, while in the 9-hour window it represents about 11 percentiles. This means the same absolute learning period would be weighted very differently depending on the total betting window length.\\[6pt]
+You should consider whether absolute time would be more appropriate than relative time, at least for portions of your analysis.} \argX
+
+\Reply{We agree that percentile-based timing implicitly assumes a form of scale invariance in the learning process that need not hold if betting activity concentrates in absolute time (e.g., in the final hour) regardless of the total window length, and we will add this limitation explicitly to Sections~3 and~6. We note that the potential distortion is mitigated, though not eliminated, in our setting because betting windows are comparatively homogeneous: after restricting the sample to time series with durations between the thresholds reported in Section~4.1, the mean betting window is 26.7 hours with a standard deviation of 14.8 hours (Table~1) -- a narrower relative spread than the referee's illustrative 9-versus-18-hour comparison, though not narrow enough to rule out the concern entirely. We will revise the text to caveat explicitly that our percentile-based results represent an average pattern across matches with heterogeneous absolute window lengths, and that a one-percentile increment corresponds to different amounts of absolute time for different matches, tempering claims that rely on precise percentile locations (e.g., the ``12th to 30th percentile'' pause in learning identified in Section~5.4).}
+
+\item \textit{Critical Comment \#4: Interpreting Price Movements as Mispricing\\[6pt]
+Throughout the paper—particularly in your discussion of Equation 3 and Tables 5-6—you interpret price movements as evidence of mispricing or inefficiency in opening markets. This interpretation is not always warranted. Price movements can reflect new information arriving between opening and closing, rather than correction of initial mispricings.\\[6pt]
+For matches with very large price movements (more than 10-15\% changes in implied probability), it is especially important to consider whether new information may have emerged. Your statement on page 15 that "the market identifies both under- and overvalued players" presumes that opening prices were inefficient conditional on information available at opening. But opening prices might have been efficient under initial beliefs, with subsequent movements reflecting genuine news.\\[6pt]
+I'm not suggesting your interpretation is wrong—tennis does minimize the arrival of new information compared to other sports—but you need to be more careful and nuanced in how you characterize these results. Distinguish between what you can directly observe (price movements predict outcomes) and what you infer about the nature of those movements (correction of mispricing versus response to information).} \argX
+
+\Reply{We agree that price movements from open to close can reflect either the correction of an initial mispricing or the rational incorporation of genuinely new information arriving during the betting window, and that our current language does not always distinguish these possibilities. We will revise the relevant passages -- including the discussion of Equation~3, Tables~5--6, and the statement on p.~15 that ``the market identifies both under- and overvalued players'' -- to explicitly acknowledge the alternative explanation, particularly for the subset of matches with large price movements (exceeding roughly 10--15\% in implied probability) where genuine news is more plausible. We will retain our argument, already made in the Discussion (Section~6), that tennis is comparatively well suited to isolating mispricing-correction from information-arrival relative to team sports, because outcomes hinge on fewer discrete, newsworthy pre-match events (e.g., lineup changes); but we agree the paper should more carefully separate what is directly observed (price movements predict outcomes) from what is inferred (the mechanism generating those movements), and will adjust our language throughout accordingly.}
+
+\item \textit{Critical Comment \#5: Attribution to Rational Bettors\\[6pt]
+You repeatedly state throughout the paper that "market learning is driven primarily by the actions of rational bettors who identify and exploit mispricings" (e.g., pages 15, 21-22). While this interpretation may be correct, you do not directly observe who is betting or whether specific bettors are "rational" versus "irrational." You observe price movements and can infer that those movements contain information, but attributing this specifically to rational bettor behavior goes beyond what your data can support.\\[6pt]
+You can certainly conjecture about the mechanism and cite theoretical or empirical literature that supports this interpretation, but stating it as established fact in your paper is inappropriate. Please revise these statements to reflect that this is an inference about the mechanism rather than a direct finding.} \argX
+
+\Reply{This concern echoes Referee~1's Comments~3 and~9, and Referee~3's Comment~4, and we will address all four through the same, consistent revision of the manuscript's language (see our response to Referee~1, Comment~3, for the full argument). In brief, we will replace assertions that market learning ``is driven primarily by the actions of rational bettors who identify and exploit mispricings'' (pp.~15, 21--22) with language that presents this as one plausible interpretation of the evidence -- consistent with, but not established by, our data -- and will explicitly cite the alternative mechanisms (bookmaker copying, risk management, mechanical repricing, margin adjustment) that could equally generate the observed pattern.}
+
+\item \textit{Critical Comment \#6: Statistical Significance of Slope Differences in Figure 2\\[6pt]
+In Figure 2 and the surrounding discussion, you state that "price movements of some bookmakers are more informative for explaining match outcomes, with steeper slopes indicating greater explanatory power." However, you do not test whether the slope parameters are statistically significantly different from one another across bookmakers. If you are going to make inferential claims about bookmaker heterogeneity, you need to demonstrate that these differences are statistically meaningful rather than simply presenting the point slope estimates.}
+
+\item \textit{Critical Comment \#7: Characterizing Learning as Binary\\[6pt]
+Your discussion on page 16 characterizes learning as binary—either present or absent—when you state that $\beta$1>1.
+You conclude $\beta$1>1 provides "no evidence of learning." This characterization is misleading. Any outcome where $\beta$1>0 provides evidence of some learning, with $\beta$1=1 representing complete learning. When $\beta$1>1, you have evidence of partial learning (underreaction), not an absence of learning.\\[6pt]
+More generally, learning should be treated as a continuum rather than a binary state. Prices can be improving (learning) while still exhibiting bias (incomplete learning). Please revise your discussion to reflect this more nuanced interpretation.} \argX
+
+\Reply{We agree with the referee's characterization and will revise the relevant discussion in Section~5.4 (p.~16). Our statement that $\beta_1 > 1$ implies ``no evidence of learning'' was imprecise: as the referee notes, $\beta_1 = 1$ corresponds to complete learning, $\beta_1 \in (0,1)$ corresponds to partial learning with underreaction, and it is only $\beta_1 \le 0$ that indicates intermediate prices carry no informational content. Values of $\beta_1$ significantly greater than one, as observed shortly after market opening in our results, indicate that the price already contains substantial -- if incomplete and still biased -- information, not an absence of learning. We will revise the text to present learning as a continuum, as suggested, and adjust our narrative description of Figure~3 accordingly (e.g., describing the early period as exhibiting ``partial, biased learning'' rather than ``no evidence of learning'').}
+
+\item \textit{Critical Comment \#8: Intuitive Interpretation of Learning Rates\\[6pt]
+The learning rate estimates are central to your contribution, but the magnitudes lack intuitive interpretation. What does a learning rate of 0.05 versus 0.03 mean in practical terms? How quickly does information get incorporated? What fraction of the mispricing gets corrected over what time period?\\[6pt]
+Your comparison to financial markets is helpful but limited (as you acknowledge). It would strengthen the paper considerably if you could provide additional context—either through comparison to learning rates in similar markets (other sports betting contexts if available) or through simulation/calculation that translates these learning rates into more interpretable metrics (e.g., "a learning rate of 0.05 means that 50\% of mispricing is corrected within X hours"). In general, whenever you present units or parameters that are not immediately interpretable, you should provide context for readability.} \argX
+
+\Reply{We agree the learning-rate magnitudes need a more concrete interpretation. Because our estimating relationship implies $p_t - \omega = \varepsilon / t^\gamma \cdot \sigma$, the implied pricing error shrinks proportionally to $t^{-\gamma}$. We can use this relationship to translate $\gamma$ into an interpretable half-life: the (percentile) time needed for the expected squared pricing error to halve, relative to a reference percentile $t_0$, is $t_{1/2} = 2^{1/(2\gamma)} \cdot t_0$. We will add this calculation to Section~5.5, evaluated at our estimated average learning rate and, separately, at the favorite and longshot medians reported in Section~5.5, together with a short worked numerical example, so that readers can translate an abstract learning-rate estimate into an intuitive statement about how much of the betting window is needed for the pricing error to fall by half.}
+
+
+
+\item \textit{Minor Comment \#1: Introduction Structure\\[6pt]
+The introduction contains substantial literature review before clearly establishing what the paper accomplishes. I would encourage you to lead with your contribution—what you're studying, why it matters, and what you find—before delving into detailed literature discussion. The current structure makes it difficult for readers to understand the paper's objectives in the opening pages.} \argX
+
+\Reply{We agree and will restructure the Introduction to lead with a concise statement of our research question, empirical setting, and main findings, before turning to the detailed literature review, following the referee's suggestion.}
+
+\item \textit{Minor Comment \#2: Moskowitz (2021) Paragraph\\[6pt]
+The paragraph discussing Moskowitz (2021) and the value of sports betting markets as laboratories for studying broader market phenomena (pages 2-3) may be unnecessary. This point is well-established in the literature, and most readers in this area will already understand the parallel. Depending on your target journal's readership, this context may be appropriate, but it could likely be condensed or removed to tighten the introduction.} \argX
+
+\Reply{We agree this paragraph can be condensed. We will shorten the discussion of Moskowitz (2021) and the sports-betting-markets-as-laboratories argument (pp.~2--3) to a brief motivating remark, moving more detailed discussion to a footnote where appropriate, to tighten the Introduction.}
+
+\item \textit{Minor Comment \#3: Characterization of Sharp vs. Soft Bookmakers\\[6pt]
+On page 3, you state that "sports betting markets can broadly be divided into sharp bookmakers, which primarily serve informed bettors and adjust prices quickly, and soft bookmakers, which cater to recreational bettors and often maintain less efficient pricing."\\[6pt]
+This characterization oversimplifies current market structure. A single bookmaker can operate in both spaces simultaneously, taking action from sharp bettors (while imposing limits) to gain information, then using that information to set better lines for recreational bettors. The distinction is not between different types of bookmakers but between how a given bookmaker treats different types of customers. I encourage you to revise this discussion to more accurately reflect how modern sports betting markets operate.} \argX
+
+\Reply{We agree that our current characterization (p.~3) oversimplifies the sharp/soft distinction as a property of bookmakers rather than of how a given bookmaker treats different customer segments. We will revise this passage to describe sharp and soft behavior as customer-facing strategies that a single bookmaker can apply simultaneously (e.g., limiting sharp bettors while using the resulting information to set retail-facing lines), rather than as a strict typology of bookmakers, and will clarify that our ``soft market'' framing refers to the retail-facing prices captured by our data source, not a claim that every included bookmaker operates exclusively in this mode. This revision also speaks to the related classification concern raised by Referee~1 (Comment~4) regarding the presence of Pinnacle and Betfair in our sample.}
+
+\item \textit{Minor Comment \#4: Defining Metrics with Examples\\[6pt]
+It would be helpful to provide concrete numerical examples when introducing metrics like close-to-end returns, open-to-close returns, and other ratios. While you define these verbally, worked examples would make the concepts more accessible and reduce reader confusion.} \argX
+
+\Reply{We agree and will add concrete numerical examples when introducing close-to-end returns, open-to-close returns, and related metrics in Section~3, to complement the verbal definitions already provided.}
+
+\item \textit{Minor Comment \#5: Statements About 0.5 Winning Rate\\[6pt]
+You state on page 6 that "the winning rate of players who become more favored during betting should exceed 0.5" and "conversely, the winning rate of players who become less favored should fall below 0.5." This statement is only true in aggregate (averaging across many bets), not for individual bets. A player with a 20\% win probability whose odds improve to 30\% is becoming more favored but remains well below 50\%.\\[6pt]
+More generally, throughout the paper you make statements about 0.5 thresholds without explicitly clarifying that you're referring to averages across the sample. This creates confusion. Please be more careful and explicit when making these averaging assumptions.} \argX
+
+\Reply{We agree this statement (p.~6) is only true as an average across many bets, not for any individual bet -- e.g., a player at a 20\% opening probability whose price improves to 30\% remains more likely to lose than win. We will revise this statement and all similar statements throughout the paper to explicitly clarify that thresholds around 0.5 refer to sample averages across matches with similar price-change magnitudes, not predictions for individual matches. The same clarification also resolves the related concern raised in Minor Comment~9 below.}
+
+\item \textit{Minor Comment \#6: Balanced Book Theory\\[6pt]
+You place substantial emphasis on balanced book theory throughout the paper. For example, on page 6 you state: "when rational bettors dominate irrational bettors in the market in terms of aggregated betting volume, the undervalued player attracts higher stakes relative to their initial price. As a result, bookmakers need to adjust the price upward to balance the book by the closing."\\[6pt]
+This presumes that bookmakers are primarily trying to balance their books, but there is considerable empirical evidence that many bookmakers do not operate this way—they are willing to take positions when they believe their prices are more accurate than the market's. I encourage you to go through the paper and reconsider how you invoke balanced book theory, as you may be misrepresenting this aspect of the sports wagering literature.} \argX
+
+\Reply{We agree that our discussion of balanced-book behavior (p.~6 and elsewhere) currently presents it as the dominant bookmaker strategy without sufficiently acknowledging the substantial evidence and practice of bookmakers taking directional positions when they believe their own prices are more accurate than the market, particularly among sharper, limit-taking books. We will revise the relevant passages to present balanced-book adjustment as one plausible mechanism generating the observed price movements, alongside proprietary risk-taking, and temper claims that assume balanced-book behavior as the default or universal bookmaker objective.}
+
+\item \textit{Minor Comment \#7: Units and Baseline in Figure 1\\[6pt]
+On page 12, you state that "all bookmakers show similar prediction accuracy based on opening prices, with RMSE values clustering around 0.45. These values suggest that the bookmakers' models make fairly accurate predictions."\\[6pt]
+I would like you to explain these units more clearly. What does an RMSE of 0.45 mean intuitively? What baseline should we use to determine whether 0.45 represents accurate or inaccurate predictions? Without context, readers cannot assess whether this represents good or poor performance.\\[6pt]
+Additionally, Figure 1 would be more informative if it showed not just RMSE but also average posting time (whether each bookmaker tends to post earlier or later than average). Bookmakers that post later may appear to have better model fit simply because they benefit from observing competitors' prices before posting.}
+
+\item \textit{Minor Comment \#8: Intuition for Variance Differences Across Bookmakers\\[6pt]
+Table 7 shows that closing forecast error variance differs across bookmakers. I found the overall finding that closing prices have higher variance than opening prices to be interesting and valuable, but I would like more intuition about the cross-sectional variation. Why would certain books (like 10Bet) have notably different forecast variance at closing compared to others, especially if accuracy improves for everyone? Is this mostly random noise given sample sizes, or is there something systematic? Should we focus on aggregate results rather than bookmaker-specific patterns?} \argX
+
+\Reply{We will add discussion providing intuition for the cross-sectional variation in closing-price forecast-error variance documented in Table~7. Plausible contributors include differences in per-bookmaker sample size (smaller books are more susceptible to sampling noise in a variance estimate), differences in the composition of matches and competitions each bookmaker covers, and differences in position-taking versus balanced-book strategies across bookmakers (see also our response to Minor Comment~6). We will note explicitly that, given the relatively small inter-bookmaker variance components already reported alongside our random-effects models (Tables~2--3 and~6), our substantive conclusions rest primarily on the aggregate, pooled results, and that bookmaker-specific patterns such as 10Bet's should be read as descriptive rather than as robust structural differences.}
+
+\item \textit{Minor Comment \#9: Relevance of Table 5, Table 6, and Equation 3\\[6pt]
+The finding that bets experiencing larger positive price movements have higher winning rates is not particularly surprising or novel in its current presentation. Of course matches with the biggest positive price movements will have higher win probabilities—this is almost definitional if prices contain any information at all.\\[6pt]
+Additionally, your statement that "if prices do not change, winning rates are approximately 0.5" is not correct as written. The average across the sample might be 0.5, but this does not apply to any specific bet. A favorite priced at 0.70 whose price doesn't change still has a 70\% winning probability, not 50\%.\\[6pt]
+I'm not suggesting you remove this analysis entirely, but consider whether it adds sufficient value given its current framing, or whether it could be streamlined or repositioned as confirmatory rather than a primary result.} \argX
+
+\Reply{We agree with both points. First, regarding the statement that ``if prices do not change, winning rates are approximately 0.5'': as with Minor Comment~5, this is only true as an average across matches with near-zero price changes (which are naturally dominated by initially close-to-even matches), not as a general claim about any individual match; we will revise this language throughout. Second, we agree that the qualitative pattern in Table~5 -- that positive revisions predict wins -- is, at some level, close to definitional if prices contain any information at all. We will reposition this analysis explicitly as a confirmatory, descriptive complement to the more rigorous tests in Sections~5.2--5.4 (the AGS test and the unbiasedness regressions) rather than as a primary, stand-alone result, and streamline the corresponding discussion accordingly. We also refer the referee to our response to Referee~3, Comment~5, which addresses a related and more technical concern about the interpretation of Table~5 raised by that referee.}
+
+\item \textit{Minor Comment \#10: Removal of Figure 6\\[6pt]
+I would recommend removing Figure 6 (regression plot of learning rates versus RMSE). While the negative correlation you describe is interesting, the figure itself does not add much to the analysis and may be more distracting than helpful. The point could be made just as effectively in text.} \argX
+
+\Reply{We agree and will remove Figure~6 (the learning-rate-versus-RMSE regression plot) from the main text, retaining the qualitative description of the negative correlation between bookmaker-specific learning rates and opening RMSE (reported in Section~5.5) in the text only.}
+
+\item \textit{Minor Comment \#11: Direction and Manifestation of Learning\\[6pt]
+You document that learning rates differ between favorites and longshots, with favorites exhibiting higher learning rates. I would like more intuition about how this manifests in the data. In what direction do prices move? Does learning occur differently for favorites than longshots? How does it manifest mechanically?\\[6pt]
+For example, do markets systematically open too aggressively on favorites and learning corrects this? Do they open too conservatively? Providing more detailed description of the patterns would help readers understand not just that learning rates differ, but what that learning actually looks like in practice.}
+
+\item \textit{Minor Comment \#12: Learning Rates and Market Efficiency\\[6pt]
+A general question: what do learning rates look like when the market is already close to efficient? If a market is already relatively efficient at opening, is substantial learning even necessary? Could low learning rates indicate that less adaptation is needed rather than that the market is slow to adapt?\\[6pt]
+This question is relevant for interpreting your cross-sectional findings. Some markets (or bookmakers) might show higher learning rates because they are more inefficient at opening, while others show lower learning rates because they are already more efficient. Does your interpretation account for this possibility?} \argX
+
+\Reply{This is a valuable interpretive point. In principle, a low learning rate could reflect either (i) a market that is slow to correct meaningful mispricing, or (ii) a market that is already close to efficient at opening, so little further adjustment is needed. Our cross-sectional evidence is more consistent with interpretation~(i) than~(ii): we find a \emph{negative} correlation between bookmaker-specific learning rates and opening-price RMSE (Section~5.5), i.e., bookmakers with \emph{more} accurate opening prices tend to have \emph{higher}, not lower, learning rates -- the opposite of what we would expect if low learning rates simply reflected pre-existing efficiency. Similarly, longshots -- for whom the favorite-longshot bias documented in the sports-betting literature (e.g., Thaler and Ziemba, 1988) implies systematically less accurate opening prices -- also exhibit lower, not higher, learning rates in our data (Section~5.5), again suggesting that low learning rates coincide with greater initial inaccuracy rather than substituting for it. We will add this argument explicitly to Section~6 to address the referee's concern.}
+
+\item \textit{Minor Comment \#13: Professional Versus Amateur Competition\\[6pt]
+In your discussion on page 22, when you discuss differences between professional and amateur competitions, you characterize professional environments as "more competitive." I would suggest that "higher level" or "higher caliber" is more accurate than "more competitive." Both professional and amateur competitions are competitive—the distinction is the level or quality of play, not the presence or absence of competition. This is a minor semantic point but worth clarifying for precision.} \argX
+
+\Reply{We agree and will replace ``more competitive'' with ``higher level'' or ``higher caliber'' when contrasting professional and amateur competitions (p.~22), as suggested.}
+
+\item \textit{[Concluding Remarks]:\\[6pt]
+I genuinely enjoyed reading this paper. The contribution is clear and novel, the methodology is generally strong, the empirical setting is well-chosen, and the writing is accessible. The use of tennis is particularly clever, as it minimizes the confounding effects of new information arrival that complicate similar analyses in team sports. The findings regarding the bias-variance tradeoff and heterogeneity in learning rates are interesting and valuable.\\[6pt]
+With revisions addressing the modeling choices, timing treatment, and interpretative claims I've outlined above, I believe this will make a strong contribution to the literature on price formation and market learning.}
+
+\end{enumerate}
+\newpage
+\subsection*{Reply to Referee Report 3}
+
+
+\begin{enumerate}
+\item \textit{Bookmaker market dynamics\\[6pt]
+My first concern is that many of the paper’s central findings are, at a conceptual level,
+fairly unsurprising. The main result is essentially that closing prices are more informative
+than opening prices and that prices become more accurate over time. This is certainly
+interesting to document carefully, but it is also a fairly natural prediction in any market
+where information accumulates over time. I wasn’t convinced that the paper identifies a
+genuinely new mechanism or empirical phenomenon rather than documenting gradual
+convergence toward more informative prices.\\[6pt]
+And importantly, I think the paper misses an opportunity to describe the actual
+institutional details of odds formation by bookmakers. The analysis often treats
+bookmakers symmetrically, as if all are independently producing forecasts and gradually
+learning over time. In reality, sports betting markets are highly structured. Some
+bookmakers, particularly sharp bookmakers such as Pinnacle, open their lines earlier
+and operate with lower initial limits. Other bookmakers frequently adjust in response to
+these early prices. Some books contribute actively to price discovery while others largely
+follow consensus moves generated elsewhere. These institutional features seem central
+to understanding the dynamics observed in the paper, yet they receive no attention in the
+analysis. } \argX
+
+\Reply{We appreciate this comment and would like to clarify the paper's marginal contribution beyond the general, and arguably expected, observation that closing prices are more accurate than opening prices. Our contribution lies in (i) using longitudinal, intra-window price paths -- rather than only opening and closing snapshots -- to formally test the noise versus learning hypotheses via unbiasedness regressions (Section~5.4); (ii) estimating the \emph{rate} at which this convergence occurs using a structural learning-rate parameter via both GMM and Bayesian methods, which, to our knowledge, has not previously been documented for the pre-match sports-betting setting; and (iii) documenting substantial, previously undocumented heterogeneity in this learning rate across bookmakers, favorite/longshot status, and competition level. We will revise the Introduction and Discussion to state this contribution more explicitly and distinguish it from the more familiar closing-beats-opening result.
+
+Regarding institutional detail, we agree that the paper currently treats bookmakers as largely symmetric information processors. We will add discussion in Sections~2 and~6 acknowledging the institutional asymmetries the referee raises -- e.g., sharp bookmakers such as Pinnacle opening earlier and operating with lower initial limits, with other books adjusting in response -- citing the relevant industry and academic literature on price leadership among bookmakers, and will explicitly flag the study of lead-lag relationships across bookmakers (raised again in Comment~6 below) as an important direction for future work that our dataset could support.}
+
+
+\item \textit{Opening RMSE comparisons are flawed\\[6pt]
+This issue also affects the interpretation of the bookmaker-specific RMSE comparisons.
+Opening prices are compared across bookmakers despite the fact that bookmakers open
+markets at very different times. A bookmaker posting an opening line 48 hours before a
+match faces a substantially different information set than a bookmaker posting a line 6
+hours before the match after considerable market learning has already occurred.\\[6pt]
+As a result, I do not believe the opening-price RMSE comparisons can be interpreted
+straightforwardly as differences in forecasting skill. Indeed, the somewhat surprising
+finding that Pinnacle exhibits relatively high opening RMSE may simply reflect the fact
+that it participates earlier in the price discovery process. } \argX
+
+\Reply{We agree with this point and will add an explicit caveat to Section~5.1 clarifying that opening-price RMSE comparisons across bookmakers are confounded by differences in how far before kickoff each bookmaker typically posts its opening line -- a bookmaker posting earlier necessarily faces a smaller information set than one posting later, independent of underlying forecasting skill. This is consistent with our own observation that Pinnacle, a bookmaker widely regarded in the industry as posting early and being closely followed by other books, exhibits a relatively high opening RMSE in our sample (Figure~1) -- which, as the referee suggests, plausibly reflects earlier market entry rather than inferior pricing skill. We will revise the interpretation of Figure~1 accordingly, explicitly cautioning against reading opening-RMSE rankings as differences in forecasting skill, and will note that our main comparative claims about information processing rely on \emph{within}-bookmaker dynamics from open to close (the AGS test, unbiasedness regressions, and learning-rate estimates) rather than on cross-bookmaker opening-RMSE rankings, which are less confounded by entry-timing differences.}
+
+\item \textit{Odds as forecasts\\[6pt]
+I also had concerns about the treatment of bookmaker odds as forecasts. The paper
+repeatedly interprets inverse decimal odds as implied probabilities or forecasts without
+sufficiently accounting for bookmaker margins. In a two-outcome market, the inverse
+odds sum to more than one because of the bookmaker’s margin, so inverse decimal odds
+are not forecasts.\\[6pt]
+While it is perfectly reasonable to focus on one side of the market only, this should ideally be done using normalized implied probabilities rather than raw inverse odds. Otherwise, changes in the analyzed variable may reflect changes in bookmaker margins or
+adjustments in favorite-longshot bias rather than changes in beliefs about match
+outcomes. Indeed, bookmakers may adjust margins over time, perhaps setting higher
+margins during the early, more uncertain, period of trading. (This can be easily checked).
+Given that the paper is fundamentally about learning and price formation, I think
+separating movements in normalized probabilities from movements in the overround
+would strengthen the analysis considerably. }
+
+\item \textit{Rational actors exploiting mis-pricings?\\[6pt]
+A related issue concerns the interpretation of informed betting activity and market
+efficiency. The paper argues that rational bettors identify and exploit opening mispricings,
+thereby forcing bookmakers to adjust their odds. However, the results primarily show that prices which later shorten tend to win more frequently than prices that later drift outward.
+This does not establish that bettors could systematically identify positive expected value
+opportunities at the time opening odds were posted. Without evidence that early-market
+inefficiencies can be systematically exploited for profit, it is difficult to interpret the
+observed price movements as reflecting “rational” action in the economic sense in which
+the paper appears to use the term.\\[6pt]
+This distinction is important in betting markets because bookmaker margins are
+substantial. Identifying relative mispricing is not sufficient for profitable betting unless
+the pricing error is large enough to overcome the overround. In the terminology of Thaler
+and Ziemba (1988), the paper does not establish a failure of weak betting market
+efficiency, i.e. that bettors can systematically earn positive expected returns by exploiting
+publicly observable prices. Instead, the evidence shows that prices evolve over time in a
+way that improves forecast accuracy.\\[6pt]
+I therefore think the paper moves too quickly from “prices become more accurate over
+time” to “rational informed bettors exploit profitable opportunities.” These are related but
+distinct claims. The former concerns statistical forecast improvement, while the latter
+requires evidence that opening prices are sufficiently inaccurate, relative to bookmaker
+margins, to generate exploitable positive expected value betting opportunities.\\[6pt]
+Of course, if the authors do figure out a robust way to make money exploiting early-market
+tennis mispricings, I hope they enjoy counting their winnings on their super-yachts. } \argX
+
+\Reply{This concern is closely related to Referee~1's Comments~3 and~9 and Referee~2's Critical Comment~5, and we will address the causal-language issue through the same consistent revision described in our response to Referee~1, Comment~3. We also agree with the important, more specific distinction raised here regarding weak-form market efficiency in the sense of Thaler and Ziemba (1988), which the referee cites explicitly. Our results establish that price revisions from open to close are informative about outcomes, and that closing prices dominate opening prices in accuracy -- this is a statement about relative forecast accuracy, not about the existence of exploitable positive expected value at the opening price net of the bookmaker margin. We do not have order-flow, staking, or realized-profit data that would let us test whether early-market inaccuracies are large enough to overcome typical overrounds. We will revise the manuscript to explicitly disclaim any claim of weak-form inefficiency and instead frame our contribution purely in terms of statistical forecast improvement and information accumulation over the betting window, adopting the referee's terminology to distinguish ``prices become more accurate over time'' from the stronger and distinct claim that ``rational informed bettors exploit profitable opportunities.''}
+
+\item \textit{Concerns about Table 5\\[6pt]
+I have a more fundamental concern about the interpretation of Table 5. To see the issue,
+consider a simple benchmark in which each player has a true winning probability p, and
+the opening and closing prices are noisy signals of this probability. Suppose the opening
+price equals p plus two error components, e1 and e2, while the closing price equals p
+plus only e2. In this case, the closing price is clearly a better signal of the true winning probability than the opening price, because one source of noise has been removed.\\[6pt]
+However, the change from opening to closing is simply minus e1. If this removed error
+component is independent of p, then sorting observations by the size of the revision
+should not sort them by the underlying winning probability. In this benchmark case, one
+would expect the average winning rate in each revision bin to remain around 50\%, even
+though the closing prices are genuinely more accurate than the opening prices.\\[6pt]
+This means that the pattern in Table 5 is not a generic implication of learning or of closing
+prices becoming less noisy. For positive revisions to be associated with winning rates
+above 50%, and negative revisions with winning rates below 50%, the revisions
+themselves must be correlated with the underlying probability level. That may well be
+true in the data, but it requires an explanation. It could arise from bounded probabilities, asymmetric updating across favourites and longshots, changes in bookmaker margins,
+or other features of the odds formation process. But the paper does not explain why this
+is the relevant benchmark or what mechanism generates the pattern.\\[6pt]
+I am particularly concerned because the magnitudes reported in Table 5 are very large,
+with winning rates ranging from roughly 34\% to 63% across revision bins. These are not
+subtle effects. They suggest that the revision bins are sorting matches very strongly by
+underlying winning probabilities rather than merely capturing gradual reductions in noise.
+A more direct test of learning would compare realized outcomes with opening and closing
+probabilities conditional on the initial probability level, or ask whether realized outcomes
+exceed opening probabilities in positive-revision bins and fall short of opening
+probabilities in negative-revision bins. As it stands, I am not convinced that Table 5
+identifies the learning mechanism claimed in the paper.\\[6pt]
+Given these concerns, I would encourage the authors to reconsider the role of Tables 5
+and 6. I do not think these tables provide a clean test of learning or mispricing correction,
+because they sort observations by probability revisions without conditioning on initial
+probability levels. The formal learning analysis in Section 5.6 is more directly connected
+to the paper’s central question and, in my view, provides the stronger evidence.} \argX
+
+\Reply{We thank the referee for this precise and important benchmark argument. We agree that, under the referee's null model (opening price $= p + e_1 + e_2$, closing price $= p + e_2$, with $e_1$ independent of $p$), sorting by the revision $-e_1$ would not sort matches by underlying win probability, and that Table~5 alone would therefore not distinguish this null from genuine learning. We believe, however, that our data reject this particular null, based on evidence already reported elsewhere in the paper: our percentile-based learning-rate estimates (Section~5.5, Figure~9) show that learning rates are systematically higher for matches with more extreme, favorite-leaning opening prices -- i.e., where the initial probability level is high -- and systematically lower and comparatively flat across the lower, longshot-dominated percentiles. This pattern indicates that the \emph{size} of the informative revision from open to close is itself related to the initial probability level -- exactly the correlation between revisions and $p$ that the referee notes is necessary (but, under the simple i.i.d.-noise benchmark, absent) for Table~5's pattern to reflect learning rather than pure noise cancellation. We will add this cross-reference explicitly to the discussion of Table~5, reposition Tables~5--6 as a simple, motivating description of the data rather than a stand-alone test of learning (consistent also with our response to Referee~2, Minor Comment~9), and state plainly, as the referee suggests, that the unbiasedness-regression and learning-rate analysis in Sections~5.4--5.5 constitute the paper's more direct and stronger evidence for learning.}
+
+\item \textit{A missed opportunity\\[6pt]
+More broadly, I think the paper misses an opportunity to use its unusually rich dataset to
+study the actual process of information diffusion across bookmakers. To me, this appears
+to be the most promising direction suggested by the data. For example, the authors could
+examine whether certain bookmakers systematically lead price changes while others
+respond with lags; whether sharp bookmakers play a disproportionate role in price
+discovery; how quickly information propagates across the bookmaker network; whether
+some bookmakers primarily follow consensus prices; or whether opening-time
+differences help explain the evolution of forecast accuracy. These questions strike me as
+both more novel and more closely connected to the institutional realities of bookmaker
+markets than the current focus on generic learning dynamics. } \argX
+
+\Reply{We thank the referee for this suggestion, which we agree identifies a promising and novel use of our dataset. Investigating lead-lag relationships in price formation across bookmakers -- whether sharp bookmakers systematically lead price changes, how quickly information propagates across the bookmaker network, and whether some books primarily follow consensus prices -- is a natural and exciting extension, but one that requires a different empirical framework (e.g., a vector-autoregressive or Granger-causality-style analysis of the cross-bookmaker price network) than the aggregate learning-rate framework we develop in this paper. We will explicitly flag this as a valuable direction for future research in the Conclusion, and note that our longitudinal, multi-bookmaker dataset is well suited to such an analysis. This also connects to our response to Comment~1 above, where we discuss adding institutional context on bookmaker price leadership to the current manuscript.}
+
+
+
+\end{enumerate}
+
+
+\end{document}
+
+
+
+
