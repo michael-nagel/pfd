@@ -38,7 +38,7 @@ plt.rcParams.update({
     "font.size": 9, "xtick.labelsize": 8, "ytick.labelsize": 8,
 })
 
-b = pd.read_csv(f"{SPEC}/ns4_beta1.csv")
+b = pd.read_csv(f"{SPEC}/ns4_final_band.csv")   # Band aus dem Cluster-Bootstrap
 b = b[b["hours"] <= HMAX]
 r = pd.read_csv(f"{SPEC}/ns4_rmse_bins.csv")
 
@@ -48,7 +48,8 @@ fig, (ax1, ax2) = plt.subplots(
 
 # ------------------------------------------------------------- oben: beta_1
 ax1.fill_between(b["hours"], b["sim_lo"], b["sim_up"], color=BLUE,
-                 alpha=0.20, lw=0, label="95% simultaneous band")
+                 alpha=0.20, lw=0,
+                 label="95% simultaneous band (cluster bootstrap, $B=100$)")
 ax1.plot(b["hours"], b["beta_1"], color=BLUE, lw=1.9,
          label=r"$\beta_1(X)$, natural cubic spline, $df=4$")
 ax1.axhline(1, color=INK, lw=0.9, ls=(0, (4, 3)))

@@ -298,7 +298,7 @@ bands or a smoother dynamic model of the coefficient path. }
 \end{align*}
 where $\beta_1(X)$ is a natural cubic spline with four degrees of freedom in $X = \log(\text{hours before kickoff})$; its linear tail constraints keep the estimate well behaved where the data thin out. The revised estimate is a single smooth decline rather than an alternation of phases (Figure~\ref{fig:r1c7new}): $\beta_1$ runs from about 1.17 a day before kickoff through 0.92 at six hours to 0.78 in the final hour, crossing one exactly once, roughly nine hours before the start --- underreaction early, unbiasedness in the middle, mild overreaction close to kickoff, a continuum rather than phases.
 
-One property of the new specification deserves emphasis, because it also answers two other comments: it is estimated on the genuinely observed price timestamps, 1{,}291{,}205 recorded prices from 175{,}166 series, rather than on a resampled percentile grid. The backward imputation of early prices and the percentile time axis both drop out of this analysis entirely, so the concerns raised in Referee~2's Critical Comments~2 and~3 do not apply to it. On inference, the standard errors of the published specification were too small by a factor of 2.1 once the match clustering of Comment~2 is taken into account. Under the simultaneous band the referee asks for, $\beta_1$ is nowhere in the window distinguishable from one, whereas pointwise it still is over about half of it (Table~\ref{tab:r1c7}); we therefore no longer claim to locate where along the window the price is biased. When comparing Figure~\ref{fig:r1c7pub} with Figure~\ref{fig:r1c7new}, part of the difference in level is not the new specification at all but the margin adjustment of Comment~1.
+One property of the new specification deserves emphasis, because it also answers two other comments: it is estimated on the genuinely observed price timestamps, 1{,}291{,}205 recorded prices from 175{,}166 series, rather than on a resampled percentile grid. The backward imputation of early prices and the percentile time axis both drop out of this analysis entirely, so the concerns raised in Referee~2's Critical Comments~2 and~3 do not apply to it. On inference, the standard errors of the published specification were too small by a factor of 2.1 once the match clustering of Comment~2 is taken into account. Under the simultaneous band the referee asks for, $\beta_1$ is nowhere in the window distinguishable from one, whereas pointwise it still is over about a third of it (Table~\ref{tab:r1c7}); we therefore no longer claim to locate where along the window the price is biased. That conclusion does not depend on how the dependence is handled: the analytic cluster sandwich and a match-level cluster bootstrap with $B = 100$ replicates both leave the simultaneous band covering one at every one of the 96 grid points. When comparing Figure~\ref{fig:r1c7pub} with Figure~\ref{fig:r1c7new}, part of the difference in level is not the new specification at all but the margin adjustment of Comment~1.
 
 Finally, the referee is right that the decline in RMSE is modest, and we now say so with a number. Comparing each series' first and last genuinely observed price, the Brier score falls from 0.20428 to 0.20315 ($t = -4.39$, match-clustered) --- significant, but only about 2.5\% of the forecast performance the prices achieve over an uninformed forecast of 0.5. This is not in tension with the learning result, because forecast accuracy and systematic bias are different properties of the same price: what we document is that prices improve their accuracy only slightly while reducing their bias measurably, with $\beta_1$ converging towards one.}
 
@@ -312,25 +312,25 @@ Finally, the referee is right that the decline in RMSE is modest, and we now say
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.82\linewidth]{r1c7_revised_path.pdf}
-\caption{The revised version. Upper panel: $\beta_1(X)$ as a natural cubic spline in $X = \log(\text{hours before kickoff})$, with the simultaneous 95\% band. Lower panel: the RMSE of the price itself as a forecast of the outcome, binned and unsmoothed --- a different quantity from the lower panel of Figure~\ref{fig:r1c7pub}, which shows regression residuals. The horizontal axis is logarithmic in both panels, with kickoff at the right. The series contributing to each RMSE bin differ, so that panel is descriptive; the composition-free comparison is the paired one quoted in the text. \textcolor{mncol}{[Working note: the band is currently the CR1 cluster sandwich; the cluster bootstrap on this basis is re-running and will replace it.]}}
+\caption{The revised version. Upper panel: $\beta_1(X)$ as a natural cubic spline in $X = \log(\text{hours before kickoff})$, with the simultaneous 95\% band. Lower panel: the RMSE of the price itself as a forecast of the outcome, binned and unsmoothed --- a different quantity from the lower panel of Figure~\ref{fig:r1c7pub}, which shows regression residuals. The horizontal axis is logarithmic in both panels, with kickoff at the right. The series contributing to each RMSE bin differ, so that panel is descriptive; the composition-free comparison is the paired one quoted in the text.}
 \label{fig:r1c7new}
 \end{figure}
 
 \begin{table}[H]
 \centering
-\caption{$\beta_1$ over the betting window with the simultaneous 95\% band. \textcolor{mncol}{[Working note: preliminary, sandwich-based, see Figure~\ref{fig:r1c7new}.]}}
+\caption{$\beta_1$ over the betting window with the simultaneous 95\% band from the match-level cluster bootstrap ($B = 100$).}
 \label{tab:r1c7}
 \small
 \begin{tabular}{lrc}
 \toprule
 Hours before kickoff & $\beta_1$ & Simultaneous 95\% \\
 \midrule
-24   & 1.173 & [0.853, 1.493] \\
-12   & 1.086 & [0.839, 1.333] \\
-6    & 0.924 & [0.662, 1.187] \\
-3    & 0.842 & [0.603, 1.081] \\
-1    & 0.776 & [0.515, 1.038] \\
-0.25 & 0.770 & [0.515, 1.026] \\
+24   & 1.173 & [0.874, 1.472] \\
+12   & 1.086 & [0.802, 1.371] \\
+6    & 0.924 & [0.615, 1.234] \\
+3    & 0.842 & [0.554, 1.130] \\
+1    & 0.776 & [0.488, 1.065] \\
+0.25 & 0.770 & [0.518, 1.023] \\
 \bottomrule
 \end{tabular}
 \end{table}
