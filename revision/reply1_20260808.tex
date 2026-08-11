@@ -95,16 +95,8 @@ Thank you very much for your very constructive and helpful comments and suggesti
 
 \bigskip
 \noindent\textcolor{ourcol}{\rule{\linewidth}{1pt}}\\[2pt]
-\textbf{\textcolor{ourcol}{Internal note --- delete before submission.}}
-Blocks marked \textbf{\textcolor{ourcol}{Our reply (independent draft)}} are
-written independently of the draft replies above and are based on our own
-re-analysis of the data. Each states the finding, points to the supporting
-table or figure, and closes with a one-line note on what it does to the
-paper's story. Supporting output is stored under
-\texttt{revision/snapshots/}.\\[2pt]
+
 \noindent\textcolor{ourcol}{\rule{\linewidth}{0.4pt}}
-
-
 
 
 \newpage
@@ -228,7 +220,7 @@ dependence may arise from tournaments or players. }
 \begin{ourreply}
 We agree.
 
-We first did what the referee asks. Estimating crossed random effects
+We first started estimating crossed random effects, which
 required moving from Python's \texttt{statsmodels} to R's \texttt{lme4}:
 \texttt{statsmodels} draws a ``crossed'' effect separately within each level
 of the primary grouping factor, so a match effect cannot be shared across
@@ -250,17 +242,17 @@ absorb dependence, it absorbs the dependent variable.
 Equation & Dependent variable & \% between & Inference we report \\
 \midrule
 Close-to-end returns (Table~3) & $R_{\text{close-to-end}}$  & 99.8  & cluster-robust \\
-Relative accuracy (Table~4)    & $|e_0| - |e_T|$            & 82.6  & cluster-robust, two-way \\
+Relative accuracy (Table~4)    & $|e_0| - |e_T|$            & 82.6  & cluster-robust \\
 Unbiasedness (Figure~3)        & $\omega - p_{\text{ref}}$  & 99.8  & cluster-robust \\
 Winning rates (Equation~3)     & $\omega$ (match outcome)   & 100.0 & cluster-robust \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-We therefore use the referee's own fallback, cluster-robust
+We therefore use the referee's alternative solution, cluster-robust
 inference at the match level. The referee is right about the direction, and
 the size of the correction is large and consistent across equations: standard
-errors rise by a factor of \textbf{3.0} in the unbiasedness regression (6.3
+errors rise by a factor of \textbf{2.1} in the unbiasedness regression (2.6
 against i.i.d.\ standard errors), \textbf{3.4 to 4.0} in Table~3, \textbf{2.7
 to 3.4} in Table~4 and \textbf{3.0 to 4.1} in Equation~3. Point estimates are
 unaffected, which we checked before switching: the largest difference between
@@ -411,6 +403,146 @@ modest. The narrative about phases of learning, pauses in learning, and resumed
 learning is based on repeated pointwise confidence intervals and should be treated
 cautiously. The authors should provide formal tests with simultaneous confidence
 bands or a smoother dynamic model of the coefficient path. }
+
+\begin{ourreply}
+We agree on both counts. The phase narrative has been withdrawn, and we have
+replaced the 50 pointwise regressions with a smooth dynamic model and formal
+simultaneous tests, as the referee suggests.
+
+\textbf{(i) The magnitude of the RMSE decline.} The referee is right, and the
+quantity in the published figure is in any case not the one a reader would
+assume: the plotted series is the residual RMSE of the unbiasedness
+regression, not the RMSE of the price. We therefore now report the direct,
+composition-free comparison --- for each series, the first against the last
+genuinely observed price, tested with match-clustered standard errors
+(Table~\ref{tab:r1c7a}).
+
+\begin{table}[h]
+\centering
+\caption{Forecast accuracy at the start and at the end of the betting window.
+Real observations only, 175{,}166 series, 20{,}741 matches.}
+\label{tab:r1c7a}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & Brier & RMSE & Skill score \\
+\midrule
+Coin flip ($p \equiv 0.5$)                     & 0.25000 & 0.50000 & 0\% \\
+First observed price (avg.\ 21.2 h before)     & 0.20428 & 0.45197 & 18.29\% \\
+Last observed price (avg.\ 2.70 h before)      & 0.20315 & 0.45072 & 18.74\% \\
+\midrule
+Difference                                     & \multicolumn{3}{l}{$-0.00113$ \quad SE 0.00026 \quad $t=-4.39$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The decline is highly significant and economically small. Put in the terms we
+find most honest: \textbf{the betting window contributes 2.5\% of the price's
+total forecast performance relative to a coin flip; the remaining 97.5\% is
+already in the first observed price.} We now say exactly this in the paper,
+rather than letting a 1\% fall in RMSE carry an implication it cannot bear.
+
+Two clarifications belong with that number. First, RMSE is a misleading scale
+for a binary outcome, because its range is compressed --- a coin flip already
+scores 0.5. On the skill scale the prices resolve 18--19\% of outcome
+uncertainty, and the remainder is irreducible uncertainty about a tennis
+match, not model weakness. This is the same reframing we use in our reply to
+Referee~2 (Minor Comment~7). Second, the published figure overstates the
+decline by a factor of about four: computing the identical statistic on the
+imputed percentile grid gives $-0.00462$ instead of $-0.00113$. The late
+values agree almost exactly (0.20330 against 0.20315); the entire discrepancy
+sits at the early edge, which is where the imputation of pre-entry prices
+does its work.
+
+\textbf{(ii) The phase narrative.} We withdraw it. The referee's diagnosis is
+exactly right, and the two corrections he implies --- multiplicity across 50
+tests, and the match-level dependence of Comment~2 --- can be applied
+directly to the published curve (Table~\ref{tab:r1c7b}).
+
+\begin{table}[h]
+\centering
+\caption{Percentiles at which the published curve's confidence interval
+excludes one}
+\label{tab:r1c7b}
+\small
+\begin{tabular}{lrr}
+\toprule
+ & Critical value & Percentiles excluding 1 \\
+\midrule
+Pointwise, model-based (as published) & 1.960 & 49 / 50 \\
+Šidák correction over 50 tests        & 3.283 & 47 / 50 \\
+Pointwise, SE $\times$ 3 (clustering) & 1.960 & 18 / 50 \\
+\textbf{Both corrections}             & 3.283 & \textbf{1 / 50} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Multiplicity alone costs almost nothing; the clustering costs almost
+everything; together they leave one percentile standing. A narrative about
+pauses and resumptions of learning cannot rest on that.
+
+\textbf{(iii) What replaces it.} We estimate the coefficient path as a smooth
+function of time --- a varying-coefficient model, $\beta_1(t)$ a penalised
+spline in $\log$ hours before kickoff, fitted on the 1{,}291{,}205 genuinely
+observed prices rather than on the resampled grid. Inference is the
+match-cluster bootstrap described in our reply to Comment~2. On top of it we
+construct a \emph{simultaneous} sup-$t$ band. Because the path lives in a
+six-dimensional spline basis, its covariance over the grid has effective rank
+five and is well estimated from the bootstrap replicates; the simultaneous
+critical value is 2.617 against 1.960 pointwise.
+
+The result splits into a negative and a positive finding, and we report both
+(Table~\ref{tab:r1c7c}).
+
+\begin{table}[h]
+\centering
+\caption{Formal tests on the smooth coefficient path, simultaneous over the
+whole betting window}
+\label{tab:r1c7c}
+\small
+\begin{tabular}{lrrl}
+\toprule
+Null hypothesis & $\sup|t|$ & 5\% critical & $p$ \\
+\midrule
+$\beta_1(t) = 1$ for all $t$ & 2.509 & 2.617 & 0.066 \quad not rejected \\
+$\beta_1(t)$ constant        & 3.998 & 2.660 & 0.0006 \quad rejected \\
+\midrule
+\multicolumn{4}{l}{Contrast $\beta_1(24\,\text{h}) - \beta_1(0.25\,\text{h}) = 0.477$, \quad SE 0.117, \quad $t = 4.08$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under the simultaneous band, $\beta_1$ is nowhere distinguishable from one:
+0 of 96 grid points, against 44 of 96 pointwise. We cannot locate a place in
+the betting window where the price is significantly biased, and we no longer
+claim to. What does survive is the \emph{shape}: the hypothesis that
+$\beta_1(t)$ is constant is rejected decisively. The coefficient falls
+monotonically from about 1.24 a day before kickoff to about 0.77 in the final
+quarter hour --- from underreaction, through unbiasedness, into mild
+overreaction --- and that decline is 4.1 bootstrap standard errors.
+
+We report the first test as \emph{not} rejected although it is borderline. Its
+$p$-value depends on how far back the reporting window reaches (0.066 at a
+48-hour trim, 0.057 at 36 hours, 0.044 at 24 hours), and we did not think it
+right to select the trim that delivers significance. The shape test is
+insensitive to this choice ($p \le 0.0006$ throughout).
+
+One limitation we should state. The shape test uses the full continuous
+sample. On the subsample of series that are genuinely observed across the
+whole window, the path is flatter and higher (1.30 to 1.09 rather than 1.29 to
+0.77), so the direction of the decline is robust but part of its amplitude is
+composition --- late-entering bookmakers --- rather than time.
+
+\story{The referee is right twice. The RMSE improvement is real but small,
+and we now quantify it as 2.5\% of the price's forecast performance instead
+of describing it qualitatively. The phase narrative is gone: with
+simultaneous inference we cannot say \emph{where} the price is biased. What
+we can now say formally, and could not before, is that the coefficient path
+\emph{exists} --- prices move from underreaction to mild overreaction over
+the window, and that movement is significant simultaneously. This is a weaker
+and more defensible claim than the published one, and it fits the continuum
+framing Referee~2 asks for in Critical Comment~7.}
+\end{ourreply}
 
 \item \textit{The favorite-longshot results are interesting, but the interpretation needs to be sharpened. The paper finds lower learning rates for longshots than favorites and interprets
 this as potentially related to the favorite-longshot bias. This is plausible, but the evidence is indirect. The authors should show directly whether opening and closing
