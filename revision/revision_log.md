@@ -940,10 +940,60 @@ Befunde vor (noch nicht zu einer Reviewer-Antwort verarbeitet):
 **Entscheidung:** GMM und Bayesian bleiben auf der diskreten relativen
 Perzentil-Achse (siehe Nachtrag oben und R2-C3). Die beiden älteren
 Befunde (K=0, Nelder-Mead) sind davon unberührt und weiterhin offen.
-**Umsetzung:** [zu ergänzen]
-**Beleg/Validierung:** [zu ergänzen]
-**Status:** teilweise (Zeitdiskretheit geklärt und für R2-C3 nutzbar, mit
-offener Frage zur match-spezifischen Skalierung; K=0 und Nelder-Mead offen)
+**Umsetzung:** Antwort geschrieben in `reply1_20260728.tex` (Tabelle R.5).
+**Beleg/Validierung:** `revision/snapshots/E_gmm_exponent_fix/`
+(`MANIFEST.md`, `incr_invariance.csv`, `_incr_invariance.py`),
+`references/specs/open_questions.md`.
+**Status:** beantwortet (siehe Nachtrag 2026-08-15); offen bleibt allein die
+Nelder-Mead-Frage aus hansen1996
+
+### Nachtrag 2026-08-15 – die vier Punkte des Referees, und was davon offen ist
+
+- **Margen und Zensierung** laufen über die Antworten zu Comment 1 und
+  Comment 5; für das GMM ist entscheidend, dass seine Stützstellen
+  (`OddsMvt46/41/36` bei `incr = 5`) in der zweiten Fensterhälfte liegen und
+  den von einer gekappten Serie unbeobachteten Bereich nicht berühren.
+- **Match-spezifische Skalierung ist geklärt** — die im Nachtrag oben als
+  „ZU PRÜFEN" markierte Frage. Der Skalenfaktor kürzt sich nicht erst im
+  Verhältnis zweier Momentgleichungen, sondern bereits **innerhalb der
+  Zeile**: ist die wahre Taktrate `n_m · tau`, steht im Zerfallsfaktor
+  `(n_m·tau_2)/(n_m·tau_1) = tau_2/tau_1`. Über Matches mit
+  unterschiedlichem `n_m` zu poolen ist deshalb unschädlich; Biais' global
+  formuliertes Argument ist hier sogar stärker als nötig.
+- **K = 0 ist eine Annahme, keine Ableitung.** Entscheidung getroffen: wir
+  benennen sie in §3.5 ausdrücklich als Annahme (terminale Grösse ist der
+  beobachtete Ausgang, Proxy-Fehler daher null), statt sie wie bisher
+  stillschweigend zu treffen. Damit ist die Frage aus `open_questions.md`
+  („beabsichtigt oder versehentlich?") beantwortet: beabsichtigt, aber
+  bisher unbenannt.
+- **Der Exponenten-Fix ist der direkteste Teil der Antwort.** Der Referee
+  fragt, ob die Übertragung offensichtlich ist; sie war es nicht, und die
+  Prüfung hat einen eigenen Fehler zutage gefördert. Das gehört in die
+  Antwort, nicht in eine Fussnote.
+
+**Neu gerechnet: gamma über den Stützstellenabstand** (`incr_invariance.csv`,
+je Bookmaker CUE mit Startwert 0,01, dann Mittel über 24 — also exakt
+`avg_gamma_gmm`). Die bisher gespeicherte Tabelle in `open_questions.md`
+enthielt nur SE, Vorzeichen und Signifikanz, nicht gamma selbst.
+
+| `incr` | 1 | 2 | 3 | 4 | **5** | 6 | 8 | 10 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| gamma | 0,0057 | 0,0009 | 0,0035 | 0,0037 | **0,0054** | 0,0048 | 0,0040 | 0,0034 |
+| SE | 0,0095 | 0,0048 | 0,0034 | 0,0027 | **0,0022** | 0,0019 | 0,0015 | 0,0012 |
+| gamma < 0 | 7/24 | 10/24 | 2/24 | 3/24 | **0/24** | 0/24 | 1/24 | 0/24 |
+
+**Nicht als glatte Invarianz darstellen.** Ab `incr = 3` liegt gamma in einer
+Bandbreite 0,0034–0,0054 (Variationskoeffizient 0,19); bei `incr = 1` und 2
+ist der Schätzer schlicht uninformativ, die SE **übersteigt** dort die
+Schätzung und 7 bzw. 10 von 24 gamma sind negativ. Der belastbare Kontrast
+ist der zur alten Formel: dort 0,0051 / 0,0016 / 0,0293 bei `incr` 1 / 2 / 5,
+also Faktor 18 über denselben Bereich. Das ist zugleich Biais' eigene
+Begründung für weiter auseinanderliegende Stützstellen.
+
+**Im Reply-Dokument ersetzt:** der Entwurf des Kollegen zu diesem Kommentar
+steht dort auskommentiert über unserer Antwort, nicht gelöscht. Sein
+`\argX`-Marker („addressed by argument") wurde entfernt — der Kommentar wird
+jetzt mit neuer Empirie beantwortet, nicht nur mit Argumenten.
 **Superseded:** —
 **Für Response-Dokument:** Wir werden darlegen, dass das zugrunde liegende
 Modell von Biais et al. (1999) rein zeitdiskret ist – das asymptotische
