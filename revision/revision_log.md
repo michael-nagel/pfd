@@ -875,15 +875,82 @@ zugleich höchster Steigung — bei dünn besetzten Bookmakern ist die Power
 gering. Belastbar ist die Aussage für das Kollektiv (Wald über alle 23), für
 einzelne kleine Bookmaker nur schwach.
 
-**Entscheidung:** [zu ergänzen]
+**Entscheidung:** Dokumentation **und** eine eng begrenzte Robustheitsprüfung.
+Der Referee verlangt „either … or"; wir liefern beides, aber die Robustheit
+nur für die zwei Grössen mit nachweisbarer Bookmaker-Heterogenität.
 
-**Umsetzung:** [zu ergänzen]
+**Umsetzung:** Antwort geschrieben in `reply1_20260728.tex`
+(Tabellen R.3 und R.4).
 
 **Beleg/Validierung:**
-`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`, `s4_varcomp.csv`
+`revision/snapshots/eq3_contract_level/bookie_fe_slopes.csv`, `s4_varcomp.csv`,
+`revision/snapshots/sharp_soft/` (README, `_sharp_soft.py`,
+`margin_by_bookie.csv`, `gmm_without_sharp.csv`, `beta1_without_sharp.csv`)
 
-**Status:** offen (Befund zur fehlenden Heterogenität liegt vor, Konsequenz
-für die Klassifikation noch zu ziehen)
+**Status:** beantwortet (siehe Nachtrag 2026-08-15)
+
+### Nachtrag 2026-08-15 – Klassifikation dokumentiert, Robustheit geprüft
+
+**Betfair ist in diesen Daten das Sportsbook, nicht die Exchange.** Die
+Prämisse des Kommentars trifft also nicht zu, und die Marge belegt es:
+Median am Opening **7,80 %**, **Rang 15 von 24**. Eine Exchange läge
+effektiv bei 1–2 % und damit deutlich unter Pinnacle. (Über alle
+Beobachtungen statt nur am Opening sind es 7,47 % und Rang 14 — im Reply
+wird durchgängig die Opening-Marge verwendet, um das Mischen zu vermeiden.)
+
+**Klassifikationsproxy = Median-Marge am Opening**, `margin_by_bookie.csv`.
+Spanne **4,90 % (Pinnacle) bis 8,33 % (Interwetten)**. Die in
+`open_questions.md` notierten 4,90 / 8,33 sind die Opening-Werte; über alle
+Beobachtungen lauten dieselben Ränder 4,62 / 8,28. **Beide Zahlenpaare sind
+richtig, sie messen Verschiedenes** — nicht mischen.
+
+**Externe und interne Klassifikation stimmen überein.** In der Literatur
+gelten von den 24 genau **zwei** als sharp: Pinnacle (niedrige Marge, hohe
+Limits, nimmt Gewinner an) und BetInAsia (Broker mit Zugang zu asiatischen
+Sharp-Märkten). Beide stehen auch in unserer Margenrangfolge auf den Plätzen
+1 und 2. Zusammen tragen sie **8,15 %** der Serien.
+
+**Robustheit ohne diese beiden:**
+
+| | voll | ohne 2 | Differenz |
+|---|---:|---:|---:|
+| GMM-Lernrate, Mittel über Bookmaker | 0,00540 | 0,00571 | +0,00031 |
+| beta_1 bei 24 h | 1,173 | 1,184 | +0,011 |
+| beta_1 bei 6 h | 0,930 | 0,959 | +0,029 |
+| beta_1 bei 1 h | 0,777 | 0,818 | +0,040 |
+| beta_1 bei 0,25 h | 0,770 | 0,814 | +0,044 |
+
+Grösste Abweichung **0,46 Standardfehler**; Form und Durchgang durch 1
+unverändert. Beim GMM ist der Ausschluss gratis, weil `gamma` je Bookmaker
+geschätzt wird — es ändert sich nur die Aggregation; Argmin/Argmax
+(GGBET/Dafabet) bleiben gleich. Die Vier-Häuser-Variante (zusätzlich
+BetVictor und Betfred) liegt im Snapshot, steht aber **nicht** im Reply:
+sie sagt dasselbe und wirft die Frage auf, warum diese beiden überhaupt
+Kandidaten wären.
+
+**Begrenzung der Prüfung, im Reply als Begründung mitgeliefert:** bei Eq. 1
+(p = 0,379) und Eq. 3 (p = 0,595) gibt es keine nachweisbare
+Bookmaker-Heterogenität, dort hat eine Sharp/Soft-Trennung nichts zu
+trennen. Geprüft wird deshalb nur, wo Heterogenität real ist.
+
+**Nebenbefund, stützt R1-ii:** die Spalte „voll" der beta_1-Tabelle
+reproduziert die in der R1-vii-Antwort berichtete Kurve (1,173 bei 24 h,
+0,770 bei 0,25 h) auf **vier Nachkommastellen**, obwohl hier OLS + CR1 statt
+lme4 mit Bookmaker-RE gerechnet wurde — eine unabhängige Bestätigung des
+Gate-Arguments.
+
+**NICHT verwendet: Opening-Zeitpunkt als Klassifikationskriterium.** Pinnacle
+liegt beim Median-Opening bei 20,63 h gegen einen Stichprobenmedian von
+20,45 h, also im Mittelfeld; die frühesten Eröffner sind klassische
+Soft-Bookies (`rmse_baselines/posting_time_by_bookie.csv`). Das Kriterium
+würde falsch klassifizieren.
+
+**Werkzeugfalle, kostete einen Fehllauf:** `np.asarray` auf einem
+rpy2-`FloatVector` liefert eine **View in den R-Speicher**. Wird die
+R-Variable im nächsten Aufruf neu gebunden, zeigt die View ins Leere — im
+ersten Lauf kamen dadurch Standardfehler von ~1e−303 heraus (Abweichungen
+von „1e300 SE"). `np.array(..., dtype=float)` kopiert. Die Punktschätzer
+waren nicht betroffen.
 
 **Superseded:** —
 

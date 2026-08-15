@@ -1,0 +1,4 @@
+variante,ausgeschlossen,n_bookies,gamma_mittel,gamma_min,gamma_max,argmin,argmax
+volles Sample,--,24,0.005395751953124905,0.0013781249999999,0.012403125,GGBET,Dafabet
+ohne 2 margenaermste,"Pinnacle, BetInAsia",22,0.005714825994318087,0.0013781249999999,0.012403125,GGBET,Dafabet
+ohne 4 margenaermste,"Pinnacle, BetInAsia, BetVictor, Betfred",20,0.005890058593749906,0.0013781249999999,0.012403125,GGBET,Dafabet

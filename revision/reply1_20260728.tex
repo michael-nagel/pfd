@@ -205,6 +205,53 @@ with sharper or exchange-like markets. The classification of bookmakers should b
 documented explicitly. The authors should either separate sharp and soft bookmakers
 or show that the main results are robust to excluding sharper books. }
 
+\ReplyMN{One premise needs correcting first: in our data Betfair is the sportsbook, not the exchange. Its margin says so --- 7.80\% at the opening, rank 15 of 24 (Table~\ref{tab:r1c4}) --- whereas an exchange charges an effective 1 to 2\% and would sit far below Pinnacle. We document the classification by the margin itself, the one criterion the data supply, and it agrees with the outside view: the two houses the literature treats as sharp, Pinnacle and BetInAsia, are also the two lowest in our own ranking, and together they carry 8.15\% of the series. Removing them leaves the two main results in place (Table~\ref{tab:r1c4b}): the average learning rate moves from 0.0054 to 0.0057, and the coefficient path of Comment~7 shifts by at most 0.044, which is 0.46 of its standard error, so its shape and its crossing of one are unaffected. We confine the exercise to these two quantities because in the others the bookmakers are not distinguishable to begin with --- a joint Wald test on bookmaker dummies and interactions gives $p = 0.379$ for Eq.~1 and $p = 0.595$ for Eq.~3 --- so there a sharp/soft split would have nothing to separate.
+
+\begin{table}[H]
+\centering
+\caption{Median margin at the opening price, by bookmaker. This is the classification the data support; the two houses commonly called sharp are the two at the top.}
+\label{tab:r1c4}
+\small
+\begin{tabular}{rlr@{\qquad\qquad}rlr}
+\toprule
+ & Bookmaker & Margin & & Bookmaker & Margin \\
+\midrule
+1  & Pinnacle    & 4.90\% & 13 & Vulkan Bet  & 7.53\% \\
+2  & BetInAsia   & 5.11\% & 14 & GGBET       & 7.76\% \\
+3  & Betfred     & 5.71\% & 15 & Betfair     & 7.80\% \\
+4  & BetVictor   & 6.17\% & 16 & Dafabet     & 7.84\% \\
+5  & 10Bet       & 6.41\% & 17 & Betway      & 7.99\% \\
+6  & 10x10bet    & 7.02\% & 18 & Suprabets   & 8.11\% \\
+7  & 888sport    & 7.03\% & 19 & Curebet     & 8.12\% \\
+8  & 1xBet       & 7.12\% & 20 & Lasbet      & 8.13\% \\
+9  & NordicBet   & 7.14\% & 21 & VOBET       & 8.13\% \\
+10 & Betsafe     & 7.14\% & 22 & Alphabet    & 8.13\% \\
+11 & Betsson     & 7.14\% & 23 & ComeOn      & 8.18\% \\
+12 & Marathonbet & 7.39\% & 24 & Interwetten & 8.33\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{The two main results with and without Pinnacle and BetInAsia. The learning rate is estimated per bookmaker, so dropping the two changes only the average; the coefficient path is re-estimated on the reduced sample.}
+\label{tab:r1c4b}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & Full sample & Without the two & Difference \\
+\midrule
+Learning rate, average over bookmakers & 0.0054 & 0.0057 & $+0.0003$ \\
+\midrule
+$\beta_1$, 24 hours before kickoff  & 1.173 & 1.184 & $+0.011$ \\
+$\beta_1$, 6 hours                  & 0.930 & 0.959 & $+0.029$ \\
+$\beta_1$, 1 hour                   & 0.777 & 0.818 & $+0.040$ \\
+$\beta_1$, 15 minutes               & 0.770 & 0.814 & $+0.044$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+}
+
 \item \textit{The Oddsportal data structure creates important limitations that need to be central
 to the analysis. The paper notes that Oddsportal provides only opening odds and
 the last 20 updates before kickoff. This means that the observed price path may be
