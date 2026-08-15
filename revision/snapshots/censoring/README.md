@@ -228,3 +228,41 @@ gewählten, nicht robust gegen eine drastische Verschärfung. Das gehört so
 gesagt.
 
 Dateien: `beta1_thresholds.csv`, `beta1_thresholds_long.csv`.
+
+---
+
+# Nachtrag 3 – Die Sample-Kette ist Rückfalloption, nicht Antworttext
+
+Stand 2026-08-15. In `reply1_20260728.tex` stand die vollständige Kette
+(Rohscrape → Schätzstichprobe) als eigene Tabelle im Antworttext zu R1-v.
+**Sie ist dort gestrichen.** Grund: R1-v fragt nach der
+Zensierungsrestriktion; die vollständige Kette beantwortet eine nicht
+gestellte Frage und macht mit dem Gesamtrückgang von 74 % und dem
+`ts_dur`-Schritt von 62,8 % zwei neue Angriffsflächen auf. Der Fliesstext
+nennt jetzt nur noch den betroffenen Drop von 4,80 % und ordnet ihn als die
+kleinste der Restriktionen ein, ohne weitere Prozentzahlen.
+
+**`sample_chain.csv` und `_sample_chain.py` bleiben genau dafür liegen:** wenn
+der Referee in Runde 2 nach dem Gesamtrückgang fragt, ist die Aufschlüsselung
+fertig und muss nur wieder eingesetzt werden.
+
+## Nebenbefund: 175.266 gegen 175.166 ist echt
+
+Die Produktionskette (`_sample_chain.py`) zählt 184.112 Serien nach dem
+Nullvarianz-Filter und 175.266 unter `NumOddsMvt < 20`; die kontinuierliche
+Fassung (`_censoring_thresholds.py:build`) 184.012 und 175.166. Die Differenz
+von exakt 100 Serien sieht nach Tippfehler aus, ist aber der
+Post-Kickoff-Filter:
+
+- `build()` wirft zuerst `HoursToKick > 0` weg und filtert **danach** auf
+  Nullvarianz, die Produktionskette filtert auf der vollen Serie.
+- Nach Kickoff liegen nur 1.218 von 1.654.415 Beobachtungen (0,07 %) in
+  768 Serien. Bei 100 davon bleibt zu wenig übrig: 95 haben danach nur noch
+  **eine** Vor-Kickoff-Beobachtung, 5 haben zwei mit identischem Preis.
+  Beide fallen durch `std > 0`.
+- **Alle 100 liegen unter der 20er-Schwelle** (65 davon hatten überhaupt nur
+  eine Preisänderung) — deshalb ist die Differenz in beiden Zeilen dieselbe.
+  Zensierte Serien am Cap sind viel zu aktiv, um daran zu scheitern.
+
+Beide Zahlen sind in ihrem Kontext richtig. Im Reply steht der Unterschied
+jetzt einmal ausgeschrieben in der Caption der Schwellentabelle.
