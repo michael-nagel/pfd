@@ -1080,10 +1080,11 @@ und Lernraten-Bezug ausstehend.
 **Beleg/Validierung:** `revision/snapshots/eq3_contract_level/ladder.csv`,
 `logit_check.csv`, `cluster_robust.csv`.
 
-**Status:** teilweise (Opening-Bias direkt gezeigt; Fenster-Verkleinerung und
-Lernraten-Bezug offen)
+**Status:** beantwortet (siehe Nachtrag 2026-08-15)
 
-**Superseded:** —
+**Superseded:** Der Satz „Beides ist mit demselben Frame billig nachzurechnen"
+stimmte; das Ergebnis der Nachrechnung widerspricht aber der im Kommentar
+unterstellten Richtung — siehe Nachtrag.
 
 **Für Response-Dokument:** Wir werden den Favorite-Longshot-Bias direkt
 ausweisen: der Koeffizient auf den Opening-Preis liegt bei 1,125 und damit
@@ -1091,6 +1092,54 @@ signifikant über eins, und die Logit-Kalibrierungssteigung bei 1,184 bei einem
 Intercept, der den Effizienzwert null exakt trifft. Wir werden ergänzen, wie
 sich diese Kalibrierung vom Opening zum Closing verändert und wie sie sich zu
 den geschätzten Lernraten verhält.
+
+### Nachtrag 2026-08-15 – alle drei Teilfragen gerechnet
+
+Belege: `revision/snapshots/flb_calibration/` (README + vier Skripte + CSVs),
+Antwort geschrieben in `reply1_20260728.tex`.
+
+1. **Bias in beiden Preisen, direkt gemessen.** Kalibrierungssteigung
+   `lambda` = **1,1155** am Opening und **1,1131** am Closing, CR1 auf
+   Matchup, t gegen 1 = 6,77 und 6,92; Logit 1,1649 und 1,1665, Intercepts
+   treffen die Null (p = 0,93 / 0,98). Deskriptiv unterstes Preisdezil
+   −0,0385, oberstes +0,0342.
+2. **Der Bias schrumpft NICHT.** Differenz Closing minus Opening
+   **−0,0024** (SE 0,0051, **t = −0,48**, p = 0,63), gestapelt geschätzt.
+   Getrennt nach Gruppen ebenso wenig (Favoriten p = 0,37, Longshots
+   p = 0,68). Auf der kontinuierlichen Achse liegt `lambda` über das ganze
+   48-h-Fenster signifikant über 1, das punktweise Band überdeckt die 1 an
+   keinem Gitterpunkt.
+3. **Lernraten per GMM statt Bayes.** `fit_gmm_mod` schneidet nur über die
+   Spalte `Bookies` zu, deshalb genügt das Überschreiben dieser Spalte mit
+   dem Gruppenlabel — kein Umbau. Favoriten **0,00740**, Longshots
+   **0,00098**, Differenz t = 7,44. Die Rangfolge des Papers hält also auch
+   nach dem Exponenten-Fix.
+
+**OFFEN – inhaltliche Textentscheidung, nicht getroffen:** Die Discussion
+(tex Z. 914–917) deutet die Lernratendifferenz zwischen Favoriten und
+Longshots als **Korrektur** des Favorite-Longshot-Bias. Diese Interpretation
+ist nach Punkt 2 nicht mehr haltbar: der Bias schrumpft über das
+Betting-Fenster nicht (1,1155 gegen 1,1131, t = −0,48). Findet keine
+Korrektur statt, kann die höhere Lernrate der Favoriten sie auch nicht
+bewirken. Die Passage muss **gestrichen oder neu begründet** werden. Ebenso
+betroffen ist die Dezil-Gradienten-Aussage („stronger favorites tend to
+exhibit higher learning rates", tex Z. 879 und 917): die GMM-Dezile zeigen
+eine **Stufe** zwischen Favoriten und Longshots, keinen Gradienten — das
+Maximum liegt bei Dezil 5 (0,00976), Dezil 6 bis 10 sind flach
+(0,0056–0,0072).
+
+**Einschränkungen, die in den Text gehören:** die Longshot-Lernrate ist für
+sich nicht von null zu unterscheiden (t = 1,6); der J-Test verwirft in
+**9 von 10** Dezilen, sobald über Bookmaker gepoolt wird (nach Bookmaker
+geschnitten nur 1 von 24); die Bayesian-Werte im Paper sind bis zum
+NUTS-Neulauf veraltet, die GMM-Zahlen sind Zwischenstand.
+
+**Zuordnung der Gruppen unter Normalisierung:** `IsFav` ist **exakt
+invariant** (0 Abweichungen von 182.941 Serien), weil
+`filter_and_shape.py:74-88` die rohen Quoten beider Seiten vergleicht. Der
+Dezil-Split ist es **nicht**: 92,43 % bleiben, 7,57 % verschieben sich um
+genau ein Dezil, keine um zwei (Spearman 0,99922). Nicht als
+Invarianzbeleg verwenden.
 
 ## R1-ix – Kausale Sprache abschwächen
 **Kommentar (kondensiert):** Kausale Sprache zu stark ("market identifies and

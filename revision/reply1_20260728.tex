@@ -325,6 +325,33 @@ this as potentially related to the favorite-longshot bias. This is plausible, bu
 prices display favorite-longshot bias, whether the bias shrinks over the betting window, and whether the estimated learning rates are related to the correction of this
 bias. }
 
+\ReplyMN{We now measure the bias directly, which is what the submitted version itself names as an open point when it discusses Table~3. Regressing the outcome on the price gives a calibration slope of 1.12 at the opening and 1.11 at the closing, both far above the efficient value of one and with intercepts indistinguishable from zero (Table~\ref{tab:r1c8}); descriptively, contracts in the lowest opening-price decile win 3.9 percentage points less often than their price implies and those in the highest 3.4 points more often, and a logit calibration reproduces the same picture independently (slope 1.16 at both ends of the window). On the referee's second question the answer is negative, and we report it as such: the opening-to-closing difference in the slope is $-0.0024$ ($t = -0.48$), it is no different when favorites and longshots are estimated separately, and on the continuous time axis $\lambda$ stays significantly above one at every point of the window without approaching it (Figure~\ref{fig:r1c8}). This does not contradict our learning results; it separates two properties of the same price, because over the same contracts the accuracy improves measurably (Brier 0.206 to 0.204, match-clustered $t = -6.4$) while the systematic bias across price levels does not move --- the mirror image of the finding in Comment~7, where the bias moves and the accuracy barely does. On the third question, the learning-rate difference survives the correction of the decay exponent described in our reply to Comment~6: estimated by GMM, favorites reach 0.0074 against 0.0010 for longshots (difference $t = 7.44$), so the ordering the paper reports is intact, but we cannot present it as the correction of the favorite-longshot bias, because our second result shows there is no correction to be explained. We also withdraw the stronger claim that more extreme favorites learn faster: the estimates form a step between favorites and longshots, not a gradient across the price deciles, and we revise Sections~5.5 and~6 accordingly. Three limitations belong with these numbers: the longshot learning rate is not distinguishable from zero on its own ($t = 1.6$), the $J$-test rejects in nine of the ten deciles once the sample is pooled across bookmakers rather than split by bookmaker, and the Bayesian estimates printed in the paper will be updated when the sampler is re-run, so the GMM figures quoted here are the current state and not the final table values. Finally, the favorite/longshot classification is unaffected by the margin adjustment of Comment~1, because it compares the two raw quoted odds before any normalisation and is identical by construction, whereas the ten-decile split is not exactly invariant --- 92.4\% of series keep their decile and the remainder move by exactly one --- so we treat the decile pattern as robust but do not claim invariance for it.
+
+\begin{table}[H]
+\centering
+\caption{Calibration of the price against the match outcome, $\text{outcome} = a + \lambda \, p$, on 184{,}415 contracts with standard errors clustered on the match. Efficiency implies $\lambda = 1$; $\lambda > 1$ means longshots win less often and favorites more often than their prices imply. The difference is estimated in one stacked regression, so its standard error accounts for both prices belonging to the same contract, and it is tested against zero rather than one.}
+\label{tab:r1c8}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & $\lambda$ & SE & $t$ \\
+\midrule
+Opening price & 1.1155 & 0.0171 & 6.77 \\
+Closing price & 1.1131 & 0.0163 & 6.92 \\
+\midrule
+Difference, closing $-$ opening & $-0.0024$ & 0.0051 & $-0.48$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{r1c8_calibration_path.pdf}
+\caption{The calibration slope $\lambda$ as a smooth function of the time remaining, on the same basis, grid and axis as Figure~\ref{fig:r1c7new}. The band is pointwise, since here the claim is that the curve does \emph{not} reach one rather than that it does.}
+\label{fig:r1c8}
+\end{figure}
+}
+
 \item \textit{The paper should be more careful with causal language. Statements such as “the
 market identifies and corrects mispricing” and “rational bettors force bookmakers to
 adjust prices” go beyond what is identified. The evidence is consistent with price discovery, but not conclusive about who learns, what information is learned, or whether price changes are caused by informed betting. A more cautious interpretation would
