@@ -266,39 +266,11 @@ horizon betting market with binary terminal outcomes, irregularly observed price
 bookmaker margins, and censored price histories. The paper should discuss whether
 the assumptions behind the Biais et al. (1999) framework are plausible here. }
 
-\ReplyMN{Two of the four features the referee lists are settled elsewhere in this revision: all prices are now margin-adjusted (Comment~1), and the censoring does not reach the learning-rate estimate, whose support points lie in the closing half of the window and never touch the stretch that a truncated series leaves unobserved (Comment~5).
+\ReplyMN{All prices are now margin-adjusted (Comment~1), and the censoring does not reach the learning-rate estimate, whose support points lie in the closing half of the window and never touch the stretch that a truncated series leaves unobserved (Comment~5).
 
-Irregular observation is handled inside the framework. Biais et al.\ (1999, p.~1240, eq.~13) show that the moment condition is invariant to a rescaling of the time axis, and this survives a match-specific clock rate, because the residual already has mean zero row by row and the scale factor therefore cancels before anything is pooled. Empirically the estimate settles once the support points are three grid points apart or more; at tighter spacings the standard error exceeds the estimate itself and a third of the bookmaker estimates turn negative (Table~\ref{tab:r1c6}), which is the referee's concern in reverse and is also the reason Biais et al.\ space their own support points.
+Irregular observation is handled inside the framework. Biais et al.\ (1999, p.~1240, eq.~13) show that the moment condition is invariant to a rescaling of the time axis, and this survives a match-specific clock rate, because the residual already has mean zero row by row and the scale factor therefore cancels before anything is pooled. Spacing the support points too tightly is what does cause trouble: the standard error then exceeds the estimate itself and a third of the bookmaker estimates turn negative, which is why we space them as Biais et al.\ do.
 
-The binary terminal value is the assumption we cannot dispose of. In Biais et al.\ the terminal value is latent and the variance of the proxy error enters the moment condition as a second parameter $K$; because the match outcome is observed here, that error is zero by construction, we set $K = 0$ and estimate $\gamma$ alone. We now state this in Section~3.5 as an assumption we make, not as something the transfer delivers.
-
-The transfer was in any case not obvious, and checking it turned up an error of our own. The decay factor was tied to the length of the percentile grid rather than to the positions of the support points actually used,
-\begin{align*}
-\text{as submitted:} \quad & \mathrm{E}\Big[ (p_{\tau_1} - \omega)^2
-- \big( \tfrac{n-1}{n} \big)^{2\gamma} (p_{\tau_2} - \omega)^2 \,\Big|\, I \Big] = 0, \\
-\text{corrected:} \quad & \mathrm{E}\Big[ (p_{\tau_1} - \omega)^2
-- \big( \tfrac{\tau_2}{\tau_1} \big)^{2\gamma} (p_{\tau_2} - \omega)^2 \,\Big|\, I \Big] = 0,
-\qquad \tau_i = n - i \cdot \text{incr} + 1,
-\end{align*}
-so that at the spacing we use the factor is $42/47 = 0.894$ instead of $50/51 = 0.980$; the two coincide exactly at a spacing of one, which is why this went unnoticed. Correcting it moves the level of the learning rate --- the average over bookmakers falls from 0.032 to 0.005 --- while the ordering across bookmakers (Spearman 0.88), the two extreme bookmakers and the significance pattern (16 of 24) are unchanged, so the cross-sectional statements in the paper stand and only their scale is restated.
-
-\begin{table}[H]
-\centering
-\caption{The learning rate at different spacings of the support points, estimated per bookmaker and averaged over the 24. Under the submitted decay factor the same series gave 0.0051, 0.0016 and 0.0293 at spacings of one, two and five.}
-\label{tab:r1c6}
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrrrrrr}
-\toprule
-Spacing & 1 & 2 & 3 & 4 & 5 (used) & 6 & 8 & 10 \\
-\midrule
-$\gamma$              & 0.0057 & 0.0009 & 0.0035 & 0.0037 & 0.0054 & 0.0048 & 0.0040 & 0.0034 \\
-Mean standard error   & 0.0095 & 0.0048 & 0.0034 & 0.0027 & 0.0022 & 0.0019 & 0.0015 & 0.0012 \\
-Negative estimates    & 7 & 10 & 2 & 3 & 0 & 0 & 1 & 0 \\
-\bottomrule
-\end{tabular}
-\end{table}
-}
+In Biais et al.\ the terminal value is latent and the variance of the proxy error enters the moment condition as a second parameter $K$; because the match outcome is observed here, that error is zero by construction, we set $K = 0$ and estimate $\gamma$ alone. We now state this in Section~3.5 as an assumption we make, not as something the transfer delivers.}
 
 % Entwurf des Kollegen, durch die Antwort oben ersetzt (nicht geloescht):
 % \Reply{We agree that the Biais et al. (1999) framework was developed for an asymptotic, continuous, unbounded financial-market setting, whereas we apply it to a finite-horizon, binary-outcome market with irregularly spaced, margin-contaminated prices, and we will add a paragraph to Section~3.5 (Learning Rate) discussing these differences explicitly. Two features of the framework make it more portable to our setting than it may first appear. First, the moment conditions (Equation~9 in the manuscript) are constructed so that $\sigma^2$ cancels, making them robust to heteroskedasticity across time and matches -- precisely the property we need given our irregular observation grid and time-varying margins. Second, as we note following that equation, the moment conditions are invariant to a rescaling of $t$, which mitigates concerns about the arbitrary choice of a time origin in a finite-horizon market. We will clarify in the revised text that we interpret $\hat{\gamma}$ as a reduced-form measure of how quickly the price-outcome gap shrinks over our \emph{observed} window, rather than as a literal estimate of an asymptotic convergence rate, and will flag the transfer of an asymptotic framework to a finite window as an acknowledged limitation, consistent with how we already treat the comparison to Biais et al.'s and Vives's (1995) financial-market estimates as suggestive rather than directly comparable (Section~5.5).}
@@ -369,7 +341,7 @@ On the referee's second question the answer is negative, and we report it as suc
 \end{equation*}
 where $D_s = 1$ for the closing row and $0$ for the opening row, and standard errors are clustered on the match, so that the two rows of a contract and all bookmakers pricing the same match sit in one cluster. The interaction carries the answer: $\hat{\delta} = \lambda_{\text{close}} - \lambda_{\text{open}} = -0.0024$ ($t = -0.48$), and it is no different when favorites and longshots are estimated separately. On the continuous time axis $\lambda$ likewise stays significantly above one at every point without approaching it (Figure~\ref{fig:r1c8}). This does not contradict our learning results but separates two properties of the same price: over these contracts accuracy improves measurably (Brier 0.206 to 0.204, $t = -6.4$) while the bias across price levels does not move --- the mirror image of Comment~7, where the bias moves and accuracy barely does.
 
-On the third question, the learning-rate difference survives the correction of the decay exponent described in our reply to Comment~6, with favorites at 0.0074 against 0.0010 for longshots ($t = 7.44$), but we cannot present it as the correction of the favorite-longshot bias, because the second result shows there is no correction to be explained. We also withdraw the stronger claim that more extreme favorites learn faster: the estimates form a step between favorites and longshots, not a gradient across price deciles, and we revise Sections~5.5 and~6 accordingly. Three caveats travel with these numbers --- the longshot rate is not distinguishable from zero on its own, the $J$-test rejects in nine of the ten deciles once the sample is pooled across bookmakers, and the Bayesian estimates in the paper will be updated when the sampler is re-run --- so the figures quoted here are the current state rather than the final table values. The favorite/longshot classification itself is unaffected by the margin adjustment of Comment~1, since it compares the two raw quoted odds before any normalisation.\footnote{The ten-decile split is not invariant in the same way: 92.4\% of series keep their decile and the remainder move by exactly one, so we report the decile pattern as robust without claiming invariance for it.}
+On the third question, the learning-rate difference survives a correction we made to the decay factor in the moment condition, with favorites at 0.0074 against 0.0010 for longshots ($t = 7.44$), but we cannot present it as the correction of the favorite-longshot bias, because the second result shows there is no correction to be explained. We also withdraw the stronger claim that more extreme favorites learn faster: the estimates form a step between favorites and longshots, not a gradient across price deciles, and we revise Sections~5.5 and~6 accordingly. Three caveats travel with these numbers --- the longshot rate is not distinguishable from zero on its own, the $J$-test rejects in nine of the ten deciles once the sample is pooled across bookmakers, and the Bayesian estimates in the paper will be updated when the sampler is re-run --- so the figures quoted here are the current state rather than the final table values. The favorite/longshot classification itself is unaffected by the margin adjustment of Comment~1, since it compares the two raw quoted odds before any normalisation.\footnote{The ten-decile split is not invariant in the same way: 92.4\% of series keep their decile and the remainder move by exactly one, so we report the decile pattern as robust without claiming invariance for it.}
 
 \begin{figure}[H]
 \centering

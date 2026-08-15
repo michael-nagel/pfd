@@ -992,8 +992,26 @@ Begründung für weiter auseinanderliegende Stützstellen.
 
 **Im Reply-Dokument ersetzt:** der Entwurf des Kollegen zu diesem Kommentar
 steht dort auskommentiert über unserer Antwort, nicht gelöscht. Sein
-`\argX`-Marker („addressed by argument") wurde entfernt — der Kommentar wird
-jetzt mit neuer Empirie beantwortet, nicht nur mit Argumenten.
+`\argX`-Marker („addressed by argument") wurde entfernt.
+
+**Entscheidung des Autors, 2026-08-15: der Exponenten-Fix wird dem Referee
+hier NICHT offengelegt.** Der Absatz mit der Gegenüberstellung alt/neu, die
+Grössenordnung 0,032 → 0,005 und die Abstandstabelle sind aus der Antwort
+wieder gestrichen worden; die Antwort beschränkt sich auf die vier
+Plausibilitätsfragen. Übrig bleibt im Reply nur die beiläufige Erwähnung in
+der Antwort zu R1-viii („a correction we made to the decay factor in the
+moment condition"), die dort als eigenständige Aussage formuliert ist und
+nicht mehr auf diesen Kommentar verweist.
+
+> **Damit ist ungeklärt, wo die Korrektur gegenüber den Gutachtern
+> auftaucht.** Die veröffentlichten Lernraten ändern sich um Faktor 5,9;
+> steht das nirgends im Antwortdokument, muss es zumindest im Paper selbst
+> stehen, sonst weichen die abgedruckten Zahlen unerklärt von der
+> eingereichten Fassung ab. Offener Punkt für die Textüberarbeitung.
+
+Der Befund selbst bleibt vollständig belegt in
+`revision/snapshots/E_gmm_exponent_fix/` (`MANIFEST.md`,
+`incr_invariance.csv`) und in `references/specs/open_questions.md`.
 **Superseded:** —
 **Für Response-Dokument:** Wir werden darlegen, dass das zugrunde liegende
 Modell von Biais et al. (1999) rein zeitdiskret ist – das asymptotische
