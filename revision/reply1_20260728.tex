@@ -436,7 +436,39 @@ The specification in Equation 3 uses a binary win/loss outcome as the dependent 
 The recommended specification would include both the opening price and the change in price as independent variables. The opening price captures the baseline winning probability, while the change in price tests whether price movements contain additional predictive information. If the opening price is efficient, the coefficient on the price change variable should be statistically insignificant (after controlling for the opening price), as all relevant information should already be reflected in the opening price.\\[6pt]
 Your current specification relies on an intercept centered around 0.5, which is not intuitive and does not provide optimal model fit when estimating a model that includes bets that aren't 50-50 propositions (i.e., when including both favorites and longshots). Including the opening price as a covariate would better align with how winning probabilities are typically modeled in this literature and would make the results more interpretable. I encourage you to reconsider this specification in light of the broader sports economics literature.}
 
+\ReplyMN{One point of fact first: the dependent variable of the submitted Eq.~3 is not the binary win/loss outcome but the winning rate within a price-change bin --- aggregated proportions over 12 bins per bookmaker, reported in Table~6. At that level of aggregation there is no individual opening price that could enter as a covariate, which is why the submitted specification does not carry one.
 
+The referee's statistical argument stands nonetheless, and we follow it in full: we re-estimate Eq.~3 at the contract level, with the binary outcome as the dependent variable and the opening price as a covariate, exactly as recommended.
+\begin{align*}
+\text{submitted (bin level):} \quad & \overline{\bs{\omega}}_{bj} = \eta_{0j} + \eta_{1j} \, \overline{\bs{\Delta}}_{bj}(p_T, p_0) + \kappa C_{bj} + \varepsilon_{bj}, \\
+\text{revised (contract level):} \quad & \text{Match}_{ij} = \eta_0 + \eta_1 \, \text{OpnOdds}_{ij} + \eta_2 \, \text{DltOpnCls}_{ij} \\
+ & \qquad\qquad\quad {} + x_{ij}' \gamma + u_{ij},
+\end{align*}
+where $b$ indexes the price-change bins, $i$ contracts and $j$ bookmakers, $\text{DltOpnCls} = \text{ClsOdds} - \text{OpnOdds}$, and $x_{ij}$ collects the duration and competition controls. The estimator is ordinary least squares with standard errors clustered on the matchup, consistent with our reply to Referee~1, Comment~2.
+
+The result runs against the referee's expectation, and that is the substance of our reply: controlling for the opening price does not drive the coefficient on the price change to insignificance, it makes it larger --- $\eta_2$ rises from 0.83 to 0.96 with a cluster-robust $t$ of 13.87 (Table~\ref{tab:r2c1}), so the price movement carries information the opening price does not contain. The coefficient on the opening price itself supplies the explanation: $\eta_1 = 1.125$ lies significantly above one (cluster-robust $t$ against one $=7.27$), so the opening price is not efficient in the sense the referee's argument presumes but systematically biased --- this is the favorite-longshot bias, which we measure directly in our reply to Referee~1, Comment~8.
+
+On the intercept the referee is right that the new specification is easier to read: it is $-0.05$ rather than 0.5, because the baseline probability now sits in the model instead of being absorbed into the constant.
+
+The finding does not rest on the sample filter --- without the $|\text{RtrnOpnCls}| > 0$ restriction $\eta_2$ moves by 0.00026 --- and a logit version reproduces it qualitatively; a bookmaker random effect is not identified here, its variance components being estimated as exactly zero, and we take up the heterogeneity question in our reply to Critical Comment~6.
+
+\begin{table}[H]
+\centering
+\caption{Eq.~3 at the contract level: the price-change coefficient before and after the control the referee asks for. Estimated on 172,663 contracts from 20,588 matchups and 24 bookmakers, on the margin-adjusted prices of Referee~1's Comment~1 and on observed opening and closing prices only, so that no imputed value enters. Standard errors in parentheses are clustered on the matchup; the model-based ones are roughly three times smaller throughout (see our reply to Referee~1, Comment~2).}
+\label{tab:r2c1}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+ & Intercept & $\eta_1$ (opening price) & $\eta_2$ (price change) & $R^2$ \\
+\midrule
+Price change only    & 0.510 (0.004)    & ---           & 0.833 (0.074) & 0.007 \\
+\quad + opening price & $-0.062$ (0.010) & 1.125 (0.017) & 0.957 (0.069) & 0.185 \\
+\quad + covariates    & $-0.050$ (0.014) & 1.125 (0.017) & 0.956 (0.069) & 0.185 \\
+\bottomrule
+\end{tabular}
+\end{table}
+}
 
 \item \textit{Critical Comment \#2: Backward Imputation Strategy\\[6pt]
 I have concerns about the backward imputation strategy described on page 11 and in Appendix C. Based on my reading, the procedure appears to impute opening prices for bookmakers who enter the market later than others, but this approach may not appropriately capture the actual information environment those bookmakers faced. If my understanding is incorrect, the authors should provide much clearer explanation of what is being imputed and how the imputation method was implemented.\\[6pt]

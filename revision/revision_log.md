@@ -1354,15 +1354,45 @@ cluster-robuste SEs statt Match-RE). Tabelle 6 bleibt als aggregierte
 Darstellung erhalten, wird aber nicht mehr als Test gegen den Opening-Preis
 gelesen.
 
-**Umsetzung:** Analyse abgeschlossen, Paper-Text ausstehend.
+**Umsetzung:** Antwort in `reply1_20260728.tex` geschrieben ([MN], mit
+Formel alt/neu und Tabelle `tab:r2c1`), Paper-Text ausstehend. Die Antwort
+stellt zuerst die Prämisse richtig: die eingereichte Eq. 3 hat **nicht** den
+binären Ausgang als AV, sondern die Gewinnrate je Preisänderungs-Bin (12 Bins
+je Bookmaker) — auf dieser Ebene existiert kein individueller Opening-Preis
+als Kovariate. Der Vorschlag wird trotzdem vollständig umgesetzt, weil das
+statistische Argument trägt.
+
+**Nachtrag zur Belegbasis (16.08.2026):** `_eq3_contract.py` rechnet den
+CR1-Sandwich nur für die S3/S4-Designmatrix; für die Antwortstabelle wurden
+cluster-robuste SEs auch für **S1 und S2** gebraucht. Nachgerechnet mit
+`_eq3_ladder_cluster.py` → `ladder_cluster.csv` (gleiche Datenbasis, gleicher
+Code-Pfad). Kontrolle: S3 reproduziert `ladder.csv` und `cluster_robust.csv`
+bis auf Maschinengenauigkeit (max. Abweichung 2e−14). Neu belegt:
+
+| Stufe | eta_2 | SE cluster | t cluster |
+|---|---:|---:|---:|
+| S1 nur Preisänderung | 0,8325 | 0,0737 | 11,29 |
+| S2 + OpnOdds | 0,9570 | 0,0689 | 13,88 |
+| S3 + Kovariaten | 0,9564 | 0,0689 | 13,87 |
+
+Auch cluster-robust steigt der t-Wert von 11,29 auf 13,87 — die Kontrolle für
+den Opening-Preis schwächt eta_2 in keiner Lesart ab.
+
+*Umgebungsnotiz:* `.venv` ist kaputt (0-Byte-Symlinks, OneDrive), das
+System-Python ist 3.8 und scheitert an den `tuple[...]`-Annotationen der
+Paketquellen. Gerechnet mit `C:\Users\micha\anaconda3\envs\eca_env` (3.11);
+dort ist die statsmodels/scipy-Kombination inkompatibel, weshalb
+`_eq3_ladder_cluster.py` `filter_and_shape.py` direkt per `importlib` lädt
+und die `pfd`-Paket-`__init__`-Kette umgeht. Keine Änderung an Repo-Quellen.
 
 **Beleg/Validierung:** `revision/snapshots/eq3_contract_level/` (Commit
 `d4183ab`): `ladder.csv`, `match_anova.csv`, `cluster_robust.csv`,
-`logit_check.csv`, `filter_sensitivity.csv`, `bookie_fe_slopes.csv`.
+`logit_check.csv`, `filter_sensitivity.csv`, `bookie_fe_slopes.csv`; dazu
+`ladder_cluster.csv` / `_eq3_ladder_cluster.py` (16.08.2026).
 Übertragbarkeit des Sandwich verifiziert
 (`max |beta(OLS) − beta(lmer)| = 0,000000`).
 
-**Status:** Analyse abgeschlossen, Paper-Text ausstehend
+**Status:** Antwort geschrieben, Paper-Text ausstehend
 
 **Superseded:** —
 
