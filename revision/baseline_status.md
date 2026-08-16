@@ -171,6 +171,66 @@ sind:
 
 ---
 
+## Arbeitsumgebung – liegt AUSSERHALB des Projektordners
+
+**Stand: 16.08.2026.** Die virtuelle Umgebung liegt nicht mehr unter
+`pfd/.venv`, sondern unter **`~/.venvs/pfd` in WSL (Ubuntu)**.
+
+**Warum ausserhalb.** Der Projektordner liegt unter
+`C:\Users\micha\OneDrive\Michi\pfd`, also im OneDrive-Sync-Pfad. Ein `.venv`
+darin hat zwei Probleme:
+
+1. **OneDrive synchronisiert es.** Das alte `.venv` umfasste 1,1 GB in 23.897
+   Dateien — alle im Sync, ohne jeden Nutzen, da die Umgebung aus `uv.lock`
+   in Minuten reproduzierbar ist.
+2. **Es sieht von Windows aus kaputt aus.** Die Umgebung wird in WSL mit uv
+   angelegt, ihr `pyvenv.cfg` zeigt auf einen Linux-Interpreter
+   (`.../uv/python/cpython-3.11-linux-x86_64-gnu/bin`), und `bin/python` ist
+   ein Linux-Symlink. Im Windows-Explorer und in Git Bash erscheinen diese
+   Symlinks als **0-Byte-Dateien**. Das ist kein Defekt — es ist eine
+   Linux-Umgebung, von der falschen Seite betrachtet.
+
+> **Die Falle:** Punkt 2 hat schon einmal zu der Fehldiagnose „`.venv` ist
+> kaputt, neu aufsetzen" geführt. Wer das auf der **Windows**-Seite versucht,
+> zerstört eine funktionierende Umgebung. Auf Windows gibt es weder uv noch R
+> — `C:\Program Files\R` ist leer. Das Projekt läuft in WSL, nicht in Windows.
+
+**Neu anlegen / reproduzieren** (in WSL, aus dem Projektordner):
+
+```bash
+export UV_PROJECT_ENVIRONMENT=$HOME/.venvs/pfd
+uv sync --frozen          # exakt aus uv.lock, keine Aufloesung
+```
+
+`UV_PROJECT_ENVIRONMENT` muss gesetzt sein, **sonst legt uv wieder ein
+`.venv` im Projektordner an** und das Problem kehrt zurück. Für die tägliche
+Arbeit genügt `source ~/.venvs/pfd/bin/activate`; die Variable braucht nur,
+wer `uv sync` oder `uv run` aufruft. Bewusst **nicht** global in `.bashrc`
+gesetzt, weil sie sonst auch für jedes andere uv-Projekt gälte.
+
+**Stand der Umgebung** (verifiziert 16.08.2026):
+
+| | |
+|---|---|
+| Python | 3.11.15 (uv-verwaltet), `requires-python = ">=3.11,<3.12"` |
+| uv | 0.11.29, unter `~/.local/bin/uv` (nicht auf dem PATH nicht-interaktiver Shells) |
+| R | 4.6.1, `R_HOME=/usr/lib/R`, mit `lme4` und `mgcv` |
+| rpy2 | 3.6.7 (in `pyproject.toml` gepinnt), `importr("lme4")` und `importr("mgcv")` laden |
+| Dateisystem | ext4 unter `$HOME`, nicht DrvFs/`/mnt/c` |
+
+**Validierung nach dem Neuaufbau:**
+`_eq3_ladder_cluster.py` in der neuen Umgebung reproduziert
+`ladder_cluster.csv`; schlechteste relative Abweichung 1,6e−12, in der
+Antworttabelle sind alle Werte auf drei Nachkommastellen identisch. Die
+interne Kontrolle des Skripts gegen `ladder.csv` / `cluster_robust.csv` liegt
+bei ≤ 1,4e−16.
+
+*Randnotiz zum Rauschen:* `ladder_cluster.csv` war zunächst in einer
+Windows-Conda-Umgebung gerechnet worden (Notlösung, siehe `revision_log.md`
+R2-C1) und wich durch eine andere BLAS-Bibliothek in der 13.–14. Stelle ab.
+Die Datei ist jetzt in der kanonischen WSL-Umgebung neu erzeugt, damit
+künftige Läufe keinen Diff mehr produzieren.
+
 ## Tags und Referenzpunkte
 
 - **pre-revision-baseline** (`1067d77`): ACHTUNG – markiert NICHT den

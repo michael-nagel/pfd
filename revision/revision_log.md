@@ -1378,12 +1378,19 @@ bis auf Maschinengenauigkeit (max. Abweichung 2e−14). Neu belegt:
 Auch cluster-robust steigt der t-Wert von 11,29 auf 13,87 — die Kontrolle für
 den Opening-Preis schwächt eta_2 in keiner Lesart ab.
 
-*Umgebungsnotiz:* `.venv` ist kaputt (0-Byte-Symlinks, OneDrive), das
-System-Python ist 3.8 und scheitert an den `tuple[...]`-Annotationen der
-Paketquellen. Gerechnet mit `C:\Users\micha\anaconda3\envs\eca_env` (3.11);
-dort ist die statsmodels/scipy-Kombination inkompatibel, weshalb
-`_eq3_ladder_cluster.py` `filter_and_shape.py` direkt per `importlib` lädt
-und die `pfd`-Paket-`__init__`-Kette umgeht. Keine Änderung an Repo-Quellen.
+*Umgebungsnotiz (korrigiert 16.08.2026):* Der erste Lauf entstand auf der
+**Windows**-Seite als Notlösung — mit `C:\Users\micha\anaconda3\envs\eca_env`
+(3.11), und weil dort statsmodels/scipy inkompatibel sind, lädt
+`_eq3_ladder_cluster.py` `filter_and_shape.py` direkt per `importlib` und
+umgeht die `pfd`-Paket-`__init__`-Kette. **Die Diagnose dahinter war falsch:**
+`.venv` war nicht kaputt, sondern eine funktionierende *Linux*-Umgebung, deren
+Symlinks von Windows aus als 0-Byte-Dateien erscheinen. Das Projekt läuft in
+WSL; dort importiert `pfd` normal, und der `importlib`-Umweg wird nicht
+gebraucht. Die Umgebung liegt seit dem 16.08.2026 unter `~/.venvs/pfd`
+ausserhalb von OneDrive — Begründung und Wiederaufbau in
+`baseline_status.md`, Abschnitt „Arbeitsumgebung". Der `importlib`-Umweg
+bleibt im Skript stehen, weil er in beiden Umgebungen funktioniert; nötig ist
+er nur auf Windows. Keine Änderung an Repo-Quellen.
 
 **Beleg/Validierung:** `revision/snapshots/eq3_contract_level/` (Commit
 `d4183ab`): `ladder.csv`, `match_anova.csv`, `cluster_robust.csv`,
