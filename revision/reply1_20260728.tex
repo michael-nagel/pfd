@@ -313,7 +313,7 @@ horizon betting market with binary terminal outcomes, irregularly observed price
 bookmaker margins, and censored price histories. The paper should discuss whether
 the assumptions behind the Biais et al. (1999) framework are plausible here. }
 
-\ReplyMN{All prices are now margin-adjusted (Comment~1), and the censoring does not reach the learning-rate estimate, whose support points lie in the closing half of the window and never touch the stretch that a truncated series leaves unobserved (Comment~5).
+\ReplyMN{All prices are now margin-adjusted (Comment~1), and the censoring does not reach the learning-rate estimate, whose support points lie at 60, 70, 80, 90 and 100\% of each series' own quoting period and so never touch the early stretch that a truncated series leaves unobserved (Comment~5). The last of them is the closing price itself, which the platform always reports; the grid is anchored to the series rather than to the match, so every support point falls inside a period during which that bookmaker actually quoted (Referee~2, Critical Comment~2).
 
 Irregular observation is handled inside the framework. Biais et al.\ (1999, p.~1240, eq.~13) show that the moment condition is invariant to a rescaling of the time axis, and this survives a match-specific clock rate, because the residual already has mean zero row by row and the scale factor therefore cancels before anything is pooled. Spacing the support points too tightly is what does cause trouble: the standard error then exceeds the estimate itself and a third of the bookmaker estimates turn negative, which is why we space them as Biais et al.\ do.
 
