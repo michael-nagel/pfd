@@ -88,8 +88,9 @@ def create_pm_mod(df: pd.DataFrame, n_per: int, incr: int) -> pm.Model:
         # Positionen der tatsaechlich verwendeten Stuetzstellen auf dem
         # Perzentilraster, 1-basiert (OddsMvt0 ist der erste Timestamp) --
         # identisch zu `_gen_meth_mom.momcond`, damit GMM und Bayesian
-        # dieselbe Momentbedingung schaetzen.
-        tau = [n_per - i * incr + 1 for i in (1, 2, 3)]
+        # dieselbe Momentbedingung schaetzen. Die Formel ist hier dupliziert:
+        # wird sie dort geaendert, muss sie es auch hier werden.
+        tau = [n_per - (i - 1) * incr for i in (1, 2, 3)]
 
         # Zerfallsfaktor = Verhaeltnis der Positionen der beiden jeweils
         # verglichenen Stuetzstellen (Biais et al. 1999, Gl. 12). Bei
