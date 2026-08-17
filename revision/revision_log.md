@@ -1745,6 +1745,63 @@ werden Figure 1 zudem um den medianen Posting-Zeitpunkt je Bookmaker
 erweitern, wie vom Referee vorgeschlagen; die inhaltliche Auswertung dieser
 Größe berichten wir zusammen mit R3-2.
 
+## Lernraten-Heterogenität über Bookmaker – nicht nachweisbar
+
+**Eigenständiger Befund, unabhängig von der Spezifikationswahl.** Nicht an
+einen einzelnen Reviewer-Kommentar gebunden, betrifft aber Abstract,
+`\var{}`-Werte und Diskussion.
+
+**Untersuchung:** Streuung der 24 bookmakerspezifischen γ gegen ihre
+Standardfehler, in beiden konkurrierenden Spezifikationen.
+
+| | V1\|A (publiziert) | V2\|B (Kandidat) |
+|---|---:|---:|
+| Cochran-Q (df 23) | 23,94 | 18,16 |
+| p | **0,407** | **0,749** |
+| I² | 3,9 % | **0,0 %** |
+| τ zwischen Bookmakern | 0,000410 | 0,000000 |
+| sd der γ / mittlere SE | 0,002391 / 0,002213 | 0,002272 / 0,002423 |
+| Intervalle ohne den gepoolten Wert | 2 von 24 | **0 von 24** |
+| paarweise Kontraste signifikant | 12/276 = **4,3 %** | 5/276 = **1,8 %** |
+
+4,3 % signifikante Kontraste sind exakt Zufallsniveau bei α = 0,05; unter
+V2|B liegt der Anteil darunter. Dort schließt **kein einziges**
+95-%-Intervall den gepoolten Wert (0,003555) aus.
+
+**Entscheidung:** Die Bookmaker-Ebene der Lernraten wird nicht mehr als
+Befund geführt. Der Wechsel der Rangfolge zwischen Spezifikationen
+(Spearman 0,456) ist damit **kein Argument gegen eine der Fassungen** — es
+gibt keine Ordnung, die brechen könnte. Die nominellen Extremwerte (GGBET,
+Dafabet) sind Schätzrauschen.
+
+**Betroffen, Textüberarbeitung OFFEN:**
+- **Abstract**: „substantial heterogeneity across bookmakers and market
+  segments" — Bookmaker-Teil streichen, Segment-Teil bleibt.
+- `min_gamma_gmm`, `max_gamma_gmm`, `idxmin_gamma_gmm` (GGBET),
+  `idxmax_gamma_gmm` (Dafabet), Papertext Z. 820.
+- `corr_gamma_loss` / Figure 6 (Lernrate vs. RMSE) — wird nach R2-M10
+  ohnehin entfernt, ist damit zusätzlich unhaltbar.
+- Diskussion §5.5 und §6, soweit sie Bookmaker-Unterschiede deutet.
+
+**Stützt dagegen:** **R1-iv** (dort bereits: Bookmaker in Eq. 1 mit
+p = 0,379 und Eq. 3 mit p = 0,595 nicht unterscheidbar — das gilt nun auch
+für die Lernraten) und **R2-M8** (Fokus auf Aggregatergebnisse).
+
+**Unberührt:** Der **Segment**-Unterschied Favoriten/Longshots hält —
+0,005531 gegen 0,001181 unter V2|B, Differenz +0,004350 bei t = **4,49**
+(unter V1|A t = 7,44); Longshots bleiben ununterscheidbar von null.
+
+**Beleg/Validierung:** `revision/snapshots/gmm_rasterfree/_hetero.py`,
+`hetero_by_bookie.csv`, `hetero_summary.csv`.
+
+**Vorbehalt / offen:** Der Q-Test unterstellt Unabhängigkeit der 24
+Schätzungen; sie teilen sich Match-Ausgänge, wodurch die wahre Varianz der
+Kontraste kleiner ist als angenommen — der Test unterschätzt Heterogenität
+tendenziell. Bei I² = 0–4 % ist der Abstand groß; ein Cluster-Bootstrap auf
+Matchup-Ebene (B ≈ 100) steht als sauberer Abschluss aus.
+
+**Status:** Befund steht, Textüberarbeitung offen
+
 ## R2-M8 – Table 7: Rauschen vs. systematischer Unterschied
 **Kommentar (kondensiert):** Zu Table 7 (Forecast-Error-Varianz-Unterschiede
 zwischen Bookmakern, z. B. 10Bet) mehr Intuition gewünscht: Rauschen durch
