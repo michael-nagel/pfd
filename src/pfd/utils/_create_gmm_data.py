@@ -49,8 +49,13 @@ def _create_gmm_data(
     exog_list = []
     inst_list = [np.ones(shape=endog.shape[0])]
 
+    # Support points run back from the LAST grid cell. While the terminal
+    # value was the closing price (commented line above), they had to start
+    # one step below it; with the match outcome as terminal value that
+    # restriction is gone, so OddsMvt{n_per - 1} is usable. At incr = 1 this
+    # coincides exactly with the previous indexing.
     for i in range(1, 6):
-        p = df[f"OddsMvt{n_per - (i * incr)}"].to_numpy()
+        p = df[f"OddsMvt{n_per - 1 - ((i - 1) * incr)}"].to_numpy()
         exog_list.append(p)
 
         if i > 3:

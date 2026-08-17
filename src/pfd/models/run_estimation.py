@@ -101,8 +101,8 @@ def run_estimation(cfg: PFDConfig) -> None:
         )
     )
 
-    df, odds_mvt_cols, n_per, frac_missings = resample_and_impute_data(
-        df=df, exog_cols=exog_cols, cfg=cfg, plot_params=plot_params
+    df, odds_mvt_cols, n_per = resample_and_impute_data(
+        df=df, exog_cols=exog_cols, cfg=cfg
     )
 
     adf_stat, adf_p, tex_res_garch = analyze_time_series_diagnostics(
@@ -199,8 +199,6 @@ def run_estimation(cfg: PFDConfig) -> None:
             "gamma_upper_nuts": (gamma_upper_nuts, ".4f"),
             "is_amateur": (is_amateur, ".4f"),
             "is_pro": (is_pro, ".4f"),
-            # "n_missings": (n_missings, None),
-            "frac_missings": (frac_missings, ".4f"),
             "n_per": (n_per, ".0f"),
             "avg_gamma_gmm": (gamma_stats_gmm["mean"], ".4f"),
             "min_gamma_gmm": (gamma_stats_gmm["min"], ".4f"),

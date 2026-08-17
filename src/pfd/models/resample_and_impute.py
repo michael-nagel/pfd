@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 """
-This file resamples the time series and imputes missing prices.
+This file resamples the time series onto a per-series percentile grid.
+
+No imputation happens here any more: the grid of each series runs from that
+bookmaker's own opening price to its own closing price, so every cell falls
+inside a period during which the bookmaker actually quoted.
 """
 
 # Imports
@@ -10,20 +14,10 @@ import os
 from functools import partial
 from multiprocessing import Pool
 
-import matplotlib.pylab as pylab
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from pfd.helpers import impute_missings
-from pfd.utils import (
-    PFDConfig,
-    PlotParams,
-    calc_imput_loss,
-    finalize_plot,
-    pivot_df,
-    resample,
-)
+from pfd.utils import PFDConfig, pivot_df, resample
 
 # Functions
 
@@ -57,15 +51,13 @@ def resample_and_impute_data(
     df: pd.DataFrame,
     exog_cols: list[str],
     cfg: PFDConfig,
-    plot_params: PlotParams,
-) -> tuple[pd.DataFrame, list[str], int, float]:
+) -> tuple[pd.DataFrame, list[str], int]:
     """
-    Resample the time series and impute missing initial prices.
+    Resample the time series onto a per-series percentile grid.
 
     This function resamples each match/bookmaker time series to a
-    common percentile-time grid using multiprocessing, reshapes the
-    result to wide format, and imputes prices missing due to
-    different opening timestamps across bookmakers.
+    percentile-time grid spanning that series' own quoting period, using
+    multiprocessing, and reshapes the result to wide format.
 
     Parameters
     ----------
@@ -75,20 +67,21 @@ def resample_and_impute_data(
         Exogenous variables.
     cfg : PFDConfig
         Config parameters.
-    plot_params : PlotParams
-        Plotting parameters.
 
     Returns
     -------
     tuple
-        df (wide, imputed), odds_mvt_cols, n_per, frac_missings.
+        df (wide), odds_mvt_cols, n_per.
     """
     # Time Series
 
     # Determine the first and the last time stamps of odds updates for each
-    # match across bookmakers
-    df["TsStart"] = df.groupby("Matchup")["Update"].transform("min")
-    df["TsEnd"] = df.groupby("Matchup")["Update"].transform("max")
+    # series, i.e. each bookmaker's own quoting period. Anchoring the grid
+    # per series rather than per match is what removes the backward
+    # imputation: every grid cell now falls inside a period during which
+    # that bookmaker actually quoted a price (Referee 2, Critical Comment 2).
+    df["TsStart"] = df.groupby("GroupId")["Update"].transform("min")
+    df["TsEnd"] = df.groupby("GroupId")["Update"].transform("max")
 
     df = df.set_index("Update")
 
@@ -125,8 +118,14 @@ def resample_and_impute_data(
     group_std = df.groupby("GroupId")["OddsMvt"].transform("std")
     df = df[group_std > 0]
 
-    n_missings = df["OddsMvt"].isna().sum()
-    frac_missings = n_missings / df["OddsMvt"].shape[0]
+    # With the grid anchored per series there are no missing cells left to
+    # impute; assert it rather than assume it.
+    n_missings = int(df["OddsMvt"].isna().sum())
+    if n_missings:
+        raise ValueError(
+            f"{n_missings} missing prices after resampling; with a "
+            "series-anchored grid there should be none."
+        )
 
     # Store DataFrame
     df.to_hdf(
@@ -151,69 +150,4 @@ def resample_and_impute_data(
         n_per=n_per,
     )
 
-    # Imputation of Missing Initial Prices
-    #
-    # Tried running the three loss estimates below plus the final
-    # imputation concurrently (each is an independent, pure function
-    # of df/seed) since each triggers a slow sklearn IterativeImputer
-    # fit - but on this machine (6 cores, ~11GB RAM available to WSL)
-    # four concurrent IterativeImputer fits contend heavily for both
-    # CPU and memory (each fit alone uses several GB) and end up
-    # slower in wall-clock terms than just running them one at a time.
-    # Left sequential.
-    perc = [25, 50, 75]
-    loss = []
-    for ele in perc:
-        loss.append(
-            calc_imput_loss(
-                df=df,
-                odds_mvt_cols=odds_mvt_cols,
-                n_mvt=round(frac_missings * len(odds_mvt_cols)),
-                pctl=ele,
-                seed=cfg.general.seed,
-                imp_func=impute_missings,
-            )
-        )
-
-    losses = list(map(list, zip(*loss, strict=True)))
-    loss_dict = {
-        "median": losses[0],
-        "linear": losses[1],
-        "multiple": losses[2],
-    }
-
-    # Plot metrics
-    pylab.rcParams.update(
-        plot_params.set_rc_params(kind="fig_small", fig_size=(6.4, 4.8))
-    )
-
-    x = np.arange(len(loss_dict))
-    width = 0.25
-    multiplier = 0
-
-    _, ax = plt.subplots()
-    for _i, (key, val) in enumerate(loss_dict.items()):
-        offset = width * multiplier
-        ax.bar(x + offset, val, width, label=key)
-        multiplier += 1
-    ax.set(
-        xlabel="Percentile Price Movements",
-        ylabel="RMSE",
-        ylim=[0, max(max(losses)) * 1.25],
-    )
-    ax.set_xticks(x + width, perc)
-    ax.legend(
-        loc="upper center",
-        ncol=len(loss_dict),
-        columnspacing=0.5,
-        handletextpad=0.25,
-    )
-    finalize_plot(
-        path=f"{cfg.paths.figures}imput_loss.pdf",
-        save=cfg.general.save,
-    )
-
-    # Impute missing values induced through different opening timestamps
-    df = impute_missings(df=df, seed=cfg.general.seed)
-
-    return df, odds_mvt_cols, n_per, frac_missings
+    return df, odds_mvt_cols, n_per

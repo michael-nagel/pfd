@@ -56,7 +56,9 @@ class IntegrationTest(unittest.TestCase):
         n_per = 30
         n_obs = 100
         rng = np.random.default_rng(42)
-        cols = [f"OddsMvt{i}" for i in [0, 5, 10, 15, 20, 25]]
+        # Support points run back from the last grid cell, n_per - 1 - i*incr
+        # for i = 0..4, plus OddsMvt0.
+        cols = [f"OddsMvt{i}" for i in [0, 9, 14, 19, 24, 29]]
         df = pd.DataFrame({col: rng.uniform(0, 1, size=n_obs) for col in cols})
         df["Bookies"] = "Pinnacle"
         df["Match"] = rng.integers(0, 2, size=n_obs)

@@ -47,10 +47,11 @@ class _GenMethMom(GMM):
         inst = self.instrument
 
         # Positionen der tatsaechlich verwendeten Stuetzstellen auf dem
-        # Perzentilraster. `_create_gmm_data` zieht OddsMvt{n_per - i*incr}
-        # fuer i = 1..5; gezaehlt wird 1-basiert, OddsMvt0 ist der erste
-        # Timestamp, also tau = Index + 1.
-        tau = [n_per - i * incr + 1 for i in (1, 2, 3)]
+        # Perzentilraster. `_create_gmm_data` zieht
+        # OddsMvt{n_per - 1 - (i-1)*incr} fuer i = 1..5; gezaehlt wird
+        # 1-basiert, OddsMvt0 ist der erste Timestamp, also tau = Index + 1.
+        # MUSS mit der Spaltenwahl dort zusammen geaendert werden.
+        tau = [n_per - (i - 1) * incr for i in (1, 2, 3)]
 
         # Zerfallsfaktor = Verhaeltnis der Positionen der beiden jeweils
         # verglichenen Stuetzstellen (Biais et al. 1999, Gl. 12: ((t-1)/t)).
