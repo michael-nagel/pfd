@@ -13,6 +13,7 @@ from .bootstrap_std_error import bootstrap_std_error
 from .calc_imput_loss import calc_imput_loss
 from .calc_rmse import calc_rmse
 from .calc_win_props import calc_win_props
+from .checkpoint import run_phase
 from .config import PFDConfig
 from .crawl_match_urls import crawl_match_urls
 from .create_func_dict import create_func_dict

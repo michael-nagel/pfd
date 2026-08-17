@@ -32,6 +32,7 @@ from pfd.utils import (
     PFDConfig,
     PlotParams,
     mod_tex_tab,
+    run_phase,
     write_text_file,
 )
 
@@ -76,58 +77,77 @@ def run_estimation(cfg: PFDConfig) -> None:
 
     # Shaping, estimation and descriptive analyses
 
-    df, df_desc, bookies, exog_cols, n_obs, n_groups, is_amateur, is_pro = (
-        filter_and_shape_data(df=df, cfg=cfg)
-    )
+    # The phases below are wrapped in `run_phase` so that a long run can be
+    # resumed after an interruption. `cfg.estimation.checkpoint` decides only
+    # whether results are written and read back; with the switch off each
+    # lambda is called directly and nothing else changes.
 
-    rmse, df_oc, iqr_rtrns, tex_res_gpm, tex_res_rfa, df_res_rfa = (
-        analyze_bookmaker_accuracy(
-            df=df,
+    def _pre():
+        d, df_desc, bookies, exog_cols, n_obs, n_groups, is_amateur, is_pro = (
+            filter_and_shape_data(df=df, cfg=cfg)
+        )
+        acc = analyze_bookmaker_accuracy(
+            df=d,
             exog_cols=exog_cols,
             bookies=bookies,
             cfg=cfg,
             plot_params=plot_params,
             stata_colors=stata_colors,
         )
-    )
-
-    res_win_props, tex_res_wp_re, bootstr_std, bootstr_low, bootstr_up = (
-        analyze_winning_proportions(
-            df_oc=df_oc,
+        wp = analyze_winning_proportions(
+            df_oc=acc[1],
             bookies=bookies,
             cfg=cfg,
             plot_params=plot_params,
             stata_colors=stata_colors,
         )
+        return (d, df_desc, bookies, exog_cols, n_obs, n_groups, is_amateur,
+                is_pro, *acc, *wp)
+
+    (df, df_desc, bookies, exog_cols, n_obs, n_groups, is_amateur, is_pro,
+     rmse, df_oc, iqr_rtrns, tex_res_gpm, tex_res_rfa, df_res_rfa,
+     res_win_props, tex_res_wp_re, bootstr_std, bootstr_low,
+     bootstr_up) = run_phase("pre", _pre, cfg)
+
+    df, odds_mvt_cols, n_per = run_phase(
+        "wide",
+        lambda: resample_and_impute_data(df=df, exog_cols=exog_cols, cfg=cfg),
+        cfg,
     )
 
-    df, odds_mvt_cols, n_per = resample_and_impute_data(
-        df=df, exog_cols=exog_cols, cfg=cfg
+    def _post():
+        garch = analyze_time_series_diagnostics(
+            df=df,
+            exog_cols=exog_cols,
+            odds_mvt_cols=odds_mvt_cols,
+            n_per=n_per,
+            cfg=cfg,
+            plot_params=plot_params,
+            stata_colors=stata_colors,
+        )
+        idx = estimate_unbiasedness_regressions(
+            df=df,
+            odds_mvt_cols=odds_mvt_cols,
+            cfg=cfg,
+            plot_params=plot_params,
+        )
+        return (*garch, idx)
+
+    adf_stat, adf_p, tex_res_garch, signific_time_idx = run_phase(
+        "post", _post, cfg
     )
 
-    adf_stat, adf_p, tex_res_garch = analyze_time_series_diagnostics(
-        df=df,
-        exog_cols=exog_cols,
-        odds_mvt_cols=odds_mvt_cols,
-        n_per=n_per,
-        cfg=cfg,
-        plot_params=plot_params,
-        stata_colors=stata_colors,
-    )
-
-    signific_time_idx = estimate_unbiasedness_regressions(
-        df=df, odds_mvt_cols=odds_mvt_cols, cfg=cfg, plot_params=plot_params
-    )
-
-    gamma_stats_gmm, idxmin_gamma_gmm, idxmax_gamma_gmm = (
-        estimate_gmm_learning_rate(
+    gamma_stats_gmm, idxmin_gamma_gmm, idxmax_gamma_gmm = run_phase(
+        "gmm",
+        lambda: estimate_gmm_learning_rate(
             df=df,
             n_per=n_per,
             bookies=bookies,
             cfg=cfg,
             plot_params=plot_params,
             stata_colors=stata_colors,
-        )
+        ),
+        cfg,
     )
 
     (
@@ -140,13 +160,17 @@ def run_estimation(cfg: PFDConfig) -> None:
         gamma_udd,
         gamma_pro,
         gamma_amat,
-    ) = estimate_bayesian_learning_rate(
-        df=df,
-        n_per=n_per,
-        rmse=rmse,
-        cfg=cfg,
-        plot_params=plot_params,
-        stata_colors=stata_colors,
+    ) = run_phase(
+        "bayesian",
+        lambda: estimate_bayesian_learning_rate(
+            df=df,
+            n_per=n_per,
+            rmse=rmse,
+            cfg=cfg,
+            plot_params=plot_params,
+            stata_colors=stata_colors,
+        ),
+        cfg,
     )
 
     # Saving

@@ -2,6 +2,7 @@
 
 # Imports
 
+import os
 from typing import Any
 
 import arviz as az
@@ -74,6 +75,16 @@ def gen_res_obj(
         return trace, tracker, advi
 
     elif est_method == "nuts":
+        # Each NUTS run is already written out below; with checkpointing on we
+        # read it back instead of sampling again, so an interrupted run does
+        # not repeat the subsets it had already finished. This only skips
+        # recomputation - the sampler settings are untouched.
+        done = f"{cfg.paths.models}trace_{est_method}_{subset}.nc"
+        if getattr(cfg.estimation, "checkpoint", False) and os.path.isfile(
+            done
+        ):
+            return az.from_netcdf(done)
+
         trace = est_pm_mod(
             model=model,
             seed=cfg.general.seed,

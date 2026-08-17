@@ -1,0 +1,62 @@
+sampling:
+  n_chains: 4
+  n_draws: 5000
+  n_tune: 2000
+  n_cores: 4
+  targ_acpt: 0.85
+  hdi: 0.95
+  vi_n_iter: 25000
+  vi_n_draws: 10000
+general:
+  seed: 42
+  save: true
+  main_scripts:
+  - shape_data.py
+  - run_estimation.py
+  - run_descriptives.py
+estimation:
+  spec: BmHome
+  normalize: true
+  compets: null
+  bm_quantile: 0.25
+  ts_dur:
+  - 12
+  - 72
+  period: null
+  resample_freq: 1min
+  pctl: 2
+  incr: 5
+  max_iter: cue
+files:
+  clr_plt: stata_colors.json
+  clr_plt_ext: stata_colors_ext.json
+  chrm_driv: chromedriver.exe
+  acpt_cookies: I-don-t-care-about-cookies.crx
+  cred: credentials.json
+  vals: values.dat
+paths:
+  acc: ../../../accessories/
+  data_ext: ../../../data/external/
+  data_intrm: ../../../data/interim/
+  data_proc: ../../../data/processed/
+  data_raw: ../../../data/raw/
+  models: ../../../models/
+  figures: ../../../reports/figures/
+  tables: ../../../reports/tables/
+  vals: ../../../reports/values/
+plotting:
+  base_size: 16
+  leg_mkr_size: 1
+  line_width: 1
+  mkr_size: 8
+  ax_line_width: 0.8
+  xtick_maj_width: 0.8
+  ytick_maj_width: 0.8
+  xtick_maj_size: 3.5
+  ytick_maj_size: 3.5
+  font_family: sans-serif
+scraping:
+  headless: false
+  crawl_till: '2023-11-28 09:00:00'
+  repeat_per: 9
+  sleep: 3

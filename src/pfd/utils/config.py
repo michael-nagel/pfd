@@ -22,6 +22,7 @@ class Estimation:
     incr: int
     start_params: list
     max_iter: int | str
+    checkpoint: bool = False
 
     def __post_init__(self):
         if not isinstance(self.spec, str):
