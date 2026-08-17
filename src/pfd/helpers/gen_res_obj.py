@@ -79,11 +79,17 @@ def gen_res_obj(
         # read it back instead of sampling again, so an interrupted run does
         # not repeat the subsets it had already finished. This only skips
         # recomputation - the sampler settings are untouched.
-        done = f"{cfg.paths.models}trace_{est_method}_{subset}.nc"
-        if getattr(cfg.estimation, "checkpoint", False) and os.path.isfile(
-            done
-        ):
-            return az.from_netcdf(done)
+        #
+        # Resumption keys on a sentinel, NOT on the trace file itself: a
+        # trace_*.nc left over from an earlier run of a DIFFERENT
+        # specification would otherwise be loaded as if it belonged to this
+        # run, silently returning stale posteriors. The sentinel is written
+        # only by the block below, so it cannot outlive its own trace.
+        nc = f"{cfg.paths.models}trace_{est_method}_{subset}.nc"
+        sentinel = f"{nc}.ckpt"
+        ckpt_on = getattr(cfg.estimation, "checkpoint", False)
+        if ckpt_on and os.path.isfile(sentinel) and os.path.isfile(nc):
+            return az.from_netcdf(nc)
 
         trace = est_pm_mod(
             model=model,
@@ -101,5 +107,11 @@ def gen_res_obj(
     trace.to_netcdf(
         filename=f"{cfg.paths.models}trace_{est_method}_{subset}.nc"
     )
+
+    if getattr(cfg.estimation, "checkpoint", False) and est_method == "nuts":
+        with open(
+            f"{cfg.paths.models}trace_{est_method}_{subset}.nc.ckpt", "w"
+        ) as f:
+            f.write("written by this run\n")
 
     return trace
