@@ -54,3 +54,4 @@ update_docs.txt
 # Testing and coverage reports
 htmlcov/
 .coverage
+src/pfd/models/outputs/
