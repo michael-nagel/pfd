@@ -289,6 +289,10 @@ def estimate_bayesian_learning_rate(
     for key in ("tracker", "advi"):
         res_pm["vi"].pop(key, None)
 
+    # res_pm is a defaultdict whose factory is a lambda; the container itself
+    # is what refuses to pickle, not its contents. Hand back plain dicts.
+    res_pm = {k: dict(v) for k, v in res_pm.items()}
+
     return (
         res_pm,
         metrics,

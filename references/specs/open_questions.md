@@ -403,3 +403,51 @@ teilen sich Match-Ausgänge, wodurch die wahre Varianz der Kontraste kleiner
 ist als unterstellt — der Test unterschätzt Heterogenität tendenziell. Bei
 I² = 0–4 % ist der Abstand groß, ein Cluster-Bootstrap auf Matchup-Ebene
 (B ≈ 100) wäre der saubere Abschluss. **Offen.**
+
+## Bayesian unter V2|B – Befund festgehalten, nicht weiterverfolgt
+
+Quelle: `revision/snapshots/gmm_rasterfree/_bayes_diag.py`,
+`bayes_convergence.csv`, `bayes_zero_mass.csv`, `bayes_sdgamma.csv`;
+Traces in `models/`, publizierter Vergleichsstand in
+`models/archive_2024-12-02_published/`.
+
+**Konvergenz ist sauber.** 15 NUTS-Läufe à 20.000 Draws: R-hat durchgehend
+1,0000, kein Lauf über 1,01; minimale ESS bulk 1.866 (`fav`), keiner unter
+400; 43 Divergenzen insgesamt (≤ 0,085 % der Draws), konzentriert auf die
+Dezil-Läufe `quantile5` (17), `quantile3` (12), `quantile6` (8).
+
+**Übereinstimmung mit dem GMM ist gut – bis auf `fav`.**
+
+| Subset | Bayes | GMM | Verhältnis |
+|---|---:|---:|---:|
+| tot | 0,003575 | 0,003474 | 1,03 |
+| udd | 0,001149 | 0,001181 | 0,97 |
+| **fav** | **0,008453** | **0,005531** | **1,53** |
+
+`tot` und `udd` stimmen auf 3 % überein; `fav` weicht um Faktor 1,53 ab.
+Vermutung (ungeprüft): `mean_gamma` ist der Mittelwert der *zugrunde
+liegenden* Normalverteilung, nicht der der bei null abgeschnittenen; bei
+grossem `sd_gamma` fallen beide auseinander. `fav` hat zugleich die
+niedrigste Effizienz im Feld. **Nicht weiterverfolgt.**
+
+**Offener Widerspruch: `sd_gamma`.** Posterior-Median **0,007723** bei einem
+`mean_gamma` von 0,0036 – die geschätzte Streuung zwischen Bookmakern ist
+doppelt so gross wie das Niveau selbst. Frequentistisch ist dieselbe
+Streuung **nicht nachweisbar** (τ = 0,000, I² = 0 %, Cochran-Q p = 0,749).
+Die Daten ziehen `sd_gamma` zwar um Faktor 36 unter den Prior-Median
+(Exponential(2,5), Median 0,27726), der Posterior sitzt aber immer noch bei
+nur 1,9 % der Prior-Verteilung. Ob der Rest Prior-Druck oder Signal ist,
+ist **offen**.
+
+> **Betrifft dieselbe Abstract-Passage** wie der Heterogenitätsbefund
+> weiter oben („substantial heterogeneity across bookmakers"). Solange die
+> beiden Schätzverfahren auf denselben Daten uneins sind, sollte die
+> Passage keine Bookmaker-Heterogenität behaupten.
+
+**Truncation bindet.** `gamma ~ Truncated(Normal, lower=0)` ist bei drei von
+24 Bookmakern spürbar: BetVictor **99,9 %** der Posterior-Masse unter 0,001
+(GMM 0,000394), Pinnacle 28,3 % (GMM −0,000375, negativ und damit im Modell
+unzulässig), Marathonbet 22,6 %. Rangkorrelation Posterior-Median gegen GMM
+nur **0,3409**.
+
+**Status:** Befund festgehalten, nicht weiterverfolgt.
