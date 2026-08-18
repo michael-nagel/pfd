@@ -1,31 +1,34 @@
 # Unterschiede zur publizierten Version
 
-- **Stufe:** `E_gmm_exponent_fix`
+- **Stufe:** `live`
 - **Referenz:** `revision/snapshots/A_baseline` (publizierter Stand; NICHT der Tag `pre-revision-baseline`, zwischen beiden liegen drei Commits Code-Drift)
-- **Erzeugt:** 2026-08-02 21:04 UTC von `revision/compare_to_published.py`
+- **Erzeugt:** 2026-08-18 11:54 UTC von `revision/compare_to_published.py`
 
-## 1) values (20 Schlüssel vergleichbar, 22 von dieser Stufe nicht erzeugt)
+## 1) values (42 Schlüssel vergleichbar, 0 von dieser Stufe nicht erzeugt)
 
 | key | publiziert | aktuell | Delta | rel. |
 |---|---:|---:|---:|---:|
 | `iqr_rtrns` | 0.1237 | 0.1207 | -0.003 | -2.43 % |
-| `frac_missings` | 0.0784 | 0.0785 | +0.0001 | +0.13 % |
-| `avg_gamma_gmm` | 0.0332 | 0.0054 | -0.0278 | -83.73 % |
-| `min_gamma_gmm` | 0.0029 | 0.0014 | -0.0015 | -51.72 % |
-| `max_gamma_gmm` | 0.0741 | 0.0124 | -0.0617 | -83.27 % |
-| `adf_stat` | -5.35 | -3.79 | +1.56 | +29.16 % |
-| `adf_p` | 0.0002 | 0.056 | +0.0558 | +27900.00 % |
+| `gamma_med_nuts` | 0.0494 | 0.0036 | -0.0458 | -92.71 % |
+| `gamma_lower_nuts` | 0.0324 | 0 | -0.0324 | -100.00 % |
+| `gamma_upper_nuts` | 0.0624 | 0.0075 | -0.0549 | -87.98 % |
+| `avg_gamma_gmm` | 0.0332 | 0.0035 | -0.0297 | -89.46 % |
+| `min_gamma_gmm` | 0.0029 | -0.0004 | -0.0033 | -113.79 % |
+| `max_gamma_gmm` | 0.0741 | 0.0088 | -0.0653 | -88.12 % |
+| `idxmax_gamma_gmm` | Dafabet | 10Bet | — | — |
+| `idxmin_gamma_gmm` | GGBET | Pinnacle | — | — |
+| `adf_stat` | -5.35 | -7.47 | -2.12 | -39.63 % |
+| `adf_p` | 0.0002 | 0 | -0.0002 | -100.00 % |
+| `corr_gamma_loss` | -0.2414 | -0.3199 | -0.0785 | -32.52 % |
 | `bootstr_std` | 0.0258 | 0.0307 | +0.0049 | +18.99 % |
 | `bootstr_up` | 0.7918 | 0.8808 | +0.089 | +11.24 % |
 | `bootstr_low` | 0.6908 | 0.7604 | +0.0696 | +10.08 % |
+| `gamma_fav` | 0.0608 | 0.0085 | -0.0523 | -86.02 % |
+| `gamma_udd` | 0.0215 | 0.0011 | -0.0204 | -94.88 % |
+| `gamma_pro` | 0.0389 | 0.0075 | -0.0314 | -80.72 % |
+| `gamma_amat` | 0.0354 | 0.0018 | -0.0336 | -94.92 % |
 
-**10 von 20 geändert, 10 unverändert (nicht aufgelistet).**
-
-### Nicht erzeugt von dieser Stufe (22) — kein Datenverlust, sondern Herkunft
-
-- **Config-Wert (Sampling-Einstellung, kein Rechenergebnis; `cfg.sampling.*` über `helpers/gen_res_obj.py`)** (8): `hdi`, `n_chains`, `n_cores`, `n_draws`, `n_tune`, `targ_acpt`, `vi_n_draws`, `vi_n_iter`
-- **Bayesian-Block nicht gerechnet (NUTS/ADVI in den Stufen abgeschaltet; `models/bayesian_estimation.py`)** (8): `corr_gamma_loss`, `gamma_amat`, `gamma_fav`, `gamma_lower_nuts`, `gamma_med_nuts`, `gamma_pro`, `gamma_udd`, `gamma_upper_nuts`
-- **vorgelagerte Stufe, nicht Teil der Schätzpipeline (`features/shape_data.py`, `visualization/create_descriptives.py`)** (6): `crawl_dur`, `crawl_end`, `crawl_start`, `n_bm_tot`, `n_matches_tot`, `ts_dur_med`
+**19 von 42 geändert, 23 unverändert (nicht aufgelistet).**
 
 ## 2) Tabellen 3-7
 
@@ -341,34 +344,21 @@
 
 ## 3) GMM
 
-| Kennzahl | publiziert | aktuell | Delta |
-|---|---:|---:|---:|
-| `avg_gamma_gmm` | 0.0332 | 0.00539575 | -0.0278042 |
-| `min_gamma_gmm` | 0.0029 | 0.00137812 | -0.00152188 |
-| `max_gamma_gmm` | 0.0741 | 0.0124031 | -0.0616969 |
-| `idxmin_gamma_gmm` | GGBET | GGBET | — |
-| `idxmax_gamma_gmm` | Dafabet | Dafabet | — |
+- keine `gmm_by_bookie.csv` in dieser Stufe
 
 > **gamma je Bookmaker ist gegen A_baseline nicht vergleichbar.** Der publizierte Lauf hat nur Mittelwert/Min/Max/Argmin/Argmax behalten, die 24 Einzelwerte wurden nach dem Zeichnen verworfen (`A_baseline/MANIFEST.md`, Lücke 1).
-
-Zur Dokumentation, gamma dieser Stufe (24 Bookmaker): Median 0.0057, Spanne 0.0014–0.0124
 
 ## 4) beta_1-Pfad
 
 > **Der volle Pfad ist gegen A_baseline nicht vergleichbar.** Der publizierte Lauf hat nur die Perzentile gespeichert, an denen beta_1 von 1 ununterscheidbar ist, nicht die (beta_1, SE)-Paare (`A_baseline/MANIFEST.md`, Lücke 2). max/mittleres |Delta| sind daher nur zwischen zwei Stufen mit `beta1_curve.csv` bestimmbar.
 
-- Kurve dieser Stufe: 50 Stützstellen, beta_1 von 2.5915 (Perzentil 2) bis 1.0313 (Perzentil 100)
-- Mittleres beta_1: 1.2203
-- **Kreuzung von 1:** keine Kreuzung im Gitter
+- keine `beta1_curve.csv` in dieser Stufe
 
 ## 5) Perzentile, an denen beta_1 von 1 ununterscheidbar ist
 
-- publiziert (31): 4, 6, 8, 10, 12, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 78, 80, 82, 88, 90
-- aktuell (1): 100
-- **hinzugekommen (1):** 100
-- **weggefallen (31):** 4, 6, 8, 10, 12, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 78, 80, 82, 88, 90
+- nicht auf beiden Seiten vorhanden
 
 ## 6) RMSE je Bookmaker
 
-- 24 Bookmaker verglichen; max |Delta| 0.00244, mittleres |Delta| 0.00106, 24 über 5e-7
+- nicht auf beiden Seiten vorhanden
 
