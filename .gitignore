@@ -55,3 +55,10 @@ update_docs.txt
 htmlcov/
 .coverage
 src/pfd/models/outputs/
+
+# Grosse, regenerierbare Diagnostik-Artefakte der Revision
+revision/snapshots/**/*.parquet
+revision/snapshots/**/*.log
+revision/snapshots/eq_window_scope/window_scope_per_series.csv
+revision/snapshots/continuous_unbiasedness/entry_delay/delay_per_series.csv
+models/*.ckpt

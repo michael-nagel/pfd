@@ -281,6 +281,14 @@ def estimate_bayesian_learning_rate(
     for key in list(res_pm.keys()):
         res_pm[key]["sum"] = format_sum(df=res_pm[key]["sum"], cfg=cfg)
 
+    # The ADVI tracker and the ADVI object itself are consumed above, in the
+    # convergence figure, and nothing downstream reads them; their arrays are
+    # already on disk as tracker_mean.npy, tracker_std.npy and advi_hist.npy.
+    # They hold bound pytensor methods and would otherwise travel out of this
+    # function as unpicklable baggage.
+    for key in ("tracker", "advi"):
+        res_pm["vi"].pop(key, None)
+
     return (
         res_pm,
         metrics,

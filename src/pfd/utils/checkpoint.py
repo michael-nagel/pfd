@@ -60,10 +60,24 @@ def run_phase(name: str, fn: Callable[[], Any], cfg: Any) -> Any:
     log.info(f"Checkpoint {name}: computing")
     res = fn()
 
+    # Write to a temp file and move it into place, so an interrupted write
+    # cannot leave a half-finished checkpoint behind. If the result cannot be
+    # pickled we remove the fragment and raise: silently dropping the parts
+    # that do not serialise would hand back an incomplete phase result under
+    # the name of a complete one.
     tmp = f"{path}.tmp"
-    with open(tmp, "wb") as f:
-        pickle.dump(res, f)
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "wb") as f:
+            pickle.dump(res, f)
+        os.replace(tmp, path)
+    except Exception as exc:
+        if os.path.isfile(tmp):
+            os.remove(tmp)
+        raise RuntimeError(
+            f"Checkpoint {name} could not be written: {type(exc).__name__}: "
+            f"{exc}. The phase itself ran; make its result picklable or "
+            f"exclude the offending object at the point where it is produced."
+        ) from exc
     log.info(f"Checkpoint {name}: written to {path}")
 
     return res
