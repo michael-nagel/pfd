@@ -1,67 +1,67 @@
 # pfd — Revision JRSSA-Mar-2026-0082
 
 Paper: „Price Formation Dynamics and Learning in the Tennis Sports Betting
-Market". Diese Datei beschreibt den **aktuellen Stand**, nicht den Weg dahin.
+Market". Branch `revision-jrssa`.
+
+## Übergeordnete Vorgabe
+
+**Papertext UND Antwortdokument werden vollständig aus der Code-Pipeline
+gespeist.** Keine Zahl, keine Tabelle und keine Abbildung darf aus einem
+Snapshot-Skript oder einem vorgehaltenen Zwischenframe stammen. Keine
+Referenzklasse: eingefrorene Vorher-Zahlen aus `revision/snapshots/` tragen
+keine Aussage mehr.
+
+Einzige Ausnahme: `data/processed/shaped_data.h5` (Nov 2024) und die daraus
+hervorgegangene Quelle `data/raw/crawled_odds.json` bleiben Eingang, weil der
+Scrape nicht wiederholbar ist.
 
 ## Aktive Spezifikation
-
-Branch `revision-jrssa`. Gegenüber der eingereichten Fassung gilt:
 
 | Element | Stand |
 |---|---|
 | Preise | margin-bereinigt, auf Summe 1 normalisiert (`p_home/(p_home+p_away)`) |
-| Imputation | **entfällt vollständig** |
-| Zeitraster | **serieneigen**: eigenes Opening bis eigener Schlusspreis, je `GroupId` |
-| GMM-Stützstellen | **50/45/40/35/30** plus `OddsMvt0` |
-| Zerfallsfaktor | τ = [51, 46, 41], aus den tatsächlichen Stützstellenpositionen |
-| Inferenz | cluster-robust auf Matchup (Eq. 1–3, Unbiasedness); Eq. 2 zweiweg |
-| Eq. 3 | auf **Kontraktebene**, binärer Ausgang, Opening-Preis als Kovariate |
-| Unbiasedness | kontinuierliche absolute Achse, `log(Stunden bis Anpfiff)` |
-| GMM/Bayesian | bleiben auf der diskreten relativen Perzentil-Achse |
+| Imputation | entfällt vollständig |
+| Zeitraster | serieneigen je `GroupId`, eigenes Opening bis eigener Schlusspreis |
+| GMM-Stützstellen | 50/45/40/35/30 plus `OddsMvt0` |
+| Zerfallsfaktor | τ = [51, 46, 41] |
+| Unbiasedness | kontinuierliche absolute Achse, `ns(df=4)` in `log(Stunden bis Anpfiff)`, cluster-robust auf Matchup, Bootstrap B = 100, sup-t-Band |
+| GMM/Bayesian | diskrete relative Perzentil-Achse |
+| Eq. 3 | Kontraktebene, LPM als Hauptspezifikation, Logit als Robustheit |
+| RMSE-Aggregation | einheitlich Serienebene |
+| ADF/GARCH, Figure 6, `corr_gamma_loss` | gestrichen |
 
-Kernzahlen: γ̄ = **0,003474** (24 Bookmaker), Favoriten 0,005531 gegen
-Longshots 0,001181 (t = 4,49). Eq. 3 Kontraktebene: η₁ = 1,125, η₂ = 0,956.
+**Kontrollpunkt bei jedem Neulauf: γ̄ = 0,003474**
+(`revision/snapshots/gmm_rasterfree/support_shift_gamma.csv`, Spalte
+`V2 serieneigen | B`). Optimierer Nelder-Mead und der feste Startwert 0,01
+bleiben unverändert — sonst verliert der Kontrollpunkt seine Referenz.
 
-**Kontrollpunkt bei jedem Neulauf:** γ̄ muss 0,003474 treffen. Bei `incr = 1`
-fallen alte und neue Stützstellen-Indexierung exakt zusammen — das ist der
-Rückwärtskompatibilitätsanker.
+## Arbeitsregeln
+
+- **`revision/RUN_SPEC.md` ist die verbindliche Laufspezifikation.** Dort
+  stehen die gesetzten Entscheidungen, die offenen Punkte, der Artefaktplan,
+  die Schutzliste und die Überführungsreihenfolge Schritt 0–10.
+- Jede Zahl im Antwortdokument muss aus einem committeten Snapshot stammen.
+- `reports/values/values.dat` vor jedem Lauf **löschen**, nicht
+  überschreiben: `save_values.py` aktualisiert Schlüssel nur, entfernt sie
+  nie.
+- Abbildungen sind gitignoriert. Je Abbildung gehören die erzeugende CSV und
+  ein sha256-Eintrag in den Snapshot.
+- Lange Läufe nur mit `estimation.checkpoint=true`.
+- `revision/reply1_20260728.tex` ist das aktive Antwortdokument.
+  `reply1_20260808.tex` nicht anfassen. Eigene Antworten mit `\ReplyMN{}`;
+  ersetzte Entwürfe des Kollegen bleiben auskommentiert stehen.
+- Kompilieren nach `.build/`, PDF danach ins `revision/` kopieren.
 
 ## Dokumentation
 
 | Datei | Zweck |
 |---|---|
-| `revision/reviewer_tracker.md` | Übersicht: ein Kommentar pro Zeile, Status |
-| `revision/revision_log.md` | Chronik je Kommentar: Stand → Untersuchung → Entscheidung → Beleg |
+| `revision/RUN_SPEC.md` | **verbindliche Laufspezifikation** |
+| `revision/reviewer_tracker.md` | ein Kommentar pro Zeile, Status |
+| `revision/revision_log.md` | Chronik je Kommentar, Entscheidungsgeschichte |
 | `references/specs/open_questions.md` | technische Befunde, offene Punkte |
 | `revision/baseline_status.md` | Baseline, Tags, Arbeitsumgebung |
-| `revision/snapshots/*/README.md` | je Diagnostik: Frage, Design, Ergebnis, Einschränkung |
-
-Jede Zahl im Antwortdokument muss aus einem committeten Snapshot stammen.
-
-## Antwortdokument
-
-**`revision/reply1_20260728.tex`** ist das aktive Dokument.
-**`reply1_20260808.tex` nicht anfassen.**
-
-- Eigene Antworten mit `\ReplyMN{}` (ergibt die `[MN]`-Markierung).
-- Entwürfe des Kollegen stehen als `\Reply{}`; werden sie ersetzt, bleiben
-  sie auskommentiert stehen mit der Zeile
-  „% Entwurf des Kollegen, durch die Antwort oben ersetzt (nicht geloescht):".
-- Stil: knapp, konstruktiv, englisch; kurze Absätze. Erst die Sache, dann
-  die Zahl. Prämissen des Reviewers höflich richtigstellen, wenn sie nicht
-  stimmen.
-- Kompilieren nach `.build/`, PDF danach ins `revision/` kopieren.
-
-## Beantwortete Kommentare
-
-AE-1 · R1-i · R1-ii · R1-iv · R1-v · R1-vi · R1-vii · R1-viii · R2-C1 · R2-C2
-
-Offen im Papertext: Abstract („substantial heterogeneity across bookmakers"
-ist nicht haltbar), `\var{}`-Werte `min/max/idxmin/idxmax_gamma_gmm`,
-§3.5 (K-Annahme), §4/Anhang B (Imputation streichen), §5.5.
-
-Die **K-Passage in der R1-vi-Antwort** („that error is zero by construction")
-ist sachlich falsch und noch nicht überarbeitet — bewusst so belassen.
+| `revision/snapshots/*/README.md` | je Diagnostik: Frage, Design, Ergebnis |
 
 ## Technische Umgebung
 
@@ -70,22 +70,19 @@ und R, und das System-Python ist 3.8.
 
 - venv: **`~/.venvs/pfd`** (ausserhalb von OneDrive). Neu:
   `export UV_PROJECT_ENVIRONMENT=$HOME/.venvs/pfd; uv sync --frozen`
-- R 4.6.1 mit `lme4` und `mgcv`, rpy2 3.6.7
+- R 4.6.1 mit `lme4` und `mgcv`, rpy2 3.6.7. R ist nach der Initialisierung
+  **nicht fork-sicher** — Parallelisierung nur über getrennte Prozesse.
 - Ein venv im Projektordner erscheint von Windows aus als **0-Byte-Dateien**
   (Linux-Symlinks) — das ist kein Defekt, nicht „reparieren".
-- **Die WSL-VM startet gelegentlich neu** und nimmt abgekoppelte Läufe mit.
-  `vmIdleTimeout=3600000` in `.wslconfig` hat es nicht verlässlich behoben.
-
-**Lange Läufe deshalb immer mit Checkpointing:**
-`estimation.checkpoint=true` (Default `false`). Phasen `pre/wide/post/gmm/
-bayesian` liegen als `data/interim/ckpt_*.pkl`, Sampler-Läufe als
-`models/trace_*.nc` mit `.ckpt`-Sentinel. Neustart überspringt Fertiges.
-Der Schalter steuert **nur** Schreiben und Lesen, nie das Gerechnete.
-Vorbehalt: ein wiederaufgenommener Lauf stellt den globalen NumPy-RNG nicht
-wieder her — `bootstr_std` kann um bis zu ~0,0009 abweichen.
+- **Die WSL-VM startet gelegentlich neu** und nimmt abgekoppelte Läufe mit;
+  `vmIdleTimeout=3600000` hat das nicht verlässlich behoben.
+- Speicher 11,4 GB. Der Cluster-Bootstrap braucht 3,39 GB je Prozess und darf
+  sich nicht mit dem Bayesian-Block überlappen.
 
 Lauf starten: `revision/snapshots/eq_window_scope/_run_v2b.py` (nur
-`run_estimation`, lässt `shaped_data.h5` unberührt).
+`run_estimation`, lässt `shaped_data.h5` unberührt). Der reguläre
+Einstiegspunkt `python -m pfd` ist noch nicht nutzbar — Begründung in
+`RUN_SPEC.md`, Abschnitt 14.2.
 
 ## Geprüft und verworfen
 
@@ -97,7 +94,6 @@ Snapshots:
 - **Freies K** in der Momentbedingung: bei kleinem γ nicht identifiziert,
   γ entgleist auf 2,6 gepoolt, J verschlechtert sich. → `gmm_rasterfree/`
 - **Log-lineare rasterfreie Schätzung**: unterstellt ebenfalls K = 0 und
-  verzerrt γ nach unten; der Bodensatz `E[q(1−q)] ≈ 0,21` macht praktisch
-  die ganze gemessene Grösse aus. → `gmm_rasterfree/_prep.py`
+  verzerrt γ nach unten. → `gmm_rasterfree/_prep.py`
 - **Bayesian-Heterogenität** (`sd_gamma` = 0,0077 gegen frequentistisch
   I² = 0 %): als offener Widerspruch vermerkt, nicht weiterverfolgt.

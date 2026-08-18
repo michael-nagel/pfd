@@ -10,7 +10,6 @@ __all__ = [
 from ._create_gmm_data import _create_gmm_data
 from ._gen_meth_mom import _GenMethMom
 from .bootstrap_std_error import bootstrap_std_error
-from .calc_imput_loss import calc_imput_loss
 from .calc_rmse import calc_rmse
 from .calc_win_props import calc_win_props
 from .checkpoint import run_phase
